@@ -4,9 +4,10 @@ and creates a new .tsv file containing the above information
 
 To use:
 
-"python miRNAfinder.py input_file output_file"
+"python miRNAfinder.py --ifile input_file --ofile output_file"
 
-If the output file is not specified, the output is saved in a file named "filtered_data.tsv" in the current directory. If more 2 arguments are given, they are ignored.
+If the input file is not specified, the input is STDIN.
+If the output file is not specified, the output is STDOUT.
 
 
 EXAMPLE INPUT:
