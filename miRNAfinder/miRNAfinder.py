@@ -1,22 +1,15 @@
 import pandas as pd
 import sys
-import os
+import argparse
+import warnings
 
-def filter_and_create_table(input_file, output_file='filtered_data.tsv'):
-    
-    # ensure the output file has a .tsv extension
-    if not output_file.endswith('.tsv'):
-        output_file = os.path.splitext(output_file)[0] + '.tsv'
+def filter_and_create_table(data):
 
-    # load the input .tsv file
-    data = pd.read_csv(input_file, sep='\t')
-    
-    # filter rows where "noncodingRNA_type" is "miRNA"
+    # filter rows where "noncodingRNA_type" is "miRNA".
     filtered_data = data[data['noncodingRNA_type'] == 'miRNA']
-    
-    # create the new dataframe with some new column names
+
+    # create the new dataframe with specific column names and transformations.
     filtered_table = pd.DataFrame({
-        'id': filtered_data.index + 1,
         'seq.g': filtered_data['seq.g'],
         'seq.m': filtered_data['noncodingRNA_seq'],
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
@@ -24,16 +17,55 @@ def filter_and_create_table(input_file, output_file='filtered_data.tsv'):
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
         'label': '1'
     })
+
+    return filtered_table
+
+# read input data from a file or stdin.
+
+def read_input(input_file):
+
+    try:
+        if input_file:
+            data = pd.read_csv(input_file, sep='\t')
+        else:
+            data = pd.read_csv(sys.stdin, sep='\t')
+    except Exception as e:
+        warnings.warn(f"Error reading input data: {e}", category=UserWarning)
+        sys.exit(1)
     
-    # save the new dataframe to a .tsv file
-    filtered_table.to_csv(output_file, sep='\t', index=False)
-    print(f"Filtered table saved to {output_file}")
+    return data
+
+# write output data to a file or stdout.
+
+def write_output(data, output_file):
+
+    try:
+        if output_file:
+            data.to_csv(output_file, sep='\t', index=False)
+        else:
+            data.to_csv(sys.stdout, sep='\t', index=False)
+    except Exception as e:
+        warnings.warn(f"Error writing to output stream: {e}", category=UserWarning)
+        sys.exit(1)
+
+# main function to handle argument parsing and calling the processing functions.
+
+def main():
+    
+    parser = argparse.ArgumentParser(description="miRNA Finder")
+    parser.add_argument('--ifile', help="Input file (default: STDIN)")
+    parser.add_argument('--ofile', help="Output file (default: STDOUT)")
+
+    args = parser.parse_args()
+
+    # read input data.
+    data = read_input(args.ifile)
+
+    # process data.
+    filtered_table = filter_and_create_table(data)
+
+    # write output data.
+    write_output(filtered_table, args.ofile)
 
 if __name__ == "__main__":
-    
-    if len(sys.argv) < 2:
-        print("no input file")
-    else:
-        input_file = sys.argv[1]
-        output_file = sys.argv[2] if len(sys.argv) > 2 else 'filtered_data.tsv'
-        filter_and_create_table(input_file, output_file)
+    main()
