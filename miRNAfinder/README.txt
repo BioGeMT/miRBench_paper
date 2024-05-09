@@ -1,4 +1,4 @@
-This script filters .tsv files for miRNA sequences, 
+This script filters .tsv files from HybriDetector for miRNA sequences, 
 extracts specific information (id, seq.g, seq.m, noncodingRNA_fam, feature,test,label) about the miRNA sequences only 
 and creates a new .tsv file containing the above information
 
