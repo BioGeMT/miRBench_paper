@@ -16,9 +16,9 @@ def filter_and_create_table(input_file, output_file='filtered_data.tsv'):
     
     # create the new dataframe with some new column names
     filtered_table = pd.DataFrame({
-        'id': range(1, len(filtered_data) + 1),
+        'id': filtered_data.index + 1,
         'seq.g': filtered_data['seq.g'],
-        'seq.m': filtered_data['noncodingRNA_real_seq'],
+        'seq.m': filtered_data['noncodingRNA_seq'],
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
