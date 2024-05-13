@@ -3,8 +3,8 @@ import sys
 import GEOparse
 
 # Retrieving relevant SRXs from GSE in GEO DB
-def generate_srx_list(geo_series):
-    gse = GEOparse.get_GEO(geo=geo_series, destdir="./")
+def generate_srx_list(geo_series, dest_directory):
+    gse = GEOparse.get_GEO(geo=geo_series, destdir=dest_directory)
     srx_list = []
     substrings_to_check = ["MusLiver", "Enriched", "oe"]
     for gsm_name, gsm in gse.gsms.items():
@@ -20,4 +20,5 @@ def generate_srx_list(geo_series):
 
 if __name__ == "__main__":
     geo_id = sys.argv[1]
-    print(generate_srx_list(geo_id)) 
+    dest_dir = sys.argv[2]
+    print(generate_srx_list(geo_id, dest_dir)) 
