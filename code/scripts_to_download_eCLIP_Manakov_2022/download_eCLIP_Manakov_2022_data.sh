@@ -15,12 +15,14 @@ geo_id="$2"
 # Get list of SRXs for given geo_id using the GEOparse tool via the python script getSRX_geoparse.py
 srx_list=$(python getSRX_geoparse.py "$geo_id" "$dest_dir")
 
+# Get the current directory
 if [ -n "$SLURM_JOB_ID" ]; then
     current_dir=${SLURM_SUBMIT_DIR}
 else
     current_dir=$(dirname "$0")
 fi 
 
+# Assign the path to the enaDataGet command via the current directory
 enaDataGet_dir="$current_dir/enaBrowserTools/python3/enaDataGet"
 
 # Loop over list of SRXs and download the data using the enaDataGet command
@@ -29,3 +31,6 @@ do
     echo "Downloading $srx" 
     $enaDataGet_dir -f fastq -d "$dest_dir" "$srx" 
 done
+
+# Print message to indicate date and time when all data was downloaded
+echo "All eCLIP Manakov 2022 data was downloaded on " `date` " by Stephanie Sammut."
