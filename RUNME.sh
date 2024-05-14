@@ -14,34 +14,34 @@
 ### /code/scripts_to_download_eCLIP_Manakov_2022/
 ### We will not reproduce the download here, but we will assume that the data is in the data/ directory
 
+### eCLIP Samples
+# dataset_names=("sample1" "sample2" "sample3" "sample4")
+
 ## Process the data
 
 ### TODO: Add the code to process the data using HybriDetector
-### probably here starts a loop over the datasets and everything following is in it
-### keep the list of dataset explicit in each loop
 
-# dummy_code
-# for dataset in samplex, sampley, samplez, ...
+# for dataset in "${dataset_names[@]}"
 # do
-#     download_data $dataset > data/$dataset/raw_data.txt
+#       ???call hybridetector???
 # done
-# dummy_code
 
-# From HybriDetector output to list of miRNA-target interactions
+## From HybriDetector output to list of miRNA-target interactions
 
-### TODO: Add the code to convert the output of HybriDetector to a list of miRNA-target interactions
-### miRNAfinder (how was it run for each dataset)
-### keep each argument in a separate line for better readability
+#for dataset in "${dataset_names[@]}"
+# do
+#   python code/miRNAfinder/miRNAfinder.py \
+#       --ifile data/processed_data/$dataset/HybriDetector_output.tsv \
+#       --ofile data/processed_data/$dataset/miRNA_target_interactions.tab
+# done
 
-# python miRNAfinder/miRNAfinder.py \
-#     --ifile data/samplex/HybriDetector_output.tsv \
-#     --ofile data/samplex/miRNA_target_interactions.tab
+# ===== WE ARE HERE =====
 
 ## Produce negative samples
 ### TODO: Add the code to produce negative samples
 
 # dummy_code
-# python dev/negative_samples.py \
+# python code/negative_samples.py \
 #     --ifile data/samplex/miRNA_target_interactions.tab \
 #     --ofile data/samplex/miRNA_target_interactions.posneg.tab \
 #     --negratio 100
@@ -63,7 +63,7 @@
 # dummy_code
 # for posneg_dataset in data/posneg_samples/*.miRNA_target_interactions.posneg.tab
 # do
-#     python dev/train_test_split.py \
+#     python code/train_test_split.py \
 #         --ifile $posneg_dataset \
 #         --trainfile data/train_test_splits/$(basename $posneg_dataset .tab).train.tab \
 #         --testfile data/train_test_splits/$(basename $posneg_dataset .tab).test.tab \
@@ -91,7 +91,7 @@
 # do
 #     for model in model1, model2, model3, ...
 #     do
-#         python dev/evaluate_model.py \
+#         python code/evaluate_model.py \
 #             --ifile $dataset \
 #             --ofile data/evaluation_results/$(basename $dataset .tab).eval.tab \
 #             --model $model_name \
@@ -105,7 +105,7 @@
 # dummy_code
 # for dataset in samplex, sampley, samplez, ...
 # do
-#     python dev/join_model_predictions.py \
+#     python code/join_model_predictions.py \
 #         --ifolder model_predictions \
 #         --dataset $dataset \
 #         --ofile results/prediction/$dataset.eval.all_models.tab
@@ -119,7 +119,7 @@
 # dummy_code
 # for dataset in samplex, sampley, samplez, ...
 # do
-#     python dev/plot_precision_recall.py \
+#     python code/plot_precision_recall.py \
 #         --ifile results/prediction/$dataset.eval.all_models.tab \
 #         --oplot results/plots/$dataset.precision_recall.png \
 #         --ofile results/evaluation/$dataset.precision_recall.tab
@@ -131,7 +131,7 @@
 # dummy_code
 # for dataset in samplex, sampley, samplez, ...
 # do
-#     python dev/plot_roc.py \
+#     python code/plot_roc.py \
 #         --ifile results/prediction/$dataset.eval.all_models.tab \
 #         --oplot results/plots/$dataset.roc.png \
 #         --ofile results/evaluation/$dataset.roc.tab
@@ -141,7 +141,7 @@
 # ## Boxplots of PR-AUC
 
 # dummy_code
-# python dev/PR_AUC_boxplot.py \
+# python code/PR_AUC_boxplot.py \
 #     --ifolder results/evaluation \
 #     --oplot results/plots/boxplot_pr_auc.png \
 #     --ofile results/evaluation/boxplot_pr_auc.tab
