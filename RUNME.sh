@@ -10,7 +10,9 @@
 
 ## Download the data (Chimeric RNA dataset)
 
-### TODO: Add the download link and description of dataset (Important: DATE OF DOWNLOAD)
+### All information for downloading the data is in:
+### /code/scripts_to_download_eCLIP_Manakov_2022/
+### We will not reproduce the download here, but we will assume that the data is in the data/ directory
 
 ## Process the data
 
