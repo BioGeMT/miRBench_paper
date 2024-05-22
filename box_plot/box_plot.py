@@ -26,7 +26,7 @@ def create_box_plot(data, output_file):
         plt.gca().add_patch(plt.Rectangle((i-0.2, filtered_data['min_percentage'].iloc[i]), 0.4, filtered_data['max_percentage'].iloc[i] - filtered_data['min_percentage'].iloc[i], 
                                           fill=True, color='grey', alpha=0.4))
 
-    # Comment out the external error bars part
+    # external only error bars
     # plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['min_percentage'] - filtered_data['std_percentage'], 
     #              yerr=filtered_data['std_percentage'], fmt='none', capsize=5, color='black', linestyle='none')
     # plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['max_percentage'] + filtered_data['std_percentage'], 
