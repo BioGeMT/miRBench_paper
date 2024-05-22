@@ -28,13 +28,16 @@ where
 `<filenames>` is the text file containing a list of file names to be preprocessed for HD (produced by get_filenames.sh)
 `<destination_directory>` is a directory of choice to output the files to be run through HD 
 
+e.g. 
+
+sbatch preprocess_eCLIP_for_HD.sh /data/biogemt/miRNA_Binding_Site_Prediction/raw_data/eCLIP_Manakov_2022/data_preprocessed_for_HD/to_be_preprocessed-symlinks to_be_preprocessed-filenames.txt /data/biogemt/miRNA_Binding_Site_Prediction/raw_data/eCLIP_Manakov_2022/data_preprocessed_for_HD
+
 Note that the destination directory will have the following folder structure:
 dest_dir
     |- SAMPLE_NAME
     |   |- SAMPLE_NAME.umi_tools.log
-    |   |- SAMPLE_NAME.adapters.cutadapt.json
-    |   |- SAMPLE_NAME.umi.cutadapt.json
     |   |- SAMPLE_NAME.pp.fq.gz
+    |   |- temp/
     |- ANOTHER_SAMPLE_NAME
 
-SAMPLE_NAME.pp.fq.gz is the file to be run through HybriDetector. The rest are log files from the commands run on that sample. 
+SAMPLE_NAME.pp.fq.gz is the file to be run through HybriDetector. The rest are log files from the commands run on that sample. `temp/` has all the intermediate files and can be deleted. 
