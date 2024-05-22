@@ -32,9 +32,9 @@ def create_box_plot(data, output_file):
                                           fill=True, color='grey', alpha=0.4))
 
     # add external error bars
-    plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['min_percentage'], 
+    plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['min_percentage'] - filtered_data['std_percentage'], 
                  yerr=filtered_data['std_percentage'], fmt='none', capsize=5, color='black', linestyle='none')
-    plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['max_percentage'], 
+    plt.errorbar(x=range(filtered_data.shape[0]), y=filtered_data['max_percentage'] + filtered_data['std_percentage'], 
                  yerr=filtered_data['std_percentage'], fmt='none', capsize=5, color='black', linestyle='none')
 
     plt.xticks(range(filtered_data.shape[0]), filtered_data['noncodingRNA_fam'], rotation=90)
