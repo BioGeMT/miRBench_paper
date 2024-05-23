@@ -21,6 +21,7 @@ python box_plot.py --ifile <input_file> --ofile <output_file>
 
 - `--ifile`: Input file (default: STDIN)
 - `--ofile`: Output file (default: STDOUT)
+- `--min_imteractions`: minimum interactions filter 
 
 ### Example
 
