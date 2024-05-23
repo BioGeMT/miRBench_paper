@@ -7,11 +7,11 @@ def load_data(input_file):
     # load the data from the input file
     return pd.read_csv(input_file, sep='\t')
 
-def create_box_plot(data, output_file):
-    # filter families with 10 or more interactions
-    filtered_data = data[data['mean_total_interactions'] >= 10]
+def create_box_plot(data, output_file, min_interactions):
+    # filter families with the specified minimum interactions
+    filtered_data = data[data['mean_total_interactions'] >= min_interactions]
 
-    # Sort the data by mean percentage
+    # sort the data by mean percentage
     filtered_data = filtered_data.sort_values(by='mean_percentage')
 
     plt.figure(figsize=(20, 10))
@@ -47,6 +47,7 @@ def main():
     parser = argparse.ArgumentParser(description="Box Plot Creator")
     parser.add_argument('--ifile', help="Input file (default: STDIN)", default=None)
     parser.add_argument('--ofile', help="Output file (default: STDOUT)", default=None)
+    parser.add_argument('--min_interactions', type=int, help="Minimum number of interactions to filter families (default: 10)", default=10)
     args = parser.parse_args()
 
     # load data from input file or stdin
@@ -57,10 +58,10 @@ def main():
 
     # create box plot and save to output file or stdout
     if args.ofile:
-        create_box_plot(data, args.ofile)
+        create_box_plot(data, args.ofile, args.min_interactions)
     else:
         plt.figure()
-        create_box_plot(data, 'boxplot.png')
+        create_box_plot(data, 'boxplot.png', args.min_interactions)
         plt.show()
 
 if __name__ == "__main__":
