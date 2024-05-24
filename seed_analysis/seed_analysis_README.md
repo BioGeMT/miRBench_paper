@@ -1,7 +1,6 @@
-
 # miRNA Seed Analysis
 
-This script analyzes miRNA seed interactions and calculates summary statistics from TSV files. It can read input from a specified input folder or from standard input (stdin), and it outputs results to a specified output folder or to standard output (stdout).
+This script analyzes miRNA seed interactions and calculates summary statistics from TSV files. It reads input from a specified input folder and outputs results to a specified output folder.
 
 ## Requirements
 
@@ -9,23 +8,8 @@ This script analyzes miRNA seed interactions and calculates summary statistics f
 - pandas
 - biopython
 
-
-## Usage
-
 ```bash
-python seed_analysis.py --ifolder <input_folder> --ofolder <output_folder>
-```
-
-### Arguments
-
-- `--ifolder`: Input folder containing TSV files (required if not using stdin)
-- `--ofolder`: Output folder for results (required if not using stdout)
-
-### Example
-
-```bash
-python seed_analysis.py --ifolder data/ --ofolder results/
-```
+python seed_analysis.py <input_folder> <output_folder>
 
 ## Description
 
