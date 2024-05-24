@@ -14,19 +14,18 @@ This script creates a custom box plot for noncoding RNA families with mean inter
 ## Usage
 
 ```bash
-python box_plot.py --ifile <input_file> --ofile <output_file>
+python box_plot.py --ifile <input_file> --ofile <output_file> --min_interactions
 ```
 
 ### Arguments
 
 - `--ifile`: Input file (default: STDIN)
 - `--ofile`: Output file (default: STDOUT)
-- `--min_interactions`: Minimum interactions filter 
 
 ### Example
 
 ```bash
-python box_plot.py --ifile data.tsv --ofile boxplot.png
+python box_plot.py --ifile data.tsv --ofile boxplot.png --min_interactions 15
 ```
 
 ## Description

@@ -8,6 +8,14 @@ This script filters rows where `noncodingRNA_type` is `miRNA` from the input dat
 - Python 3.x
 - pandas
 
+## Installation
+
+Install the required Python packages using pip:
+
+```bash
+pip install pandas
+```
+
 ## Usage
 
 ```bash
@@ -37,3 +45,4 @@ python filtering.py --ifile data.tsv --ofile filtered_data.tsv
 - `read_input(input_file)`: Reads the input data.
 - `filter_and_create_table(data)`: Filters and creates the new table.
 - `write_output(data, output_file)`: Writes the output data.
+- `main()`: Main function to handle argument parsing and calling the processing functions.

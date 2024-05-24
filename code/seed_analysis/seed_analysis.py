@@ -99,4 +99,3 @@ if __name__ == "__main__":
     output_folder = sys.argv[2]
 
     main(input_folder, output_folder)
-
