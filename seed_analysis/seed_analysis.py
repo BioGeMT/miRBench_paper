@@ -1,13 +1,17 @@
 import os
 import pandas as pd
 from Bio.Seq import Seq
-import argparse
 import sys
 
-def load_tsv_files(input_stream):
-    # Read from the input stream (which could be stdin or files from a folder)
-    dataframes = pd.read_csv(input_stream, sep='\t')
-    return dataframes
+def load_tsv_files(input_folder):
+    # read all TSV files from the input folder
+    dataframes = []
+    for file_name in os.listdir(input_folder):
+        if file_name.endswith(".tsv"):
+            file_path = os.path.join(input_folder, file_name)
+            df = pd.read_csv(file_path, sep='\t')
+            dataframes.append(df)
+    return pd.concat(dataframes, ignore_index=True)
 
 def reverse_complement(seq):
     # return the reverse complement of a given sequence
@@ -17,7 +21,8 @@ def perfect_match(mirna, target):
     # check if the seed region (nucleotides 2 to 7) of the microRNA perfectly matches the reverse complement of the target sequence
     mirna_seed = mirna[1:7]
     target_rc = reverse_complement(target)
-    return mirna_seed in target_rc
+    has_match = mirna_seed in target_rc
+    return has_match
 
 def process_file(df):
     # apply the perfect_match function to each row and create a new column 'perfect_match'
@@ -67,23 +72,14 @@ def aggregate_results(results):
     ).reset_index()
     return aggregate_df, summary_stats
 
-def save_results(aggregate_df, summary_stats, output_stream):
-    # save the aggregated results and summary statistics to TSV files or to stdout
-    aggregate_df.to_csv(output_stream, sep='\t', index=False)
-    summary_stats.to_csv(output_stream, sep='\t', index=False)
+def save_results(aggregate_df, summary_stats, output_folder):
+    # save the aggregated results and summary statistics to TSV files
+    aggregate_df.to_csv(os.path.join(output_folder, 'aggregate_results.tsv'), sep='\t', index=False)
+    summary_stats.to_csv(os.path.join(output_folder, 'summary_stats.tsv'), sep='\t', index=False)
 
-def main():
-    # argument parsing
-    parser = argparse.ArgumentParser(description="miRNA Seed Analysis")
-    parser.add_argument('--ifolder', help="Input folder containing TSV files or STDIN (default: STDIN)", default=None)
-    parser.add_argument('--ofolder', help="Output folder for results or STDOUT (default: STDOUT)", default=None)
-    args = parser.parse_args()
-
-    # load all TSV files from the input folder or stdin
-    if args.ifolder:
-        dataframes = load_tsv_files(open(os.path.join(args.ifolder), 'r'))
-    else:
-        dataframes = load_tsv_files(sys.stdin)
+def main(input_folder, output_folder):
+    # load all TSV files from the input folder
+    dataframes = load_tsv_files(input_folder)
 
     # process the file to get interaction counts and perfect matches
     results = process_file(dataframes)
@@ -91,12 +87,16 @@ def main():
     # aggregate the results and calculate summary statistics
     aggregate_df, summary_stats = aggregate_results(results)
 
-    # save the results to the output folder or stdout
-    if args.ofolder:
-        with open(os.path.join(args.ofolder, 'aggregate_results.tsv'), 'w') as aggregate_output:
-            save_results(aggregate_df, summary_stats, aggregate_output)
-    else:
-        save_results(aggregate_df, summary_stats, sys.stdout)
+    # save the results to the output folder
+    save_results(aggregate_df, summary_stats, output_folder)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 3:
+        print("Usage: python seed_analysis.py <input_folder> <output_folder>")
+        sys.exit(1)
+    
+    input_folder = sys.argv[1]
+    output_folder = sys.argv[2]
+
+    main(input_folder, output_folder)
+
