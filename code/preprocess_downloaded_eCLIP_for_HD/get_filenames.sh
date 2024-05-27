@@ -1,5 +1,9 @@
 #!/bin/bash
 
+## README
+## To create a text file with a list of fastq filenames in a directory (excluding files ending with '_2.fastq.gz'), run:
+## `bash get_filenames.sh <source directory> <output file>`
+
 # Assign the first argument to the variable source_dir and the second argument to the variable output_file
 source_dir="$1"
 output_file="$2"

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+## README
+## To create symlinks in a destination directory, to files in a source directory (excluding files ending with '_2.fastq.gz'), run:
+## `bash create_symlinks.sh <source directory> <destination directory>`
+
 # Assign the first argument to the variable source_dir and the second argument to the variable dest_dir
 source_dir="$1"
 dest_dir="$2"
