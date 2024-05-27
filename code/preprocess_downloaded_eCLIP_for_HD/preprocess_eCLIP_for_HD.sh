@@ -79,7 +79,7 @@ LOGFILE="$OUTPUT_PATH/$BASE_NAME/logs/preprocess_eCLIP_for_HD.log"
 ## Set the number of bases to be removed from the 3' end of the reads to 10 (last 10 bases of the reads)
 ## Set the number of cores to use to 8
 
-run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fq.gz" \
+run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fastq.gz" \
     "Extracting the 5' UMI from the reads to the read name for $BASE_NAME..." \
     "5' UMI extraction complete." \
     "umi_tools extract \
@@ -87,8 +87,8 @@ run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fq.gz" \
     --stdin $ECLIP_FILE \
     --bc-pattern NNNNNNNNNN \
     --log $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.umi_tools.log \
-    --stdout $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fq && gzip $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fq" && \
-run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fq" \
+    --stdout $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fastq && gzip $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fastq" && \
+run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fastq" \
     "Trimming the 3' adapters from the reads for $BASE_NAME..." \
     "Adapter trimming complete." \
     "cutadapt \
@@ -123,15 +123,15 @@ run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fq" \
     -a GAACTCCAGT \
     -a AACTCCAGTC \
     -a ACTCCAGTCA \
-    $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fq.gz > $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fq 2> $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.3cutadapt.txt" && \
-run_step "$OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fq.gz" \
+    $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fastq.gz > $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fastq 2> $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.3cutadapt.txt" && \
+run_step "$OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fastq.gz" \
     "Trimming the 3' UMI from the reads for $BASE_NAME..." \
     "3' UMI trimming complete." \
     "cutadapt \
     -u -10 \
     -j 8 \
-    $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fq > $OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fq 2> $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.5cutadapt.txt && gzip $OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fq" && \
-delete_temp "$OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fq.gz" \
+    $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fastq > $OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fastq 2> $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.5cutadapt.txt && gzip $OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fastq" && \
+delete_temp "$OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fastq.gz" \
     "Deleting temporary output files for $BASE_NAME..." \
     "Temporary output files deleted." \
     "rm -r $OUTPUT_PATH/$BASE_NAME/temp"
