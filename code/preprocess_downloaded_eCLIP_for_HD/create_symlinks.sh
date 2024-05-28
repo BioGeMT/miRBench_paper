@@ -11,3 +11,4 @@ dest_dir="$2"
 # Create a symbolic link to the files in the source directory and its subfolders in the destination directory
 find "$source_dir" -type f -name "*.fastq.gz" ! -name "*_2.fastq.gz" -exec ln -s {} "$dest_dir" \;
 
+echo "Symlink have been created in $dest_dir"
