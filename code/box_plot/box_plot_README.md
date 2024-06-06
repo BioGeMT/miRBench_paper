@@ -1,42 +1,46 @@
 
 # Box Plot Creator
 
-This script creates a custom box plot for noncoding RNA families with mean interactions of 10 or more from the input data.
+This script creates a box plot to visualize the statistics of different noncoding RNA families and their percentage of perfect seed interaction, and saves the plot data to a TSV file.
 
 ## Requirements
 
 - Python 3.x
 - pandas
 - matplotlib
-- seaborn
-
+- argparse
 
 ## Usage
 
 ```bash
-python box_plot.py --ifile <input_file> --ofile <output_file> --min_interactions
+python box_plot.py --ifile <input_file> --pfile <plot_file> --ofile <output_tsv_file> --min_interactions <min_interactions>
 ```
 
 ### Arguments
 
-- `--ifile`: Input file (default: STDIN)
-- `--ofile`: Output file (default: STDOUT)
+- `--ifile`: Input TSV file (default: stdin)
+- `--pfile`: Output plot image file (default: save plot)
+- `--ofile`: Output TSV file (default: stdout)
+- `--min_interactions`: Minimum number of interactions to filter families (default: 10)
 
 ### Example
 
 ```bash
-python box_plot.py --ifile data.tsv --ofile boxplot.png --min_interactions 15
+python box_plot.py --ifile data.tsv --pfile boxplot.png --ofile family_stats.tsv --min_interactions 10
 ```
 
 ## Description
 
 - The script reads the input data from a file or stdin.
-- Filters families with 10 or more interactions.
-- Creates a custom box plot and saves it to a file or displays it.
+- Filters the families with a specified minimum number of interactions.
+- Creates a box plot showing the mean, minimum, and maximum percentage of perfect seed interaction for each noncoding RNA family.
+- Saves the plot to a file if specified.
+- Saves the filtered family statistics to a TSV file, sorted by mean percentage in descending order.
 
 ## Functions
 
-- `load_data(input_file)`: Loads the data from the input file.
-- `add_lines(df, y_min, y_max, y_mean, width, color_min, color_max, color_mean)`: Adds lines for min, max, and mean values.
-- `create_box_plot(data, output_file)`: Creates the box plot.
-- `main()`: Main function to handle argument parsing and calling the processing functions.
+- `calculate_family_statistics(data, min_interactions)`: Filters the data by the minimum number of interactions and sorts it for plotting and TSV output.
+- `read_input(input_file)`: Reads the input data from a file or stdin.
+- `write_output(data, output_file)`: Writes the processed data to a TSV file or stdout.
+- `plot_family_statistics(data, plot_file)`: Creates and saves the box plot.
+- `main()`: Main function to handle argument parsing and calling the other functions.
