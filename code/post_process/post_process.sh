@@ -101,6 +101,18 @@ for input_file in "$input_dir"/*.tsv; do
     fi
     echo "Data split completed. Train set saved to $train_file, test set saved to $test_file"
 
+    # Step 4: Remove the fifth column from the train and test files
+    echo "Removing the fifth column from the train and test sets..."
+    awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$train_file" > "${train_file}_tmp" && mv "${train_file}_tmp" "$train_file"
+    awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$test_file" > "${test_file}_tmp" && mv "${test_file}_tmp" "$test_file"
+
+    if [ $? -ne 0 ]; then
+        echo "Error in removing the fifth column."
+        exit 1
+    fi
+
+    echo "Fifth column removed from train set and test set."
+
     # Step 4: Make negatives for train and test sets with different ratios
     for ratio in 1 10 100; do
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance for train and test sets..."
