@@ -2,7 +2,7 @@
 #SBATCH --account=ssamm10 
 #SBATCH --job-name=preprocess_eCLIP_for_HD
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=6
+#SBATCH --cpus-per-task=8
 #SBATCH --array=1-2%2 
 #SBATCH --nice=500
 #SBATCH --output=/dev/null
@@ -123,6 +123,7 @@ run_step "$OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fastq" \
     -a GAACTCCAGT \
     -a AACTCCAGTC \
     -a ACTCCAGTCA \
+    -j 8 \
     $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.fastq.gz > $OUTPUT_PATH/$BASE_NAME/temp/$BASE_NAME.umi.adapter.fastq 2> $OUTPUT_PATH/$BASE_NAME/logs/$BASE_NAME.3cutadapt.txt" && \
 run_step "$OUTPUT_PATH/$BASE_NAME/$BASE_NAME.pp.fastq.gz" \
     "Trimming the 3' UMI from the reads for $BASE_NAME..." \
