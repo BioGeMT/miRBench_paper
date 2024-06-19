@@ -113,7 +113,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     echo "Fifth column removed from train set and test set."
 
-    # Step 4: Make negatives for train and test sets with different ratios
+    # Step 5: Make negatives for train and test sets with different ratios
     for ratio in 1 10 100; do
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance for train and test sets..."
         neg_train_output="$output_dir/${base_name}${NEG_TRAIN_SUFFIX}${ratio}.tsv"
