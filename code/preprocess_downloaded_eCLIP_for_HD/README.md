@@ -50,9 +50,9 @@ dest_dir
 
 
     |- <SAMPLE_NAME> 
-    |   |- SAMPLE_NAME.pp.fq.gz 
+    |   |- SAMPLE_NAME.pp.fastq.gz 
     |   |- logs/ 
     |- <ANOTHER_SAMPLE_NAME> 
 
 
-`<SAMPLE_NAME>.pp.fq.gz` is the file to be run through HybriDetector. `logs/` contains the reports from umi_tools and cutadapt, and the stdout of the script. The script creates a `temp/` folder containing temporary files, but it is deleted at the end of the script if the final output exists. 
+`<SAMPLE_NAME>.pp.fastq.gz` is the file to be run through HybriDetector. `logs/` contains the reports from umi_tools and cutadapt, and the stdout of the script. The script creates a `temp/` folder containing temporary files, but it is deleted at the end of the script if the final output exists. 
