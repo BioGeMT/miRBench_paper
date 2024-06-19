@@ -34,12 +34,6 @@ mature_dir="$intermediate_dir/mature"
 # create output and intermediate directories if they don't exist
 mkdir -p "$intermediate_dir" "$output_dir" "$mature_dir"
 
-# check for permission issues and handle appropriately
-if [ $? -ne 0 ]; then
-    echo "Error creating directories. Check your permissions."
-    exit 1
-fi
-
 # define log file in the output directory
 log_file="$output_dir/pipeline.log"
 
