@@ -12,7 +12,6 @@ min_edit_distance=3
 filtering_dir="../filtering"
 family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
-pre_process_dir="../pre_process"
 
 # Parse command-line arguments
 while getopts i:o:n:t:r: flag; do
