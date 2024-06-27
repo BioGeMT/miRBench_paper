@@ -5,10 +5,6 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 
-# Activate the conda environment
-source ~/miniconda/etc/profile.d/conda.sh
-conda activate post_process
-
 # parse command-line arguments
 while getopts i:o:n:t:r: flag; do
     case "${flag}" in
