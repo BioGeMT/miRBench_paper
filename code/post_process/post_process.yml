@@ -1,0 +1,12 @@
+
+name: post_process
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pandas
+  - matplotlib
+  - pip
+  - pip:
+      - python-Levenshtein
