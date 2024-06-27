@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#SBATCH --account=dtzim01
+#SBATCH --job-name=HD_postprocess
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+
 # parse command-line arguments
 while getopts i:o:n:t:r: flag; do
     case "${flag}" in
