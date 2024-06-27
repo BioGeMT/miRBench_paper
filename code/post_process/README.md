@@ -13,7 +13,7 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Usage
 ```bash
-./pipeline.sh -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]
+./post_process.sh -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]
 ```
 
 ## Options
