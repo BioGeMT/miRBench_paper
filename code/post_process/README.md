@@ -56,7 +56,7 @@ The script logs all output to a file named `pipeline.log` in the output director
 
 ## Example
 ```bash
-./pipeline.sh -i data/input -o data/output -n data/intermediate -t 1,10,100 -r 3
+./post_process.sh -i data/input -o data/output -n data/intermediate -t 1,10,100 -r 3
 ```
 
 This example processes `.tsv` files in the `data/input` directory, outputs results to the `data/output` directory, and uses the `data/intermediate` directory for intermediate files. It generates negative samples with ratios 1, 10, and 100, and uses a minimum edit distance of 3.
