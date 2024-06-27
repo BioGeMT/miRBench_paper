@@ -1,5 +1,8 @@
 #!/bin/bash
 
+conda env create --name post_process --file=post_process.yml
+conda activate post_process
+
 #SBATCH --account=dtzim01
 #SBATCH --job-name=HD_postprocess
 #SBATCH --ntasks=1
