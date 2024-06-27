@@ -72,7 +72,7 @@ NEG_TRAIN_SUFFIX="_train_data_with_negatives_"
 NEG_TEST_SUFFIX="_test_data_with_negatives_"
 
 # process each .tsv file in the input directory
-for input_file in "$input_dir"/*.tsv; do
+for input_file in "$input_dir"/*pp.unified_length_all_types_unique_high_confidence.tsv; do
     base_name=$(basename "$input_file" .tsv)
     filtered_file="$intermediate_dir/${base_name}${FILTERED_SUFFIX}"
     family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
