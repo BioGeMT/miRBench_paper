@@ -31,17 +31,17 @@ exec > >(tee -a "$log_file") 2>&1
 mkdir -p "$output_dir"
 
 # Define arrays for the types and sizes
-types=("train_data" "test_data")
+types=("train" "test")
 sizes=("1" "10" "100")
 
-# Loop through each type (train_data, test_data)
+# Loop through each type (train, test)
 for type in "${types[@]}"; do
   # Loop through each size (1, 10, 100)
   for size in "${sizes[@]}"; do
     output_file="${output_dir}/AGO2_eCLIP_Manakov2022_${size}_${type}_dataset.tsv"
     
     # Find all matching files
-    files=(${input_dir}/*_${type}_with_negatives_${size}.tsv)
+    files=(${input_dir}/*_${type}_data_with_negatives_${size}.tsv)
     
     # Write header from the first file to the output file
     head -n 1 "${files[0]}" > "$output_file"
