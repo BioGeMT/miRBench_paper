@@ -10,16 +10,16 @@ The script can also be submitted to a SLURM cluster using the following command:
 
 `sbatch concat_post_process_output.sh -i <input_directory> -o <output_directory>`
 
-## Examples
-
-`bash concat_post_process_output.sh -i input -o output`
-
-`sbatch concat_post_process_output.sh -i input -o output`
-
 ### Arguments
 
 - `-i`: Input directory containing all output files from the HD post processing pipeline
 - `-o`: Output directory where the concatenated output files will be saved
+
+### Examples
+
+`bash concat_post_process_output.sh -i input -o output`
+
+`sbatch concat_post_process_output.sh -i input -o output`
   
 ## Description
 
