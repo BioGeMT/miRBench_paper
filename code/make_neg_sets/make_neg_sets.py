@@ -1,71 +1,53 @@
 import argparse
-import random
 import pandas as pd
+import random
 from Levenshtein import distance as levenshtein_distance
 
 def generate_negative_samples(positive_samples, num_negatives, min_edit_distance):
     negative_samples = []
-    
-    # Create a list of all miRNA sequences and their corresponding RNA families
-    all_seq_m_fams = positive_samples[['seq.m', 'noncodingRNA_fam']].values.tolist()
-    
-    # Create a dictionary mapping each gene to its set of positive miRNAs
-    gene_mirna_dict = {}
-    for _, pos_row in positive_samples.iterrows():
-        seq_g = pos_row['seq.g']
-        seq_m = pos_row['seq.m']
-        if seq_g not in gene_mirna_dict:
-            gene_mirna_dict[seq_g] = set()
-        gene_mirna_dict[seq_g].add(seq_m)
 
-    # Set to keep track of gene-miRNA pairs already used as negative samples
-    negative_blacklist = set()
-
-    # Counter for unsuccessful attempts
+    # Create a list of tuples of unique mirna sequences and their corresponding families
+    unique_smallRNAs_fams = list(positive_samples[['seq.m', 'noncodingRNA_fam']].drop_duplicates().values.tolist())
+    gene_binding_dict = {}
+    negative_blacklist = []
     unsuccessful = 0
+
+    # Create a dictionary of lists of positive mirnas (values) binding to a gene (key)
+    for _, row in positive_samples.iterrows():
+        if str(row['seq.g']) in gene_binding_dict:
+            if str(row['seq.m']) not in gene_binding_dict[str(row['seq.g'])]:
+                gene_binding_dict[str(row['seq.g'])].append(str(row['seq.m']))
+        else:
+            gene_binding_dict[str(row['seq.g'])] = [str(row['seq.m'])]
 
     # Iterate over each positive sample to generate negatives
     for _, pos_row in positive_samples.iterrows():
-        seq_g = pos_row['seq.g']
-        
-        # Calculate the number of negatives to generate for this positive sample
-        # This includes making up for previously unsuccessful attempts
-        num_negatives_for_sample = num_negatives + unsuccessful
-        
-        negatives_generated = 0
-        for _ in range(num_negatives_for_sample):
-            found_negative = False
-            # Try up to 200 times to find a suitable negative sample
-            for attempt in range(200):
-                # Randomly select a miRNA and its family from all entries
-                random_mirna, random_fam = random.choice(all_seq_m_fams)
-                # Check if this gene-miRNA pair has already been used as a negative sample
-                if (seq_g, random_mirna) in negative_blacklist:
-                    continue
-                
-                # Check if the selected miRNA is sufficiently different from all positive miRNAs for this gene
-                if all(levenshtein_distance(random_mirna, pos_mirna) >= min_edit_distance 
-                       for pos_mirna in gene_mirna_dict[seq_g]):
-                    # Create a new negative sample
-                    negative_sample = pos_row.copy()
-                    negative_sample['label'] = 0
-                    negative_sample['seq.m'] = random_mirna
-                    negative_sample['noncodingRNA_fam'] = random_fam
-                    negative_samples.append(negative_sample)
-                    # Add this gene-miRNA pair to the blacklist
-                    negative_blacklist.add((seq_g, random_mirna))
-                    found_negative = True
-                    negatives_generated += 1
-                    break
-            
-            if not found_negative:
+        gene = pos_row['seq.g']
+        n = num_negatives + unsuccessful
+        for j in range(1, n + 1):
+            distance = 0
+            tries = 0
+            while distance < min_edit_distance and tries < 200:
+                random_mirna, random_fam = map(str, random.choice(unique_smallRNAs_fams))  
+                distance = levenshtein_distance(random_mirna, gene_binding_dict[gene][0]) 
+                for i in range(1, len(gene_binding_dict[gene])): 
+                    d = levenshtein_distance(random_mirna, gene_binding_dict[gene][i]) 
+                    distance = min(d, distance)
+                if random_mirna+gene in negative_blacklist:
+                    distance = 0
+                tries += 1
+            if tries == 200:
+                unsuccessful = n - j
                 break
 
-        # Update the unsuccessful counter
-        unsuccessful = num_negatives_for_sample - negatives_generated
+            negative_sample = pos_row.copy()
+            negative_sample['label'] = 0 
+            negative_sample['seq.m'] = random_mirna
+            negative_sample['noncodingRNA_fam'] = random_fam
+            negative_samples.append(negative_sample)
 
-        if unsuccessful > 0:
-            print(f"Warning: Could not generate all {num_negatives_for_sample} negative samples for gene {seq_g}. Generated {negatives_generated}. Unsuccessful: {unsuccessful}")
+            negative_blacklist.append(random_mirna+gene)
+            unsuccessful = 0
 
     return pd.DataFrame(negative_samples)
 
@@ -94,4 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
