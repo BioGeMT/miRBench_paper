@@ -18,8 +18,8 @@ However, I want that seq.m to be a certain 'edit distance' away from the origina
 How to run:
 
 python make_neg_sets.py \
-    --ifile pairs.tab \
-    --ofile pairs.posneg.tab \
+    --ifile pairs.tsv \
+    --ofile pairs.posneg.tsv \
     --neg_ratio 100 \
     --min_edit_distance 3 \
 

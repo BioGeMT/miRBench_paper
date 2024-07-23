@@ -3,7 +3,7 @@ import pandas as pd
 import random
 from Levenshtein import distance as levenshtein_distance
 
-def generate_negative_samples(positive_samples, num_negatives, min_edit_distance):
+def generate_negative_samples(positive_samples, num_negatives, min_required_edit_distance):
     negative_samples = []
 
     # Create a list of tuples of unique mirna sequences and their corresponding families
@@ -12,7 +12,7 @@ def generate_negative_samples(positive_samples, num_negatives, min_edit_distance
     negative_blacklist = []
     unsuccessful = 0
 
-    # Create a dictionary of lists of positive mirnas (values) binding to a gene (key)
+    # Create a dictionary of lists of unique positive mirnas (values) binding to a gene (key)
     for _, row in positive_samples.iterrows():
         if str(row['seq.g']) in gene_binding_dict:
             if str(row['seq.m']) not in gene_binding_dict[str(row['seq.g'])]:
@@ -21,25 +21,33 @@ def generate_negative_samples(positive_samples, num_negatives, min_edit_distance
             gene_binding_dict[str(row['seq.g'])] = [str(row['seq.m'])]
 
     # Iterate over each positive sample to generate negatives
-    for _, pos_row in positive_samples.iterrows():
+    for i, pos_row in positive_samples.iterrows():
         gene = pos_row['seq.g']
+        # The number of negative samples to generate for this positive sample is the sum of the number of negative samples to generate and the number of remaining negative samples to generate due to a failed attempt in the previous positive sample
         n = num_negatives + unsuccessful
-        for j in range(1, n + 1):
-            distance = 0
+        for j in range(1, n + 1): # Iterating over 1 to n+1 to easily account for unsuccessful attempts later
+            min_edit_distance = 0
             tries = 0
-            while distance < min_edit_distance and tries < 200:
+            while min_edit_distance < min_required_edit_distance and tries < 200:
                 random_mirna, random_fam = map(str, random.choice(unique_smallRNAs_fams))  
-                distance = levenshtein_distance(random_mirna, gene_binding_dict[gene][0]) 
-                for i in range(1, len(gene_binding_dict[gene])): 
-                    d = levenshtein_distance(random_mirna, gene_binding_dict[gene][i]) 
-                    distance = min(d, distance)
-                if random_mirna+gene in negative_blacklist:
-                    distance = 0
+                # Check if the random mirna is not already binding to the gene
+                if random_mirna in gene_binding_dict[gene]:
+                    continue
+                # Check if the random mirna is not already in the blacklist
+                if random_mirna + gene in negative_blacklist:
+                    continue
+                # Get a minimum edit distance from all the positive mirnas of given gene
+                min_edit_distance = min([levenshtein_distance(random_mirna, pos_mirna) for pos_mirna in gene_binding_dict[gene]])
                 tries += 1
             if tries == 200:
+                # Update `unsuccessful` to add the remaining number of negative samples to generate for this positive sample to the next positive sample to maintain the positive to negative ratio
                 unsuccessful = n - j
-                break
-
+                if i < len(positive_samples.index):
+                    break
+                else: 
+                    print(f"Warning: Failed to generate all negative samples. Missing {unsuccessful} negative samples.")
+                    break
+                
             negative_sample = pos_row.copy()
             negative_sample['label'] = 0 
             negative_sample['seq.m'] = random_mirna
@@ -48,7 +56,6 @@ def generate_negative_samples(positive_samples, num_negatives, min_edit_distance
 
             negative_blacklist.append(random_mirna+gene)
             unsuccessful = 0
-
     return pd.DataFrame(negative_samples)
 
 def main():
@@ -56,7 +63,7 @@ def main():
     parser.add_argument('--ifile', type=str, required=True, help="Input file name")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     parser.add_argument('--neg_ratio', type=int, default=100, help="Number of negative samples to generate per positive sample")
-    parser.add_argument('--min_edit_distance', type=int, default=3, help="Minimum edit distance for negative samples")
+    parser.add_argument('--min_required_edit_distance', type=int, default=3, help="Minimum required edit distance for negative samples")
     args = parser.parse_args()
 
     # Set a fixed random seed for reproducibility
@@ -66,7 +73,7 @@ def main():
     positive_samples = pd.read_csv(args.ifile, sep='\t')
     
     # Generate negative samples
-    negative_samples = generate_negative_samples(positive_samples, args.neg_ratio, args.min_edit_distance)
+    negative_samples = generate_negative_samples(positive_samples, args.neg_ratio, args.min_required_edit_distance)
     
     # Combine positive and negative samples
     combined_data = pd.concat([positive_samples, negative_samples], ignore_index=True)
