@@ -75,11 +75,9 @@ def generate_negative_samples(positive_samples, num_negatives, min_required_edit
             if tries == 200:
                 # Update `unsuccessful` to add the remaining number of negative samples to generate for this positive sample to the next positive sample to maintain the positive to negative ratio
                 unsuccessful = n - j
-                if i < len(positive_samples.index):
-                    break
-                else: 
+                if i == len(positive_samples.index) - 1:
                     print(f"Warning: Failed to generate all negative samples. Missing {unsuccessful} negative samples.")
-                    break
+                break
                 
             negative_sample = pos_row.copy()
             negative_sample['label'] = 0 
