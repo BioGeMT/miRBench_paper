@@ -4,6 +4,39 @@ import random
 from Levenshtein import distance as levenshtein_distance
 
 def generate_negative_samples(positive_samples, num_negatives, min_required_edit_distance):
+    """
+    Generate negative samples based on positive samples for a miRNA-gene interaction dataset.
+
+    This function creates negative samples by randomly selecting miRNAs that are not known
+    to interact with specific genes, while ensuring a minimum edit distance from known 
+    positive interactions.
+
+    Parameters:
+    positive_samples (pd.DataFrame): A DataFrame containing positive miRNA-gene interactions.
+                                     Must include columns 'seq.g' (gene), 'seq.m' (miRNA),
+                                     and 'noncodingRNA_fam' (miRNA family). Should also include
+                                     a 'label' column with value 1 for positive samples.
+    num_negatives (int): The number of negative samples to generate for each positive sample.
+    min_required_edit_distance (int): The minimum edit distance required between a negative
+                                      sample's miRNA and all positive miRNAs for the same gene.
+
+    Returns:
+    pd.DataFrame: A DataFrame containing the generated negative samples, with the same
+                  structure as the input positive_samples, but with 'label' set to 0.
+
+    Notes:
+    - The function attempts to maintain a balanced dataset by generating 'num_negatives'
+      negative samples for each positive sample.
+    - If the function fails to generate all required negative samples for a gene, it will
+      attempt to compensate in subsequent iterations.
+    - A maximum of 200 attempts are made to find a suitable negative sample for each required
+      negative interaction.
+    - The function uses a blacklist to avoid generating duplicate negative samples.
+    - The function uses the Levenshtein distance to ensure a minimum edit distance between 
+        the potential miRNA for the negative sample and all the positive miRNAs for the same gene.
+    - If all attempts to generate negative samples fail, a warning is printed.
+    """
+
     negative_samples = []
 
     # Create a list of tuples of unique mirna sequences and their corresponding families
