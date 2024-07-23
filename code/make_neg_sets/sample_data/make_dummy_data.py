@@ -34,6 +34,6 @@ dummy_data = generate_dummy_data(num_samples)
 
 # Create a DataFrame and save to a file
 df = pd.DataFrame(dummy_data, columns=['seq.g', 'seq.m', 'noncodingRNA_fam', 'feature', 'test', 'label'])
-df.to_csv('dummy_data.tab', sep='\t', index=False)
+df.to_csv('dummy_data_in.tsv', sep='\t', index=False)
 
-print("Dummy data generated and saved to 'dummy_data.tab'")
+print("Dummy data generated and saved to 'dummy_data.tsv'")
