@@ -77,7 +77,8 @@ def generate_negative_samples(positive_samples, num_negatives, min_required_edit
                 unsuccessful = n - j
                 if i == len(positive_samples.index) - 1:
                     print(f"Warning: Failed to generate all negative samples. Missing {unsuccessful} negative samples.")
-                break
+                else:
+                    break
                 
             negative_sample = pos_row.copy()
             negative_sample['label'] = 0 
