@@ -6,6 +6,7 @@
 #SBATCH --cpus-per-task=8
 
 # Parse command line arguments
+output_dir="output"  # Default value for output_dir
 output_prefix="concat"  # Default value for output_prefix
 
 while [[ "$#" -gt 0 ]]; do
@@ -19,8 +20,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Check if required arguments are provided
-if [ -z "$input_dir" ] || [ -z "$output_dir" ]; then
-  echo "Usage: $0 --input_dir <input_directory> --output_dir <output_directory> [--output_prefix <output_file_prefix> (default: concat)]"
+if [ -z "$input_dir" ]; then
+  echo "Usage: $0 --input_dir <input_directory> [--output_dir <output_directory> (default: output)] [--output_prefix <output_prefix> (default: concat)]"
   exit 1
 fi
 
