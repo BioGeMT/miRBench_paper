@@ -1,4 +1,4 @@
-# Concatenate HD Post-process Pipeline Outputs
+# Concatenate HybriDetector output file from different samples
 
 This script concatenates all the *.unified_length_all_types_unique_high_confidence.tsv files in the input directory and saves the output to the output file. It is meant to concatenate some output files from the HybriDetector pipeline into a single file, in preparation for the post-processing pipeline. 
 
