@@ -38,7 +38,7 @@ Ensure that the directories containing the scripts are correctly set relative to
    
 2. **Deduplication**: The script deduplicates the filtered data using `awk`.
    ```bash
-   awk -F'\t' 'NR==1{print} NR>1{if(!seen[$1]++){print}}' filtered_file > deduplicated_file
+   awk -F'\t' 'NR==1{print $0} NR>1{if(!seen[$1$2]++){print}}' "$filtered_file" > "$deduplicated_file"
    ```
 
 3. **Family Assignment**: The script assigns families using the `family_assign.py` script and the `mature.fa` file.
@@ -48,7 +48,7 @@ Ensure that the directories containing the scripts are correctly set relative to
 
 4. **Negative Sample Generation**: Negative samples are generated using the `make_neg_sets.py` script for each specified ratio.
    ```bash
-   python3 make_neg_sets/make_neg_sets.py --ifile family_assigned_file --ofile neg_file --neg_ratio ratio --min_edit_distance min_edit_distance
+   python3 make_neg_sets/make_neg_sets.py --ifile family_assigned_file --ofile neg_file --neg_ratio ratio --min_required_edit_distance min_required_edit_distance
    ```
 
 5. **Data Splitting**: The data is split into train and test sets based on the `test` column using `awk`.
