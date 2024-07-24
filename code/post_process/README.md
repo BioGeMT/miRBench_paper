@@ -5,6 +5,7 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Requirements
 - Python 3
+- Run `conda env create --name <env_name> --file=post_process.yml`, then `conda activate <env_name>`
 - Necessary Python scripts located in specified directories:
   - `filtering/filtering.py`
   - `family_assign/family_assign.py`

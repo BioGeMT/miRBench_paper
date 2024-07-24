@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --account=dtzim01
-#SBATCH --job-name=HD_postprocess
+#SBATCH --account=ssamm10
+#SBATCH --job-name=HD_postprocess_on_concat
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 
@@ -23,7 +23,7 @@ if [ -z "$input_dir" ]; then
 fi
 
 # set default values for neg_ratios and min_edit_distance if not specified
-neg_ratios=${neg_ratios:-("1" "10" "100")}
+neg_ratios=${neg_ratios:-"1 10 100"}
 min_edit_distance=${min_edit_distance:-3}
 
 # define paths to the directories where the scripts are located
@@ -107,6 +107,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
 
     # Step 4: Make negatives with different ratios
     for ratio in "${neg_ratios[@]}"; do
+        ratio=$(printf "%d" "$ratio")
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance..."
 
         neg_output="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
