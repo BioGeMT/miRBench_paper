@@ -65,19 +65,18 @@ fi
 
 # define constants for suffixes with extensions
 FILTERED_SUFFIX="_filtered_data.tsv"
+DEDUPLICATED_SUFFIX="_deduplicated_data.tsv"
 FAMILY_ASSIGNED_SUFFIX="_family_assigned_data.tsv"
-TRAIN_SUFFIX="_train_data.tsv"
-TEST_SUFFIX="_test_data.tsv"
-NEG_TRAIN_SUFFIX="_train_data_with_negatives_"
-NEG_TEST_SUFFIX="_test_data_with_negatives_"
+TRAIN_SUFFIX="_train_"
+TEST_SUFFIX="_test_"
+NEG_SUFFIX="_with_negatives_"
 
 # process each .tsv file in the input directory
-for input_file in "$input_dir"/*pp.unified_length_all_types_unique_high_confidence.tsv; do
+for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
     base_name=$(basename "$input_file" .tsv)
     filtered_file="$intermediate_dir/${base_name}${FILTERED_SUFFIX}"
+    deduplicated_file="$intermediate_dir/${base_name}${DEDUPLICATED_SUFFIX}"
     family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
-    train_file="$intermediate_dir/${base_name}${TRAIN_SUFFIX}"
-    test_file="$intermediate_dir/${base_name}${TEST_SUFFIX}"
 
     # Step 1: Filtering
     echo "Running filtering step on $input_file..."
@@ -88,59 +87,68 @@ for input_file in "$input_dir"/*pp.unified_length_all_types_unique_high_confiden
     fi
     echo "Filtering completed. Output saved to $filtered_file"
 
-    # Step 2: Family Assignment
-    echo "Running family assignment step on $filtered_file..."
-    python3 "$family_assign_dir/family_assign.py" --ifile "$filtered_file" --mature "$mature_file" --ofile "$family_assigned_file"
+    # Step 2: Deduplication
+    echo "Running deduplication step on $filtered_file..."
+    # deduplicate based on combination of first two columns
+    awk -F'\t' 'NR==1{print $0} NR>1{if(!seen[$1$2]++){print}}' "$filtered_file" > "$deduplicated_file"
+    if [ $? -ne 0 ]; then
+        echo "Error in deduplication step. Check your input file."
+        exit 1
+    fi
+
+    # Step 3: Family Assignment
+    echo "Running family assignment step on $deduplicated_file..."
+    python3 "$family_assign_dir/family_assign.py" --ifile "$deduplicated_file" --mature "$mature_file" --ofile "$family_assigned_file"
     if [ $? -ne 0 ]; then
         echo "Error in family assignment step. Check your script and input file."
         exit 1
     fi
     echo "Family assignment completed. Output saved to $family_assigned_file"
 
-    # Step 3: Split Train/Test based on the test column
+    # Step 4: Make negatives with different ratios
+    for ratio in "${neg_ratios[@]}"; do
+        echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance..."
+
+        neg_output="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
+
+        echo "Running make_neg_sets.py for $family_assigned_file with ratio $ratio..."
+        python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$family_assigned_file" --ofile "$neg_output" --neg_ratio "$ratio" --min_required_edit_distance "$min_edit_distance"
+        if [ $? -ne 0 ]; then
+            echo "Error in generating negative samples for train set. Check your script and input file."
+            exit 1
+        fi
+        echo "File with negative samples for ratio $ratio saved to $neg_output"
+    done
+    echo "Negative samples generation completed for $input_file"
+
+    # Step 5: Split Train/Test based on the test column
     echo "Splitting data into train and test sets based on the test column..."
-    awk -F'\t' 'NR==1{header=$0; print header > "'$train_file'"; print header > "'$test_file'"} NR>1{if($5=="False"){print > "'$train_file'"} else {print > "'$test_file'"}}' "$family_assigned_file"
-    if [ $? -ne 0 ]; then
-        echo "Error in splitting data. Check your input file."
-        exit 1
-    fi
-    echo "Data split completed. Train set saved to $train_file, test set saved to $test_file"
+    for ratio in "${neg_ratios[@]}"; do
+        neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
+        train_file="$output_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
+        test_file="$output_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
+        awk -F'\t' 'NR==1{header=$0; print header > "'$train_file'"; print header > "'$test_file'"} NR>1{if($5=="False"){print > "'$train_file'"} else {print > "'$test_file'"}}' "$neg_file"
+        if [ $? -ne 0 ]; then
+            echo "Error in splitting data. Check your input file."
+            exit 1
+        fi
+        echo "Data split completed. Train set saved to $train_file, test set saved to $test_file"
+    done
 
-    # Step 4: Remove the fifth column from the train and test files
+    # Step 6: Remove the fifth column from the train and test files
     echo "Removing the fifth column from the train and test sets..."
-    awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$train_file" > "${train_file}_tmp" && mv "${train_file}_tmp" "$train_file"
-    awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$test_file" > "${test_file}_tmp" && mv "${test_file}_tmp" "$test_file"
-
+    for ratio in "${neg_ratios[@]}"; do
+        for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
+            file="$output_dir/${base_name}${suffix}${ratio}.tsv"
+            awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$file" > "${file}_tmp" && mv "${file}_tmp" "$file"
+        done
+    done
     if [ $? -ne 0 ]; then
         echo "Error in removing the fifth column."
         exit 1
     fi
 
     echo "Fifth column removed from train set and test set."
-
-    # Step 5: Make negatives for train and test sets with different ratios
-    for ratio in 1 10 100; do
-        echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance for train and test sets..."
-        neg_train_output="$output_dir/${base_name}${NEG_TRAIN_SUFFIX}${ratio}.tsv"
-        neg_test_output="$output_dir/${base_name}${NEG_TEST_SUFFIX}${ratio}.tsv"
-
-        echo "Running make_neg_sets.py for train set with ratio $ratio..."
-        python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$train_file" --ofile "$neg_train_output" --neg_ratio "$ratio" --min_edit_distance "$min_edit_distance"
-        if [ $? -ne 0 ]; then
-            echo "Error in generating negative samples for train set. Check your script and input file."
-            exit 1
-        fi
-        echo "Train set with negative samples saved to $neg_train_output"
-
-        echo "Running make_neg_sets.py for test set with ratio $ratio..."
-        python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$test_file" --ofile "$neg_test_output" --neg_ratio "$ratio" --min_edit_distance "$min_edit_distance"
-        if [ $? -ne 0 ]; then
-            echo "Error in generating negative samples for test set. Check your script and input file."
-            exit 1
-        fi
-        echo "Test set with negative samples saved to $neg_test_output"
-    done
-    echo "Negative samples generation completed for $input_file"
 done
 
 # Done

@@ -1,113 +1,22 @@
-Downloading mature.fa file...
---2024-06-19 18:08:46--  https://www.mirbase.org/download/mature.fa
-Resolving www.mirbase.org (www.mirbase.org)... 130.88.97.249
-Connecting to www.mirbase.org (www.mirbase.org)|130.88.97.249|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 3866196 (3.7M) [gff3]
-Saving to: ‘/home/dimos/test1/post_process/intermediate/mature/mature.fa’
-
-     0K .......... .......... .......... .......... ..........  1%  531K 7s
-    50K .......... .......... .......... .......... ..........  2% 1.04M 5s
-   100K .......... .......... .......... .......... ..........  3% 11.2M 4s
-   150K .......... .......... .......... .......... ..........  5% 1.23M 3s
-   200K .......... .......... .......... .......... ..........  6% 7.56M 3s
-   250K .......... .......... .......... .......... ..........  7% 12.4M 2s
-   300K .......... .......... .......... .......... ..........  9%  484K 3s
-   350K .......... .......... .......... .......... .......... 10%  313M 3s
-   400K .......... .......... .......... .......... .......... 11%  338M 2s
-   450K .......... .......... .......... .......... .......... 13%  315M 2s
-   500K .......... .......... .......... .......... .......... 14%  349M 2s
-   550K .......... .......... .......... .......... .......... 15%  307M 2s
-   600K .......... .......... .......... .......... .......... 17%  267M 1s
-   650K .......... .......... .......... .......... .......... 18% 59.9M 1s
-   700K .......... .......... .......... .......... .......... 19%  261M 1s
-   750K .......... .......... .......... .......... .......... 21% 1.53M 1s
-   800K .......... .......... .......... .......... .......... 22% 7.96M 1s
-   850K .......... .......... .......... .......... .......... 23% 6.97M 1s
-   900K .......... .......... .......... .......... .......... 25% 14.3M 1s
-   950K .......... .......... .......... .......... .......... 26%  695K 1s
-  1000K .......... .......... .......... .......... .......... 27% 42.0M 1s
-  1050K .......... .......... .......... .......... .......... 29%  285M 1s
-  1100K .......... .......... .......... .......... .......... 30%  297M 1s
-  1150K .......... .......... .......... .......... .......... 31%  312M 1s
-  1200K .......... .......... .......... .......... .......... 33% 9.17M 1s
-  1250K .......... .......... .......... .......... .......... 34% 6.28M 1s
-  1300K .......... .......... .......... .......... .......... 35% 7.14M 1s
-  1350K .......... .......... .......... .......... .......... 37% 1.98M 1s
-  1400K .......... .......... .......... .......... .......... 38% 3.65M 1s
-  1450K .......... .......... .......... .......... .......... 39% 7.32M 1s
-  1500K .......... .......... .......... .......... .......... 41% 8.14M 1s
-  1550K .......... .......... .......... .......... .......... 42% 1.75M 1s
-  1600K .......... .......... .......... .......... .......... 43% 4.87M 1s
-  1650K .......... .......... .......... .......... .......... 45% 8.64M 1s
-  1700K .......... .......... .......... .......... .......... 46% 1.78M 1s
-  1750K .......... .......... .......... .......... .......... 47% 5.17M 1s
-  1800K .......... .......... .......... .......... .......... 48% 7.92M 1s
-  1850K .......... .......... .......... .......... .......... 50% 6.67M 1s
-  1900K .......... .......... .......... .......... .......... 51% 1.71M 1s
-  1950K .......... .......... .......... .......... .......... 52% 5.61M 1s
-  2000K .......... .......... .......... .......... .......... 54% 8.30M 1s
-  2050K .......... .......... .......... .......... .......... 55% 1.84M 1s
-  2100K .......... .......... .......... .......... .......... 56% 4.82M 1s
-  2150K .......... .......... .......... .......... .......... 58% 6.93M 0s
-  2200K .......... .......... .......... .......... .......... 59% 8.11M 0s
-  2250K .......... .......... .......... .......... .......... 60% 1.77M 0s
-  2300K .......... .......... .......... .......... .......... 62% 4.82M 0s
-  2350K .......... .......... .......... .......... .......... 63% 8.26M 0s
-  2400K .......... .......... .......... .......... .......... 64% 2.34M 0s
-  2450K .......... .......... .......... .......... .......... 66% 3.42M 0s
-  2500K .......... .......... .......... .......... .......... 67% 6.34M 0s
-  2550K .......... .......... .......... .......... .......... 68% 8.70M 0s
-  2600K .......... .......... .......... .......... .......... 70% 1.91M 0s
-  2650K .......... .......... .......... .......... .......... 71% 4.25M 0s
-  2700K .......... .......... .......... .......... .......... 72% 7.93M 0s
-  2750K .......... .......... .......... .......... .......... 74% 8.66M 0s
-  2800K .......... .......... .......... .......... .......... 75% 1.71M 0s
-  2850K .......... .......... .......... .......... .......... 76% 5.93M 0s
-  2900K .......... .......... .......... .......... .......... 78% 6.40M 0s
-  2950K .......... .......... .......... .......... .......... 79% 2.32M 0s
-  3000K .......... .......... .......... .......... .......... 80% 3.90M 0s
-  3050K .......... .......... .......... .......... .......... 82% 5.47M 0s
-  3100K .......... .......... .......... .......... .......... 83% 9.47M 0s
-  3150K .......... .......... .......... .......... .......... 84% 1.95M 0s
-  3200K .......... .......... .......... .......... .......... 86% 4.41M 0s
-  3250K .......... .......... .......... .......... .......... 87% 7.13M 0s
-  3300K .......... .......... .......... .......... .......... 88% 9.81M 0s
-  3350K .......... .......... .......... .......... .......... 90% 1.69M 0s
-  3400K .......... .......... .......... .......... .......... 91% 5.11M 0s
-  3450K .......... .......... .......... .......... .......... 92% 8.14M 0s
-  3500K .......... .......... .......... .......... .......... 94% 2.34M 0s
-  3550K .......... .......... .......... .......... .......... 95% 3.76M 0s
-  3600K .......... .......... .......... .......... .......... 96% 6.23M 0s
-  3650K .......... .......... .......... .......... .......... 97% 8.05M 0s
-  3700K .......... .......... .......... .......... .......... 99% 1.93M 0s
-  3750K .......... .......... .....                           100% 6.85M=1.1s
-
-2024-06-19 18:08:48 (3.41 MB/s) - ‘/home/dimos/test1/post_process/intermediate/mature/mature.fa’ saved [3866196/3866196]
-
-Download completed. File saved to /home/dimos/test1/post_process/intermediate/mature/mature.fa
 Running filtering step on input_data//data.tsv...
-Filtering completed. Output saved to /home/dimos/test1/post_process/intermediate/data_filtered_data.tsv
-Running family assignment step on /home/dimos/test1/post_process/intermediate/data_filtered_data.tsv...
-Family assignment completed. Output saved to /home/dimos/test1/post_process/intermediate/data_family_assigned_data.tsv
+Filtering completed. Output saved to intermediate/data_filtered_data.tsv
+Running deduplication step on intermediate/data_filtered_data.tsv...
+Running family assignment step on intermediate/data_deduplicated_data.tsv...
+Family assignment completed. Output saved to intermediate/data_family_assigned_data.tsv
+Generating negative samples with ratio 1 and min edit distance 3...
+Running make_neg_sets.py for intermediate/data_family_assigned_data.tsv with ratio 1...
+File with negative samples for ratio 1 saved to intermediate/data_with_negatives_1.tsv
+Generating negative samples with ratio 10 and min edit distance 3...
+Running make_neg_sets.py for intermediate/data_family_assigned_data.tsv with ratio 10...
+File with negative samples for ratio 10 saved to intermediate/data_with_negatives_10.tsv
+Generating negative samples with ratio 100 and min edit distance 3...
+Running make_neg_sets.py for intermediate/data_family_assigned_data.tsv with ratio 100...
+File with negative samples for ratio 100 saved to intermediate/data_with_negatives_100.tsv
+Negative samples generation completed for input_data//data.tsv
 Splitting data into train and test sets based on the test column...
-Data split completed. Train set saved to /home/dimos/test1/post_process/intermediate/data_train_data.tsv, test set saved to /home/dimos/test1/post_process/intermediate/data_test_data.tsv
+Data split completed. Train set saved to output/data_train_1.tsv, test set saved to output/data_test_1.tsv
+Data split completed. Train set saved to output/data_train_10.tsv, test set saved to output/data_test_10.tsv
+Data split completed. Train set saved to output/data_train_100.tsv, test set saved to output/data_test_100.tsv
 Removing the fifth column from the train and test sets...
 Fifth column removed from train set and test set.
-Generating negative samples with ratio 1 and min edit distance 3 for train and test sets...
-Running make_neg_sets.py for train set with ratio 1...
-Train set with negative samples saved to /home/dimos/test1/post_process/output/data_train_data_with_negatives_1.tsv
-Running make_neg_sets.py for test set with ratio 1...
-Test set with negative samples saved to /home/dimos/test1/post_process/output/data_test_data_with_negatives_1.tsv
-Generating negative samples with ratio 10 and min edit distance 3 for train and test sets...
-Running make_neg_sets.py for train set with ratio 10...
-Train set with negative samples saved to /home/dimos/test1/post_process/output/data_train_data_with_negatives_10.tsv
-Running make_neg_sets.py for test set with ratio 10...
-Test set with negative samples saved to /home/dimos/test1/post_process/output/data_test_data_with_negatives_10.tsv
-Generating negative samples with ratio 100 and min edit distance 3 for train and test sets...
-Running make_neg_sets.py for train set with ratio 100...
-Train set with negative samples saved to /home/dimos/test1/post_process/output/data_train_data_with_negatives_100.tsv
-Running make_neg_sets.py for test set with ratio 100...
-Test set with negative samples saved to /home/dimos/test1/post_process/output/data_test_data_with_negatives_100.tsv
-Negative samples generation completed for input_data//data.tsv
 Post-processing pipeline completed successfully.
