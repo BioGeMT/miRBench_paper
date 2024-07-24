@@ -6,26 +6,31 @@
 #SBATCH --cpus-per-task=8
 
 # Parse command line arguments
+output_prefix="concat"  # Default value for output_prefix
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --input_dir) input_dir="$2"; shift ;;
-        --output_file) output_file="$2"; shift ;;
+        --output_dir) output_dir="$2"; shift ;;
+        --output_prefix) output_prefix="$2"; shift ;;
         *) echo "Unknown parameter: $1"; exit 1 ;;
     esac
     shift
 done
 
 # Check if required arguments are provided
-if [ -z "$input_dir" ] || [ -z "$output_file" ]; then
-    echo "Usage: $0 --input_dir <input_directory> --output_file <output_file_name>"
-    exit 1
+if [ -z "$input_dir" ] || [ -z "$output_dir" ]; then
+  echo "Usage: $0 --input_dir <input_directory> --output_dir <output_directory> [--output_prefix <output_file_prefix> (default: concat)]"
+  exit 1
 fi
 
-# Create output directory
-output_dir="output"
-mkdir -p "$output_dir"
+# Check if output directory exists, else create it
+if [ ! -d "$output_dir" ]; then
+    mkdir -p "$output_dir"
+fi
 
 # Full path for output file
+output_file="${output_prefix}.unified_length_all_types_unique_high_confidence.tsv"
 output_path="$output_dir/$output_file"
 
 # Full path for log file
