@@ -26,8 +26,8 @@ The script takes two arguments:
 
 ## Notes
 
-The script creates the output directory in the current directory if it does not already exist. 
-The output file will be saved here as `<prefix>.unified_length_all_types_unique_high_confidence.tsv`
+The script creates the output directory if it does not already exist. If no argument is passed, output/ is created in the current directory. 
+The output file will be saved in the output directory as `<prefix>.unified_length_all_types_unique_high_confidence.tsv`
 The script also logs all stdout and stderr to a log file which is also saved in the output directory. 
 
 The script ensures that the header from the first file is included in the output file, while subsequent files have their headers removed to avoid duplication.
