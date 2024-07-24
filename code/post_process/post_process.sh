@@ -72,7 +72,7 @@ TEST_SUFFIX="_test_"
 NEG_SUFFIX="_with_negatives_"
 
 # process each .tsv file in the input directory
-for input_file in "$input_dir"/*.tsv; do
+for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
     base_name=$(basename "$input_file" .tsv)
     filtered_file="$intermediate_dir/${base_name}${FILTERED_SUFFIX}"
     deduplicated_file="$intermediate_dir/${base_name}${DEDUPLICATED_SUFFIX}"
