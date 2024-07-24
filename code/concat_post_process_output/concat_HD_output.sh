@@ -52,5 +52,5 @@ for file in "$input_dir"/*.unified_length_all_types_unique_high_confidence.tsv; 
   fi
 done
 
-echo -e "Concatenation of all *.unified_length_all_types_unique_high_confidence.tsv files in $input_dir complete. \nOutput saved to $output_path."
+echo -e "Concatenation of all *.unified_length_all_types_unique_high_confidence.tsv files in $input_dir directory complete. \nOutput saved to $output_path."
 
