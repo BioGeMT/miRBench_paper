@@ -38,17 +38,19 @@ exec > >(tee -a "$log_file") 2>&1
 header_written=false
 
 # Loop through all matching files
-for file in "$input_dir"/*pp.unified_length_all_types_unique_high_confidence.tsv; do
-    if [ -f "$file" ]; then
-        if [ "$header_written" = false ]; then
-            # Write the header from the first file
-            head -n1 "$file" > "$output_path"
-            header_written=true
-        fi
-        
-        # Append the content (excluding header) to the output file
-        tail -n+2 "$file" >> "$output_path"
+for file in "$input_dir"/*.unified_length_all_types_unique_high_confidence.tsv; do
+  if [ -f "$file" ] || { [ -L "$file" ] && [ -f "$(readlink -f "$file")" ]; }; then  
+    if [ "$header_written" = false ]; then
+        # Write the header from the first file
+        head -n1 "$file" > "$output_path"
+        header_written=true
     fi
+    # Append the content (excluding header) to the output file
+    tail -n+2 "$file" >> "$output_path"
+  else
+    echo "Skipping $file: Not a regular file or valid symlink."
+  fi
 done
 
-echo "Concatenation of all *pp.unified_length_all_types_unique_high_confidence.tsv files in $input_dir complete. Output saved to $output_path."
+echo -e "Concatenation of all *.unified_length_all_types_unique_high_confidence.tsv files in $input_dir complete. \nOutput saved to $output_path."
+

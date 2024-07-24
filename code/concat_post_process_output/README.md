@@ -1,32 +1,33 @@
 # Concatenate HD Post-process Pipeline Outputs
 
-This script concatenates the output files from the HD post-processing pipeline into a single file per type and size. 
+This script concatenates all the *.unified_length_all_types_unique_high_confidence.tsv files in the input directory and saves the output to the output file. It is meant to concatenate some output files from the HybriDetector pipeline into a single file, in preparation for the post-processing pipeline. 
 
 ## Usage
 
-`bash concat_post_process_output.sh -i <input_directory> -o <output_directory>`
+`bash concat_HD_output.sh --input_dir <input_directory> --output_file <output_file>`
 
 The script can also be submitted to a SLURM cluster using the following command:
 
-`sbatch concat_post_process_output.sh -i <input_directory> -o <output_directory>`
+`sbatch concat_HD_output.sh --input_dir <input_directory> --output_file <output_file>`
 
 ### Arguments
 
-- `-i`: Input directory containing all output files from the HD post processing pipeline
-- `-o`: Output directory where the concatenated output files will be saved
+The script takes two arguments:
+
+- `--input_dir`: The input directory containing the *.unified_length_all_types_unique_high_confidence.tsv files (or symlinks to such files)
+- `--output_file`: The output file name to save the concatenated output
 
 ### Examples
 
-`bash concat_post_process_output.sh -i input -o output`
+`bash concat_HD_output.sh --input_dir input --output_file concatenated_HD_output.tsv`
 
-`sbatch concat_post_process_output.sh -i input -o output`
-  
-## Description
+`sbatch concat_HD_output.sh --input_dir input --output_file concatenated_HD_output.tsv`
 
-- The script loops through each dataset type (train, test) and size (1, 10, 100), and concatenates multiple files with the same type and size into a single output file.
-- The header line is taken from the first file, and the content is appended from all matching files, skipping the header line.
-- Sample input and output files are available in the input/ and output/ dirs, respectively. 
-- For the given types and sizes, 6 output files should be produced. 
-- The output files are named based on the dataset type and size, e.g. AGO2_eCLIP_Manakov2022_1_train_dataset.tsv
-- The script also logs all output to a log file in the output directory.
+## Notes
+
+The script creates an output/ directory in the current directory. 
+The <output_file> will be saved here. 
+The script also logs all stdout and stderr to a log file which is also saved in the output/ directory. 
+
+The script ensures that the header from the first file is included in the output file, while subsequent files have their headers removed to avoid duplication.
 
