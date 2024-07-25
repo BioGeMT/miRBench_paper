@@ -23,7 +23,8 @@ if [ -z "$input_dir" ]; then
 fi
 
 # set default values for neg_ratios and min_edit_distance if not specified
-neg_ratios=${neg_ratios:-"1 10 100"}
+default_ratios=(1 10 100)
+neg_ratios=( "${neg_ratios[@]:-"${default_ratios[@]}"}" )
 min_edit_distance=${min_edit_distance:-3}
 
 # define paths to the directories where the scripts are located
@@ -106,8 +107,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     echo "Family assignment completed. Output saved to $family_assigned_file"
 
     # Step 4: Make negatives with different ratios
-    for ratio in "${neg_ratios[@]}"; do
-        ratio=$(printf "%d" "$ratio")
+    for ratio in ${neg_ratios[@]}; do
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance..."
 
         neg_output="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
@@ -124,7 +124,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
 
     # Step 5: Split Train/Test based on the test column
     echo "Splitting data into train and test sets based on the test column..."
-    for ratio in "${neg_ratios[@]}"; do
+    for ratio in ${neg_ratios[@]}; do
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
         train_file="$output_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
         test_file="$output_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
