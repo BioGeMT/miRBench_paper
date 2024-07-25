@@ -128,7 +128,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
         train_file="$output_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
         test_file="$output_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
-        awk -F'\t' 'NR==1{header=$0; print header > "'$train_file'"; print header > "'$test_file'"} NR>1{if($5=="False"){print > "'$train_file'"} else {print > "'$test_file'"}}' "$neg_file"
+        awk -F'\t' 'NR==1{header=$0; print header > "'"$train_file"'"; print header > "'"$test_file"'"} NR>1{if($5=="False"){print > "'"$train_file"'"} else {print > "'"$test_file"'"}}' "$neg_file"
         if [ $? -ne 0 ]; then
             echo "Error in splitting data. Check your input file."
             exit 1
