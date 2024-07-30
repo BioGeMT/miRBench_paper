@@ -59,7 +59,7 @@ def intersect_allowed_mirnas(allowed_mirnas):
 def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, unsuccessful, min_required_edit_distance):
     
     neg_label = 0
-    gene = block[gene].iloc[0]
+    gene = block['seq.g'].iloc[0]
 
     negative_sample_rows = []
 
@@ -68,15 +68,16 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
     gene_allowed_mirnas = compute_allowed_mirnas(pos_mirnas, min_required_edit_distance)
 
     negative_mirnas = intersect_allowed_mirnas(gene_allowed_mirnas)
+    negative_mirnas_list = list(negative_mirnas)
 
     n = num_negatives*block.shape[0] + unsuccessful
 
-    if n > len(negative_mirnas):
-        unsuccessful = n - len(negative_mirnas)
+    if n > len(negative_mirnas_list):
+        unsuccessful = n - len(negative_mirnas_list)
+        n_negative_mirnas = negative_mirnas_list
     else:
         unsuccessful = 0
-
-    n_negative_mirnas = random.sample(negative_mirnas, n)
+        n_negative_mirnas = random.sample(negative_mirnas_list, n)
 
     if block['feature'].nunique() == 1:
         feature = block['feature'].iloc[0]
@@ -113,9 +114,10 @@ def main():
         unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples) 
         negatives_rows = []
         unsuccessful = 0
-        for block in yield_gene_blocks(file_handler):
+        for block in yield_gene_blocks(args.ifile):
             negatives, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, unsuccessful, args.min_required_edit_distance)
-            negatives_rows.append(negatives)
+            for sublist in negatives:
+                negatives_rows.append(sublist)
 
     negatives_df = pd.DataFrame(negatives_rows, columns=positive_samples.columns)
     combined_df = pd.concat([positive_samples, negatives_df], ignore_index=True)
