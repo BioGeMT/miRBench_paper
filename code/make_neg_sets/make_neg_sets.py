@@ -114,16 +114,7 @@ def main():
     # Load positive samples from the input file
     positive_samples = pd.read_csv(args.ifile, sep='\t')
 
-    # Group by 'gene' and count the number of rows per gene
-    gene_count = positive_samples.groupby('seq.g').size().reset_index(name='count')
-
-    # Merge the count information back with the original DataFrame
-    positive_samples_gene_count = positive_samples.merge(gene_count, on='seq.g')
-
-    # Sort the DataFrame by the 'count' column in ascending order
-    sorted_positive_samples = positive_samples_gene_count.sort_values(by='count', ascending=True)
-
-    with open(sorted_positive_samples) as file_handler:
+    with open(positive_samples) as file_handler:
         unique_mirnas_fams = precompute_allowed_mirnas(sorted_positive_samples, args.min_required_edit_distance)
         for block in yield_gene_blocks(file_handler):
             negatives = generate_negative_samples(block, unique_mirnas_fams, args.neg_ratio, args.min_required_edit_distance)
