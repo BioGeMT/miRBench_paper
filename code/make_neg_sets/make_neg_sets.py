@@ -51,7 +51,6 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
 
     pos_mirnas = block['seq.m'].unique().tolist()
     
-    # Select allowed miRNAs for positive miRNAs of this gene and intersect them
     gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
     gene_allowed_mirnas = gene_allowed_mirnas - set(pos_mirnas)  # Remove positive miRNAs
     gene_allowed_mirnas = list(gene_allowed_mirnas)
@@ -68,7 +67,7 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
     # Check if 'feature' and 'test' are consistent within the block
     if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
         print(f"Warning: Inconsistent 'feature' or 'test' values in block for gene {gene}.")
-        return [], unsuccessful
+        return pd.DataFrame(), unsuccessful
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
@@ -78,7 +77,8 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
         for neg_mirna in n_negative_mirnas
     ]
 
-    return negative_sample_rows, unsuccessful
+    negative_df = pd.DataFrame(negative_sample_rows, columns=block.columns)
+    return negative_df, unsuccessful
 
 def main():
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
@@ -90,19 +90,22 @@ def main():
 
     random.seed(42)  # Set a fixed random seed for reproducibility
     
+    # Read the entire positive samples file
     positive_samples = pd.read_csv(args.ifile, sep='\t')
+    
+    # Write positive samples to the output file
+    positive_samples.to_csv(args.ofile, sep='\t', index=False, mode='w')
+    
     unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
     allowed_mirnas = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
     
-    negatives_rows = []
     unsuccessful = 0
     for block in yield_gene_blocks(args.ifile):
-        negatives, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
-        negatives_rows.extend(negatives)
-
-    negatives_df = pd.DataFrame(negatives_rows, columns=positive_samples.columns)
-    combined_df = pd.concat([positive_samples, negatives_df], ignore_index=True)
-    combined_df.to_csv(args.ofile, sep='\t', index=False)
+        negatives_df, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
+        
+        # Append negative samples for this block to the output file
+        if not negatives_df.empty:
+            negatives_df.to_csv(args.ofile, sep='\t', index=False, mode='a', header=False)
 
 if __name__ == "__main__":
     main()
