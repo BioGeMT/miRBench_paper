@@ -21,10 +21,10 @@ def precompute_allowed_mirnas(positive_file_path, min_allowed_distance):
             if i != j:  # Skip comparison with itself
                 dist = levenshtein_distance(seq_m, other_seq_m)
                 if dist > min_allowed_distance:
-                    per_mirna_allowed_mirnas.append((other_seq_m, other_noncodingRNA_fam))
+                    per_mirna_allowed_mirnas.append(other_seq_m)
         allowed_mirnas[seq_m] = per_mirna_allowed_mirnas
     
-    return allowed_mirnas
+    return allowed_mirnas, unique_mirnas_fams # check how to return 2 things!!!!!
 
 
 def yield_gene_blocks(positive_file_path):
@@ -76,7 +76,7 @@ def generate_negative_samples(block, unique_mirnas_fams, num_negatives, min_requ
                 # Check if the random mirna is not already binding to the gene
                 if random_mirna in pos_mirnas:
                     continue
-                # Check if the random mirna is not already in the blacklist
+                # Check if the random mirna is not already in the blacklist (already picked)
                 if random_mirna in negative_blacklist:
                     continue
                 # Get a minimum edit distance from all the positive mirnas of given gene
@@ -102,7 +102,7 @@ def generate_negative_samples(block, unique_mirnas_fams, num_negatives, min_requ
 
 def main():
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
-    parser.add_argument('--ifile', type=str, required=True, help="Input file name")
+    parser.add_argument('--ifile', type=str, required=True, help="Input file namem, must be sorted by 'seq.g'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     parser.add_argument('--neg_ratio', type=int, default=100, help="Number of negative samples to generate per positive sample")
     parser.add_argument('--min_required_edit_distance', type=int, default=3, help="Minimum required edit distance for negative samples")
@@ -115,7 +115,7 @@ def main():
     positive_samples = pd.read_csv(args.ifile, sep='\t')
 
     with open(positive_samples) as file_handler:
-        unique_mirnas_fams = precompute_allowed_mirnas(sorted_positive_samples, args.min_required_edit_distance)
+        unique_mirnas_fams = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
         for block in yield_gene_blocks(file_handler):
             negatives = generate_negative_samples(block, unique_mirnas_fams, args.neg_ratio, args.min_required_edit_distance)
             negatives.to_csv(args.ofile, sep='\t', mode='a', index=False, header=False)
