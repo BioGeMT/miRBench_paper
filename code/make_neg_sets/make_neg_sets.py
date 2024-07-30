@@ -61,9 +61,7 @@ def generate_negative_samples(block, unique_mirnas_fams, num_negatives, min_requ
     negative_blacklist = []
     unsuccessful = 0
 
-    pos_mirnas = []
-    for _, row in block.iterrows():
-        pos_mirnas.append(block['seq.m']) 
+    pos_mirnas = block['seq.m'].tolist()
 
     for i, pos_row in block.iterrows():
         gene = block['seq.g']
