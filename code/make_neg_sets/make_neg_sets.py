@@ -4,15 +4,12 @@ import random
 from Levenshtein import distance as levenshtein_distance
 import sys
 
-def get_unique_seqm_fam_pairs(positive_file_path):
+def get_unique_seqm_fam_pairs(positive_samples_df):
 
-    # Read only the necessary columns into a pandas DataFrame
-    df = pd.read_csv(positive_file_path, delimiter="\t", usecols=['seq.m', 'noncodingRNA_fam'])
+    unique_seqm_fam_pairs = positive_samples_df[['seq.m', 'noncodingRNA_fam']].drop_duplicates()
+    unique_seqm_fam_pairs_dict = unique_seqm_fam_pairs.set_index('seq.m')['noncodingRNA_fam'].to_dict()
 
-    # Extract unique pairs of 'seq.m' and 'noncodingRNA_fam'
-    unique_seqm_fam_pairs = df.drop_duplicates().values.tolist()
-
-    return unique_seqm_fam_pairs
+    return unique_seqm_fam_pairs_dict
 
 def yield_gene_blocks(positive_file_path):
     current_block = []
@@ -59,12 +56,10 @@ def compute_allowed_mirnas(gene_positives, min_allowed_distance):
 def intersect_allowed_mirnas(allowed_mirnas):
     return set.intersection(*map(set, allowed_mirnas.values())) # returns a set
 
-def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs, unsuccessful, min_required_edit_distance):
+def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, unsuccessful, min_required_edit_distance):
     
     neg_label = 0
-    feature = block['feature']
-    test = block['test']
-    gene = block['seq.g']
+    gene = block[gene].iloc[0]
 
     negative_sample_rows = []
 
@@ -83,20 +78,20 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs, unsuc
 
     n_negative_mirnas = random.sample(negative_mirnas, n)
 
-    if block[feature].nunique() == 1:
-        feature = block[feature].iloc[0]
+    if block['feature'].nunique() == 1:
+        feature = block['feature'].iloc[0]
     else:
         print(f"Warning: Multiple values for 'feature' in block {gene}.") 
         sys.exit(1)
 
-    if block[test].nunique() == 1:
-        test = block[test].iloc[0]
+    if block['test'].nunique() == 1:
+        test = block['test'].iloc[0]
     else:
         print(f"Warning: Multiple values for 'test' in block {gene}.")
         sys.exit(1)
 
     for neg_mirna in n_negative_mirnas:
-        neg_row = [gene, neg_mirna, unique_seqm_fam_pairs[neg_mirna], feature, test, neg_label]
+        neg_row = [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label]
         negative_sample_rows.append(neg_row)    
 
     return negative_sample_rows, unsuccessful
@@ -112,19 +107,17 @@ def main():
 
     # Set a fixed random seed for reproducibility
     random.seed(42)
-
-    # Load positive samples from the input file
-    positive_samples = pd.read_csv(args.ifile, sep='\t')
-
-    with open(positive_samples) as file_handler:
-        unique_seqm_fam_pairs = get_unique_seqm_fam_pairs(file_handler)
+    
+    with open(args.ifile) as file_handler:
+        positive_samples = pd.read_csv(file_handler, sep='\t')
+        unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples) 
         negatives_rows = []
         unsuccessful = 0
         for block in yield_gene_blocks(file_handler):
-            negatives, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs, unsuccessful, args.min_required_edit_distance)
+            negatives, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, unsuccessful, args.min_required_edit_distance)
             negatives_rows.append(negatives)
 
-    negatives_df = pd.DataFrame(negatives_rows)
+    negatives_df = pd.DataFrame(negatives_rows, columns=positive_samples.columns)
     combined_df = pd.concat([positive_samples, negatives_df], ignore_index=True)
     combined_df.to_csv(args.ofile, sep='\t', index=False)
 
