@@ -51,6 +51,7 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
 
     pos_mirnas = block['seq.m'].unique().tolist()
     
+    # Get the set of miRNAs that are allowed to be negative samples for this gene
     gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
     gene_allowed_mirnas = gene_allowed_mirnas - set(pos_mirnas)  # Remove positive miRNAs
     gene_allowed_mirnas = list(gene_allowed_mirnas)
@@ -77,8 +78,7 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
         for neg_mirna in n_negative_mirnas
     ]
 
-    negative_df = pd.DataFrame(negative_sample_rows, columns=block.columns)
-    return negative_df, unsuccessful
+    return negative_sample_rows, unsuccessful
 
 def main():
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
@@ -95,17 +95,24 @@ def main():
     
     # Write positive samples to the output file
     positive_samples.to_csv(args.ofile, sep='\t', index=False, mode='w')
-    
+
     unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
     allowed_mirnas = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
-    
-    unsuccessful = 0
-    for block in yield_gene_blocks(args.ifile):
-        negatives_df, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
-        
-        # Append negative samples for this block to the output file
-        if not negatives_df.empty:
-            negatives_df.to_csv(args.ofile, sep='\t', index=False, mode='a', header=False)
 
+    unsuccessful = 0 
+
+    with open(args.ofile, 'a') as ofile:
+        
+        for block in yield_gene_blocks(args.ifile):
+            negative_sample_rows, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
+            
+            # Append negative samples for this block to the output file
+            if not any(negative_sample_rows):
+                for sublist in negative_sample_rows:
+                    ofile.write('\t'.join(map(str, sublist)) + '\n')
+
+    if unsuccessful > 0:
+        print(f"Warning: Could not generate {args.neg_ratio} negative samples, missing {unsuccessful} negative samples.")
+        
 if __name__ == "__main__":
     main()
