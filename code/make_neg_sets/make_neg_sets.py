@@ -4,11 +4,20 @@ import random
 from Levenshtein import distance as levenshtein_distance
 import sys
 
-def get_unique_seqm_fam_pairs(positive_samples_df):
+def precompute_allowed_mirnas(positive_samples_df, min_allowed_distance):
+    unique_mirnas = positive_samples_df['seq.m'].unique()
+    allowed_mirnas = {}
+    
+    for mirna in unique_mirnas:
+        allowed_mirnas[mirna] = [other_mirna for other_mirna in unique_mirnas 
+                                 if mirna != other_mirna and 
+                                 levenshtein_distance(mirna, other_mirna) > min_allowed_distance]
+    
+    return allowed_mirnas
 
+def get_unique_seqm_fam_pairs(positive_samples_df):
     unique_seqm_fam_pairs = positive_samples_df[['seq.m', 'noncodingRNA_fam']].drop_duplicates()
     unique_seqm_fam_pairs_dict = unique_seqm_fam_pairs.set_index('seq.m')['noncodingRNA_fam'].to_dict()
-
     return unique_seqm_fam_pairs_dict
 
 def yield_gene_blocks(positive_file_path):
@@ -16,11 +25,9 @@ def yield_gene_blocks(positive_file_path):
     current_seq_g = None
 
     with open(positive_file_path, 'r') as file:
-        # Read the header (first line)
         header_columns = file.readline().strip().split()
         seq_g_index = header_columns.index('seq.g')
 
-        # Process the rest of the file
         for line in file:
             columns = line.strip().split()
             seq_g = columns[seq_g_index]
@@ -38,91 +45,74 @@ def yield_gene_blocks(positive_file_path):
         block_df = pd.DataFrame(current_block, columns=header_columns)
         yield block_df
 
-def compute_allowed_mirnas(gene_positives, min_allowed_distance):
-
-    allowed_mirnas = {}
-    
-    for mirna in gene_positives:
-        per_mirna_allowed_mirnas = []
-        for other_mirna in gene_positives:
-            if mirna != other_mirna:
-                dist = levenshtein_distance(mirna, other_mirna)
-                if dist > min_allowed_distance:
-                    per_mirna_allowed_mirnas.append(other_mirna)
-        allowed_mirnas[mirna] = per_mirna_allowed_mirnas            
-
-    return allowed_mirnas
-
-def intersect_allowed_mirnas(allowed_mirnas):
-    return set.intersection(*map(set, allowed_mirnas.values())) # returns a set
-
-def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, unsuccessful, min_required_edit_distance):
-    
+def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful):
     neg_label = 0
     gene = block['seq.g'].iloc[0]
 
-    negative_sample_rows = []
-
     pos_mirnas = block['seq.m'].unique().tolist()
+    
+    # Get the set of miRNAs that are allowed to be negative samples for this gene
+    gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
+    gene_allowed_mirnas = list(gene_allowed_mirnas)
 
-    gene_allowed_mirnas = compute_allowed_mirnas(pos_mirnas, min_required_edit_distance)
+    n = neg_ratio * block.shape[0] + unsuccessful
 
-    negative_mirnas = intersect_allowed_mirnas(gene_allowed_mirnas)
-    negative_mirnas_list = list(negative_mirnas)
-
-    n = num_negatives*block.shape[0] + unsuccessful
-
-    if n > len(negative_mirnas_list):
-        unsuccessful = n - len(negative_mirnas_list)
-        n_negative_mirnas = negative_mirnas_list
+    if n > len(gene_allowed_mirnas):
+        unsuccessful = n - len(gene_allowed_mirnas)
+        n_negative_mirnas = gene_allowed_mirnas
     else:
         unsuccessful = 0
-        n_negative_mirnas = random.sample(negative_mirnas_list, n)
+        n_negative_mirnas = random.sample(gene_allowed_mirnas, n)
 
-    if block['feature'].nunique() == 1:
-        feature = block['feature'].iloc[0]
-    else:
-        print(f"Warning: Multiple values for 'feature' in block {gene}.") 
-        sys.exit(1)
+    # Check if 'feature' and 'test' are consistent within the block
+    if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
+        print(f"Warning: Inconsistent 'feature' or 'test' values in block for gene {gene}.")
+        return [], unsuccessful # or ignore block?
 
-    if block['test'].nunique() == 1:
-        test = block['test'].iloc[0]
-    else:
-        print(f"Warning: Multiple values for 'test' in block {gene}.")
-        sys.exit(1)
+    feature = block['feature'].iloc[0]
+    test = block['test'].iloc[0]
 
-    for neg_mirna in n_negative_mirnas:
-        neg_row = [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label]
-        negative_sample_rows.append(neg_row)    
+    negative_sample_rows = [
+        [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label]
+        for neg_mirna in n_negative_mirnas
+    ]
 
     return negative_sample_rows, unsuccessful
 
-
 def main():
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
-    parser.add_argument('--ifile', type=str, required=True, help="Input file namem, must be sorted by 'seq.g'")
+    parser.add_argument('--ifile', type=str, required=True, help="Input file name, must be sorted by 'seq.g'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     parser.add_argument('--neg_ratio', type=int, default=100, help="Number of negative samples to generate per positive sample")
     parser.add_argument('--min_required_edit_distance', type=int, default=3, help="Minimum required edit distance for negative samples")
     args = parser.parse_args()
 
-    # Set a fixed random seed for reproducibility
-    random.seed(42)
+    random.seed(42)  # Set a fixed random seed for reproducibility
     
-    with open(args.ifile) as file_handler:
-        positive_samples = pd.read_csv(file_handler, sep='\t')
-        unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples) 
-        negatives_rows = []
-        unsuccessful = 0
+    # Read the entire positive samples file
+    positive_samples = pd.read_csv(args.ifile, sep='\t')
+    
+    # Write positive samples to the output file
+    positive_samples.to_csv(args.ofile, sep='\t', index=False, mode='w')
+
+    unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
+    allowed_mirnas = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
+    del positive_samples
+
+    unsuccessful = 0 
+
+    with open(args.ofile, 'a') as ofile:
+        
         for block in yield_gene_blocks(args.ifile):
-            negatives, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, unsuccessful, args.min_required_edit_distance)
-            for sublist in negatives:
-                negatives_rows.append(sublist)
+            negative_sample_rows, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
+            
+            # Append negative samples for this block to the output file
+            if not any(negative_sample_rows):
+                for sublist in negative_sample_rows:
+                    ofile.write('\t'.join(map(str, sublist)) + '\n')
 
-    negatives_df = pd.DataFrame(negatives_rows, columns=positive_samples.columns)
-    combined_df = pd.concat([positive_samples, negatives_df], ignore_index=True)
-    combined_df.to_csv(args.ofile, sep='\t', index=False)
-
+    if unsuccessful > 0:
+        print(f"Warning: Could not generate {args.neg_ratio} negative samples, missing {unsuccessful} negative samples.")
+        
 if __name__ == "__main__":
     main()
-
