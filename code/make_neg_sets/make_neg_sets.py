@@ -26,11 +26,11 @@ def yield_gene_blocks(positive_file_path):
     current_seq_g = None
 
     with open(positive_file_path, 'r') as file:
-        header_columns = file.readline().strip().split()
+        header_columns = file.readline().strip().split('\t')
         seq_g_index = header_columns.index('seq.g')
 
         for line in file:
-            columns = line.strip().split()
+            columns = line.strip().split('\t')
             seq_g = columns[seq_g_index]
 
             if seq_g != current_seq_g:
