@@ -3,6 +3,7 @@ import pandas as pd
 import random
 from Levenshtein import distance as levenshtein_distance
 import sys
+import time
 
 def precompute_allowed_mirnas(positive_samples_df, min_allowed_distance):
     unique_mirnas = positive_samples_df['seq.m'].unique()
@@ -80,6 +81,9 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     return negative_sample_rows, unsuccessful
 
 def main():
+    # record start time
+    start = time.time()
+
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
     parser.add_argument('--ifile', type=str, required=True, help="Input file name, must be sorted by 'seq.g'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
@@ -112,6 +116,13 @@ def main():
 
     if unsuccessful > 0:
         print(f"Warning: Could not generate {args.neg_ratio} negative samples, missing {unsuccessful} negative samples.")
-        
+    
+    # record end time
+    end = time.time() 
+
+    # print the difference between start and end time in secs
+    print(f"The time of execution for neg_ratio {args.neg_ratio} is:",(end-start),"s")
+
+
 if __name__ == "__main__":
     main()
