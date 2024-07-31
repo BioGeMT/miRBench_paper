@@ -45,7 +45,7 @@ def yield_gene_blocks(positive_file_path):
         block_df = pd.DataFrame(current_block, columns=header_columns)
         yield block_df
 
-def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful):
+def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful):
     neg_label = 0
     gene = block['seq.g'].iloc[0]
 
@@ -53,10 +53,9 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
     
     # Get the set of miRNAs that are allowed to be negative samples for this gene
     gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
-    gene_allowed_mirnas = gene_allowed_mirnas - set(pos_mirnas)  # Remove positive miRNAs
     gene_allowed_mirnas = list(gene_allowed_mirnas)
 
-    n = num_negatives * block.shape[0] + unsuccessful
+    n = neg_ratio * block.shape[0] + unsuccessful
 
     if n > len(gene_allowed_mirnas):
         unsuccessful = n - len(gene_allowed_mirnas)
@@ -68,7 +67,7 @@ def generate_negative_samples(block, num_negatives, unique_seqm_fam_pairs_dict, 
     # Check if 'feature' and 'test' are consistent within the block
     if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
         print(f"Warning: Inconsistent 'feature' or 'test' values in block for gene {gene}.")
-        return pd.DataFrame(), unsuccessful
+        return [], unsuccessful # or ignore block?
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
@@ -98,6 +97,7 @@ def main():
 
     unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
     allowed_mirnas = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
+    del positive_samples
 
     unsuccessful = 0 
 
