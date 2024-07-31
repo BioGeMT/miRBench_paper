@@ -33,8 +33,8 @@ family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
 
 # define directories for output and intermediate files
-output_dir=${output_dir:-$(pwd)/output}
-intermediate_dir=${intermediate_dir:-$(pwd)/intermediate}
+output_dir="${output_dir:-$(pwd)/output}"
+intermediate_dir="${intermediate_dir:-$(pwd)/intermediate}"
 mature_dir="$intermediate_dir/mature"
 
 # create output and intermediate directories if they don't exist
@@ -110,7 +110,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
 
     # Step 4: Sort the family assigned file based on the first column in preparation for negative sample generation
     echo "Sorting the family assigned file based on the first column..."
-    (head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k1,1 -t $'\t') > "${family_assigned_file_sorted}"
+    (head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k 1) > "${family_assigned_file_sorted}"
     echo "Family assigned file sorted. Output saved to $family_assigned_file_sorted"
 
     # Step 5: Make negatives with different ratios
