@@ -107,9 +107,8 @@ def main():
             negative_sample_rows, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
             
             # Append negative samples for this block to the output file
-            if not any(negative_sample_rows):
-                for sublist in negative_sample_rows:
-                    ofile.write('\t'.join(map(str, sublist)) + '\n')
+            for sublist in negative_sample_rows:
+                ofile.write('\t'.join(map(str, sublist)) + '\n')
 
     if unsuccessful > 0:
         print(f"Warning: Could not generate {args.neg_ratio} negative samples, missing {unsuccessful} negative samples.")
