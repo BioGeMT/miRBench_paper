@@ -68,9 +68,9 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     # Check if 'feature' and 'test' are consistent within the block
     if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
         print(f"Warning: Inconsistent 'feature' or 'test' values in block for gene {gene}.")
-        unsuccessful += block.shape[0]
+        unsuccessful = n
         return [], unsuccessful 
-        
+
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
 
