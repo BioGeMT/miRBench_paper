@@ -47,6 +47,11 @@ def yield_gene_blocks(positive_file_path):
         yield block_df
 
 def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful):
+    
+    # Check if 'feature' and 'test' are consistent within the block
+    if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
+        return [], unsuccessful
+    
     neg_label = 0
     gene = block['seq.g'].iloc[0]
 
@@ -64,12 +69,6 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     else:
         unsuccessful = 0
         n_negative_mirnas = random.sample(gene_allowed_mirnas, n)
-
-    # Check if 'feature' and 'test' are consistent within the block
-    if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
-        print(f"Warning: Inconsistent 'feature' or 'test' values in block for gene {gene}.")
-        unsuccessful = n
-        return [], unsuccessful 
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
@@ -98,22 +97,34 @@ def main():
     positive_samples = pd.read_csv(args.ifile, sep='\t')
     
     # Write positive samples to the output file
-    positive_samples.to_csv(args.ofile, sep='\t', index=False, mode='w')
+    positive_samples.head(0).to_csv(args.ofile, sep='\t', index=False, mode='w')
 
     unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
     allowed_mirnas = precompute_allowed_mirnas(positive_samples, args.min_required_edit_distance)
     del positive_samples
 
     unsuccessful = 0 
+    inconsistent_blocks = pd.DataFrame(columns=['seq.g', 'seq.m', 'noncodingRNA_fam', 'feature', 'test', 'label'])
 
     with open(args.ofile, 'a') as ofile:
         
         for block in yield_gene_blocks(args.ifile):
+
             negative_sample_rows, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
-            
-            # Append negative samples for this block to the output file
-            for sublist in negative_sample_rows:
-                ofile.write('\t'.join(map(str, sublist)) + '\n')
+
+            if len(negative_sample_rows) > 0:
+                # Append positive samples for this block to the output file
+                block.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
+                # Append negative samples for this block to the output file
+                for sublist in negative_sample_rows:
+                    ofile.write('\t'.join(map(str, sublist)) + '\n')
+            else:
+                inconsistent_blocks = pd.concat([inconsistent_blocks, block], ignore_index=True)
+
+    if inconsistent_blocks.shape[0] > 0:
+        # Print excluded positive samples block to stderr if no negative samples were generated
+        sys.stderr.write(f"Warning: Could not generate negative samples for the following positive samples due to inconsistent feature or chr.g for the same gene. Excluding positive samples. \n")
+        sys.stderr.write(inconsistent_blocks.to_string(index=False) + '\n')
 
     if unsuccessful > 0:
         print(f"Warning: Could not generate {args.neg_ratio} negative samples, missing {unsuccessful} negative samples.")
