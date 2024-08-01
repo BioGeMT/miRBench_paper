@@ -96,7 +96,7 @@ def main():
     # Read the entire positive samples file
     positive_samples = pd.read_csv(args.ifile, sep='\t')
     
-    # Write positive samples to the output file
+    # Write header to the output file
     positive_samples.head(0).to_csv(args.ofile, sep='\t', index=False, mode='w')
 
     unique_seqm_fam_pairs_dict = get_unique_seqm_fam_pairs(positive_samples)
@@ -112,7 +112,7 @@ def main():
 
             negative_sample_rows, unsuccessful = generate_negative_samples(block, args.neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful)
 
-            if len(negative_sample_rows) > 0:
+            if negative_sample_rows:
                 # Append positive samples for this block to the output file
                 block.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
                 # Append negative samples for this block to the output file
