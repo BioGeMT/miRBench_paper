@@ -16,7 +16,7 @@ def filter_and_create_table(data):
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
         'label': '1'
-    })
+    }, columns=['seq.g', 'seq.m', 'noncodingRNA_fam', 'feature', 'test', 'label'])
 
     return filtered_table
 
