@@ -148,16 +148,18 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
             file="$output_dir/${base_name}${suffix}${ratio}.tsv"
-            awk -F'\t' 'BEGIN{OFS="\t"} { $5=""; sub("\t\t", "\t"); print }' "$file" > "${file}_tmp" && mv "${file}_tmp" "$file"
+            # Use awk to remove the fifth column without causing column shifts
+            awk -F'\t' 'BEGIN{OFS="\t"} {for(i=1;i<=NF;i++) if(i!=5) printf "%s%s", $i, (i==NF?"\n":OFS)}' "$file" > "${file}_tmp" && mv "${file}_tmp" "$file"
         done
     done
     if [ $? -ne 0 ]; then
         echo "Error in removing the fifth column."
         exit 1
     fi
-
+    
     echo "Fifth column removed from train set and test set."
-done
+    
+    done
 
 # Done
 echo "Post-processing pipeline completed successfully."
