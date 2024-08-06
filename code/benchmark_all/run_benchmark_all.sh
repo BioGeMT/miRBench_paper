@@ -25,5 +25,5 @@ if [ -z "$OUT_DIR" ]; then
     exit 1
 fi
 
-python /data/biogemt/miRNA_Binding_Site_Prediction/mirbench/benchmark_all.py --out_dir $OUT_DIR
+python benchmark_all.py --out_dir $OUT_DIR
 
