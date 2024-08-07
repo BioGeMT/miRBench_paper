@@ -6,7 +6,7 @@ import sys
 import time
 
 def precompute_allowed_mirnas(positive_samples_df, min_allowed_distance):
-    unique_mirnas = positive_samples_df['seq.m'].unique()
+    unique_mirnas = positive_samples_df['noncodingRNA'].unique()
     allowed_mirnas = {}
     
     for mirna in unique_mirnas:
@@ -17,8 +17,8 @@ def precompute_allowed_mirnas(positive_samples_df, min_allowed_distance):
     return allowed_mirnas
 
 def get_unique_seqm_fam_pairs(positive_samples_df):
-    unique_seqm_fam_pairs = positive_samples_df[['seq.m', 'noncodingRNA_fam']].drop_duplicates()
-    unique_seqm_fam_pairs_dict = unique_seqm_fam_pairs.set_index('seq.m')['noncodingRNA_fam'].to_dict()
+    unique_seqm_fam_pairs = positive_samples_df[['noncodingRNA', 'noncodingRNA_fam']].drop_duplicates()
+    unique_seqm_fam_pairs_dict = unique_seqm_fam_pairs.set_index('noncodingRNA')['noncodingRNA_fam'].to_dict()
     return unique_seqm_fam_pairs_dict
 
 def yield_gene_blocks(positive_file_path):
@@ -27,7 +27,7 @@ def yield_gene_blocks(positive_file_path):
 
     with open(positive_file_path, 'r') as file:
         header_columns = file.readline().strip().split('\t')
-        seq_g_index = header_columns.index('seq.g')
+        seq_g_index = header_columns.index('gene')
 
         for line in file:
             columns = line.strip().split('\t')
@@ -53,9 +53,9 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
         return [], unsuccessful
     
     neg_label = 0
-    gene = block['seq.g'].iloc[0]
+    gene = block['gene'].iloc[0]
 
-    pos_mirnas = block['seq.m'].unique().tolist()
+    pos_mirnas = block['noncodingRNA'].unique().tolist()
     
     # Get the set of miRNAs that are allowed to be negative samples for this gene
     gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
@@ -85,7 +85,7 @@ def main():
     start = time.time()
 
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
-    parser.add_argument('--ifile', type=str, required=True, help="Input file name, must be sorted by 'seq.g'")
+    parser.add_argument('--ifile', type=str, required=True, help="Input file name, must be sorted by 'gene'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     parser.add_argument('--neg_ratio', type=int, default=100, help="Number of negative samples to generate per positive sample")
     parser.add_argument('--min_required_edit_distance', type=int, default=3, help="Minimum required edit distance for negative samples")
@@ -104,7 +104,7 @@ def main():
     del positive_samples
 
     unsuccessful = 0 
-    inconsistent_blocks = pd.DataFrame(columns=['seq.g', 'seq.m', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+    inconsistent_blocks = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
 
     with open(args.ofile, 'a') as ofile:
         

@@ -10,13 +10,13 @@ def filter_and_create_table(data):
 
     # create the new dataframe with specific column names and transformations.
     filtered_table = pd.DataFrame({
-        'seq.g': filtered_data['seq.g'],
-        'seq.m': filtered_data['noncodingRNA_seq'],
+        'gene': filtered_data['seq.g'],
+        'noncodingRNA': filtered_data['noncodingRNA_seq'],
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
         'label': '1'
-    }, columns=['seq.g', 'seq.m', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
 
     return filtered_table
 
