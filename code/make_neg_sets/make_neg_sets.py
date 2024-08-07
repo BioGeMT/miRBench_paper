@@ -61,14 +61,18 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
     gene_allowed_mirnas = list(gene_allowed_mirnas)
 
-    n = neg_ratio * block.shape[0] + unsuccessful
-
-    if n > len(gene_allowed_mirnas):
-        unsuccessful = n - len(gene_allowed_mirnas)
+    if neg_ratio == 'max':
+        n = len(gene_allowed_mirnas) + unsuccessful
+        unsuccessful = 0
         n_negative_mirnas = gene_allowed_mirnas
     else:
-        unsuccessful = 0
-        n_negative_mirnas = random.sample(gene_allowed_mirnas, n)
+        n = neg_ratio * block.shape[0] + unsuccessful
+        if n > len(gene_allowed_mirnas):
+            unsuccessful = n - len(gene_allowed_mirnas)
+            n_negative_mirnas = gene_allowed_mirnas
+        else:
+            unsuccessful = 0
+            n_negative_mirnas = random.sample(gene_allowed_mirnas, n)
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
