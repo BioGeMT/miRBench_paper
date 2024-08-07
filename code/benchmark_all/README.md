@@ -18,6 +18,6 @@ Note: miRBench in a conda environment still needs be tested - ran into issues
 
 Submit run_benchmark_all.sh to an HPC cluster via sbatch
 
-`sbatch run_benchmark_all.sh -o <output_directory>` 
+`sbatch run_benchmark_all.sh -o <output_directory> -d <download_directory` 
 
 
