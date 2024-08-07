@@ -122,7 +122,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         echo "Running make_neg_sets.py for $family_assigned_file_sorted with ratio $ratio..."
         python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$family_assigned_file_sorted" --ofile "$neg_output" --neg_ratio "$ratio" --min_required_edit_distance "$min_edit_distance"
         if [ $? -ne 0 ]; then
-            echo "Error in generating negative samples for train set. Check your script and input file."
+            echo "Error in generating negative samples. Check your script and input file."
             exit 1
         fi
         echo "File with negative samples for ratio $ratio saved to $neg_output"

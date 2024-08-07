@@ -66,6 +66,7 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
         unsuccessful = 0
         n_negative_mirnas = gene_allowed_mirnas
     else:
+        neg_ratio = int(neg_ratio)
         n = neg_ratio * block.shape[0] + unsuccessful
         if n > len(gene_allowed_mirnas):
             unsuccessful = n - len(gene_allowed_mirnas)
@@ -91,7 +92,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate negative samples with specific edit distance.")
     parser.add_argument('--ifile', type=str, required=True, help="Input file name, must be sorted by 'gene'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
-    parser.add_argument('--neg_ratio', type=int, default=100, help="Number of negative samples to generate per positive sample")
+    parser.add_argument('--neg_ratio', default=1, help="Number of negative samples to generate per positive sample")
     parser.add_argument('--min_required_edit_distance', type=int, default=3, help="Minimum required edit distance for negative samples")
     args = parser.parse_args()
 
