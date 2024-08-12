@@ -62,7 +62,6 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     gene_allowed_mirnas = list(gene_allowed_mirnas)
 
     if neg_ratio == 'max':
-        n = len(gene_allowed_mirnas) + unsuccessful
         unsuccessful = 0
         n_negative_mirnas = gene_allowed_mirnas
     else:
