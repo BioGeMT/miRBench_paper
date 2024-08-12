@@ -33,6 +33,10 @@ def benchmark_all(block, dset, ratio):
 def main():
     parser = argparse.ArgumentParser(description="Benchmark all available predictors on all available datasets")
     parser.add_argument("--out_dir", type=str, default=".", help="Output directory for predictions")
+<<<<<<< HEAD
+=======
+    parser.add_argument("--download_dir", type=str, default=".", help="Directory to download datasets to")
+>>>>>>> 19ccb56f3118397b94281dd06caef59fe074eb2b
     args = parser.parse_args()
     
     split = "test"
@@ -41,7 +45,13 @@ def main():
     for dset in miRBench.dataset.list_datasets():
         for ratio in ["1", "10", "100"]:
             print(f"Downloading {dset} dataset, ratio {ratio}")
+<<<<<<< HEAD
             input_file = miRBench.dataset.get_dataset_path(dset, split=split, ratio=ratio)
+=======
+            download_dir = args.download_dir
+            dset_dir = miRBench.dataset.download_dataset(dset, download_dir, split=split, ratio=ratio)
+            input_file = os.path.join(dset_dir, f"{dset}_{ratio}_{split}_dataset.tsv")
+>>>>>>> 19ccb56f3118397b94281dd06caef59fe074eb2b
             output_file = os.path.join(args.out_dir, f"{dset}_{ratio}_predictions.tsv")
             header_written = False
             for block in yield_blocks(input_file, 339066): 
