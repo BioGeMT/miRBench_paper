@@ -12,7 +12,7 @@ def filter_and_create_table(data, mature_sequences):
     
     # update 'noncodingRNA_fam' based on mature sequences if it is '0'
     data['noncodingRNA_fam'] = data.apply(
-        lambda row: mature_sequences.get(row['seq.m'].replace('T', 'U'), row['noncodingRNA_fam']) if row['noncodingRNA_fam'] == '0' else row['noncodingRNA_fam'],
+        lambda row: mature_sequences.get(row['noncodingRNA'].replace('T', 'U'), row['noncodingRNA_fam']) if row['noncodingRNA_fam'] == '0' else row['noncodingRNA_fam'],
         axis=1
     )
     

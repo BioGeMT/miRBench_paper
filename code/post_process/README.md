@@ -5,6 +5,7 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Requirements
 - Python 3
+- Run `conda env create --name <env_name> --file=post_process.yml`, then `conda activate <env_name>`
 - Necessary Python scripts located in specified directories:
   - `filtering/filtering.py`
   - `family_assign/family_assign.py`
@@ -18,8 +19,8 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Options
 - `-i` : Input directory containing `.tsv` files (required).
-- `-o` : Output directory (optional, default: `output_data` in current directory).
-- `-n` : Intermediate directory (optional, default: `intermediate_data` in current directory).
+- `-o` : Output directory (optional, default: `output` in current directory).
+- `-n` : Intermediate directory (optional, default: `intermediate` in current directory).
 - `-t` : Comma-separated list of negative ratios (optional, default: `1,10,100`).
 - `-r` : Minimum edit distance (optional, default: `3`).
 
@@ -66,7 +67,7 @@ The script logs all output to a file named `pipeline.log` in the output director
 ./post_process.sh -i input_data -o output -n intermediate -t 1,10,100 -r 3
 ```
 
-This example processes `.tsv` files in the `input_data` directory, outputs results to the `output` directory, and uses the `ntermediate` directory for intermediate files. It generates negative samples with ratios 1, 10, and 100, and uses a minimum edit distance of 3.
+This example processes `.tsv` files in the `input_data` directory, outputs results to the `output` directory, and uses the `intermediate` directory for intermediate files. It generates negative samples with ratios 1, 10, and 100, and uses a minimum edit distance of 3.
 
 ## Notes
 - Ensure the directories containing the Python scripts (`filtering`, `family_assign`, `make_neg_sets`) are correctly set relative to the location of this script.
