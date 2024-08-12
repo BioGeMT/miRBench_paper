@@ -6,13 +6,11 @@
 
 # Initialize variables
 OUT_DIR=""
-DWNLD_DIR=""
 
 # Parse command-line options
-while getopts ":o:d:" opt; do
+while getopts ":o:" opt; do
   case $opt in
     o) OUT_DIR="$OPTARG" ;;
-    d) DWNLD_DIR="$OPTARG" ;;
     \?) echo "Invalid option: -$OPTARG" >&2
       exit 1 ;;
     :) echo "Option -$OPTARG requires an argument." >&2
@@ -27,12 +25,6 @@ if [ -z "$OUT_DIR" ]; then
     exit 1
 fi
 
-# Check if DWNLD_DIR is provided
-if [ -z "$DWNLD_DIR" ]; then
-    echo "Error: Download directory not specified. This is where the datasets will be downloaded."
-    echo "Usage: sbatch run_benchmark_all.sh -o <output_directory> -d <download_directory>"
-    exit 1
-fi
 
-python benchmark_all.py --out_dir $OUT_DIR --download_dir $DWNLD_DIR
+python benchmark_all.py --out_dir $OUT_DIR
 
