@@ -23,7 +23,7 @@ def plot_pr_curve(data, predictors, figsize=(6, 6), dpi=300, title=None):
         if predictor not in data.columns:
             raise KeyError(f"Predictor {predictor} not found in the data.")
             
-        if predictor.startswith('kmer'):
+        if predictor.startswith('Seed'):
             p, r, _, _ = precision_recall_fscore_support(data['label'].values, data[predictor].values, average='binary')
             ax.plot(r, p, 'o', label=predictor)
         else:
@@ -64,7 +64,7 @@ def main():
 
     # if predictors is none, set it to all columns, except columns noncodingRNA, gene and label
     if args.predictors is None:
-        args.predictors = [col for col in data.columns if col not in ['noncodingRNA', 'miRNA', 'gene', 'label']]
+        args.predictors = [col for col in data.columns if col not in ['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'label']]
 
     # plot precision-recall curves for all predictors
     fig, ax = plot_pr_curve(data, args.predictors, title=args.title)
