@@ -1,4 +1,11 @@
-# Evaluation of predictions from various predictors
+# Evaluation of predictions from various tools
+
+This directory contains code to generate various evaluation metrics of predictions from various tools. 
+
+- PR_AUC
+- ROC_AUC
+- Average_Precision
+- F1_Score
 
 ## Requirements 
 
