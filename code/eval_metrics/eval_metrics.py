@@ -1,10 +1,8 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import precision_recall_curve
-from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import auc
-from sklearn.metrics import average_precision_score
 import argparse
 import sys
 
@@ -12,39 +10,34 @@ def load_data(input_file):
     # load the data from the input file
     return pd.read_csv(input_file, sep='\t')
 
-def get_metrics(data, predictors):
-
-    f1score_dict = {}
-    pr_auc_dict = {}
-    roc_auc_dict = {}
-    avg_p_score_dict = {}
+def get_metric(data, predictors, metric):
+        
+    auc_dict = {}
 
     for predictor in predictors:
         if predictor not in data.columns:
             raise KeyError(f"Predictor {predictor} not found in the data.")
         if predictor.startswith('Seed'):
-            _, _, f1score, _ = precision_recall_fscore_support(data['label'].values, data[predictor].values, average='binary', beta=1.0)
-            f1score_dict[predictor] = f1score
-        else:        
-            precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
-            pr_auc = auc(recall, precision)
-            pr_auc_dict[predictor] = pr_auc
+            continue
+        else:
+            if metric == 'auc-pr':        
+                precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
+                pr_auc = auc(recall, precision)
+                auc_dict[predictor] = np.round(pr_auc, 2)
+            elif metric == 'auc-roc':
+                roc_auc = roc_auc_score(data['label'], data[predictor])
+                auc_dict[predictor] = np.round(roc_auc, 2)
 
-            roc_auc = roc_auc_score(data['label'], data[predictor])
-            roc_auc_dict[predictor] = roc_auc
-
-            avg_p_score = average_precision_score(data['label'], data[predictor])
-            avg_p_score_dict[predictor] = avg_p_score
-
-    return pr_auc_dict, roc_auc_dict, avg_p_score_dict, f1score_dict
+    return auc_dict
 
 ###############
 
 def main():
     # argument parsing
-    parser = argparse.ArgumentParser(description="Evaluate predictors using PR AUC, ROC AUC, average precision, F1 score")
-    parser.add_argument('--ifile', help="Input file (default: STDIN)", default=None)
+    parser = argparse.ArgumentParser(description="Evaluate predictors using PR AUC and/or ROC AUC")
+    parser.add_argument('--ifile', help="Input file containing the prediction scores in TSV format (default: STDIN)", default=None)
     parser.add_argument('--predictors', help="List of predictor names (default: all)", default=None)
+    parser.add_argument('--metric', help="Evaluation metric to compute; AUC-PR or AUC-ROC (default: auc-pr)", default=None)
     parser.add_argument('--ofile', help="Output file (default: STDOUT)", default=None)
     args = parser.parse_args()
 
@@ -61,16 +54,26 @@ def main():
 
     # if predictors is none, set it to all columns, except columns gene, noncodingRNA, noncodingRNA_fam, feature, and label
     if args.predictors is None:
-        args.predictors = [col for col in data.columns if col not in ['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'label']]
+        args.predictors = ['TargetScanCnn_McGeary2019',
+            'CnnMirTarget_Zheng2020',
+            'TargetNet_Min2021',
+            'miRBind_Klimentova2022',
+            'miRNA_CNN_Hejret2023',
+            'InteractionAwareModel_Yang2024',
+            'RNACofold'] # in chronological order, excluding seed-based predictors
+
+    # if metric is none, set it to auc-pr
+    if args.metric is None:
+        args.metric = 'auc-pr'
 
     # get the metrics
-    pr_aucs, roc_aucs, avg_p_scores, fscore_dict = get_metrics(data, args.predictors)
+    auc = get_metric(data, args.predictors, args.metric)
 
     # write the results to the output file
     with open(args.ofile, 'w') as ofile:
-        ofile.write("Predictor\tPR_AUC\tROC_AUC\tAverage_Precision\tF1_Score\n")
+        ofile.write(f"Tool\t{args.metric}\n")
         for predictor in args.predictors:
-            ofile.write(f"{predictor}\t{pr_aucs.get(predictor, 'NA')}\t{roc_aucs.get(predictor, 'NA')}\t{avg_p_scores.get(predictor, 'NA')}\t{fscore_dict.get(predictor, 'NA')}\n")
+            ofile.write(f"{predictor}\t{auc[predictor]}\n")
 
 if __name__ == "__main__":
     main()
