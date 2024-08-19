@@ -78,7 +78,7 @@ def main():
             'Seed8mer', 
             'Seed7mer',
             'Seed6mer', 
-            'Seed6merBulgeorMismatch'] # in chronological order
+            'Seed6merBulgeOrMismatch'] # in chronological order
 
     # plot precision-recall curves for all predictors
     fig, ax = plot_pr_curve(data, args.predictors, title=args.title)
