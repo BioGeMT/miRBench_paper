@@ -19,7 +19,7 @@ python eval_metrics.py --ifile <input_predictions_file> --ofile <output_metrics_
 - `--ifile`: Input file containing the prediction scores in TSV format (default: STDIN)
 - `--ofile`: Output file to save the evaluation metrics (default: STDOUT)
 - `--predictors`: List of predictors to evaluate (default: all predictors)
-- `--metric`: Evaluation metric to compute; AUC-PR or AUC-ROC (default: auc-pr)
+- `--metric`: Evaluation metric to compute; auc-pr or auc-roc (default: auc-pr)
 
 ### Example
 

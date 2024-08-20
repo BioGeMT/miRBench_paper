@@ -27,6 +27,8 @@ def get_metric(data, predictors, metric):
             elif metric == 'auc-roc':
                 roc_auc = roc_auc_score(data['label'], data[predictor])
                 auc_dict[predictor] = np.round(roc_auc, 2)
+            else:
+                raise ValueError(f"Invalid metric {metric}. Please choose one of 'auc-pr' or 'auc-roc'.
 
     return auc_dict
 
@@ -37,7 +39,7 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate predictors using PR AUC and/or ROC AUC")
     parser.add_argument('--ifile', help="Input file containing the prediction scores in TSV format (default: STDIN)", default=None)
     parser.add_argument('--predictors', help="List of predictor names (default: all)", default=None)
-    parser.add_argument('--metric', help="Evaluation metric to compute; AUC-PR or AUC-ROC (default: auc-pr)", default=None)
+    parser.add_argument('--metric', help="Evaluation metric to compute; auc-pr or auc-roc (default: auc-pr)", default=None)
     parser.add_argument('--ofile', help="Output file (default: STDOUT)", default=None)
     args = parser.parse_args()
 
