@@ -1,0 +1,16 @@
+miRNA Families Set Analysis
+===========================
+Manakov2022 total: 10
+Hejret2023 total: 10
+Klimentova2022 total: 10
+
+Common to all three datasets: 2
+Common to Manakov2022 and Hejret2023 only: 2
+Common to Manakov2022 and Klimentova2022 only: 3
+Common to Hejret2023 and Klimentova2022 only: 0
+
+Unique to Manakov2022: 3
+Unique to Hejret2023: 6
+Unique to Klimentova2022: 5
+
+Total unique miRNA families across all datasets: 21
