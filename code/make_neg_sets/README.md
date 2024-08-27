@@ -1,36 +1,55 @@
-input file sample
+# Negative Example Generator for miRNA-Gene Interactions
 
-seq.g	seq.m	noncodingRNA_fam	feature	test	label
-TCCAAATTAGAAGGCCGGCCCCGTCCACATTTTGCACAGTGCCTTTACAG	TGTGCAAATCCATGCAAAACTGA	mir-19	three_prime_utr	True	1
-TATTTACTATAATGTTAGCTTACAAGCTGGGAATATAAGTGCATTAACGG	TATTGCACTTGTCCCGGCCTGT	mir-25	three_prime_utr	False	1
-ATATTCTCAGGCCGCAAGTGCAATGCCTGAGGGGATCAGGCTTTTCTACT	TATTGCACTTGTCCCGGCCTGT	mir-25	three_prime_utr	False	1
-ACTAAGGAACTGCAGCATTTGCACAGGGGAGGGGGGTGCCCTCCTTCCTA	TGTGCAAATCCATGCAAAACTGA	mir-19	three_prime_utr	False	1
+This Python script generates negative examples for miRNA-gene interaction datasets. 
 
---
+## Features
 
-I have this type of file.
-These are my 'positive label (1)' samples.
+- Generates negative examples based on positive miRNA-gene interaction data
+- Ensures a minimum edit distance between positive and negative miRNA examples
+- Supports flexible negative-to-positive example ratios
+- Handles large datasets efficiently by processing data in blocks
+- Preserves consistency in feature and test attributes within gene blocks
 
-I want to create N (e.g. 100) negative label (0) samples for each of the positives. 
-I will do that by associating the same seq.g with a different seq.m randomly selected in this file. 
-However, I want that seq.m to be a certain 'edit distance' away from the original one. Levenshtein edit distance.
+## Requirements
 
-How to run:
+- Python 3.x
+- pandas
+- Levenshtein
 
-python make_neg_sets.py \
-    --ifile pairs.tsv \
-    --ofile pairs.posneg.tsv \
-    --neg_ratio 100 \
-    --min_edit_distance 3 \
+You can install the required packages using pip:
 
-## Prerequisites
+`pip install pandas python-Levenshtein`
 
-Make sure you have the following Python packages installed:
+## Usage
 
-- `pandas`
-- `python-Levenshtein`
+Run the script from the command line with the following arguments:
 
-You can install these packages using pip:
+python make_neg_sets.py --ifile INPUT_FILE --ofile OUTPUT_FILE [--neg_ratio RATIO] [--min_required_edit_distance DISTANCE]
 
-```sh
-pip install pandas python-Levenshtein
+Arguments:
+- `--ifile`: Path to the input file (positive examples, must be sorted by 'gene')
+- `--ofile`: Path to the output file
+- `--neg_ratio`: Number of negative examples to generate per positive example (default: 1)
+- `--min_required_edit_distance`: Minimum required edit distance for negative examples (default: 3)
+
+## Input File Format
+
+The input file should be a tab-separated file with the following columns:
+- gene
+- noncodingRNA
+- noncodingRNA_fam
+- feature
+- test
+- label
+
+The file MUST be sorted by the 'gene' column.
+
+## Output
+
+The script generates an output file in the same format as the input, including both positive and negative examples. Negative examples are labeled with 0.
+
+## Notes
+
+- The script uses a fixed random seed (42) for reproducibility.
+- Warnings are printed to stderr for any inconsistent blocks or if the requested number of negative examples couldn't be generated.
+- Execution time is printed at the end of the process.
