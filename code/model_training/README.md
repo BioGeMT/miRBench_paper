@@ -10,7 +10,7 @@ The tsv file is expected to have `gene`, `noncodingRNA` and `label` columns.
 
 Have a look at the `training.ipynb` notebook with model training.
 
-### Notes: Dataset sizes and times to encode:
+### Notes - Dataset sizes and times to encode:
 
 **1:1**
 
@@ -30,6 +30,8 @@ Training cca 10 hours
 
 **1:100**
 
-Number of training samples: 127 476 014 !! the set bigger than should be?
+Number of training samples: 127 476 014 !! the set bigger than should be? 126 213 891 negatives vs. 1 262 123 positives 
 
-Encoding time: 48725 s ~ 812 min ~ 13,5 h
+Elapsed time: 48725 s ~ 812 min ~ 13,5 h
+
+Training around 2 weeks
