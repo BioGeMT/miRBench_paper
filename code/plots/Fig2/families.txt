@@ -1,7 +1,0 @@
-miRNA families common to all studies: 117
-Manakov2022 unique: 497
-Hejret2023 unique: 196
-Klimentova2022 unique: 22
-Manakov2022 total: 1104
-Hejret2023 total: 768
-Klimentova2022 total: 186
