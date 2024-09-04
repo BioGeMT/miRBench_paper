@@ -3,6 +3,8 @@ import argparse
 import os
 from seed_utils import find_seed_match
 
+#this creates a detailed tsv file with mirna families and seed type data across all datasets for supplement
+
 def process_dataset(file_path):
     df = pd.read_csv(file_path, sep='\t')
     df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
