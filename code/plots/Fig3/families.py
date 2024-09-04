@@ -115,9 +115,9 @@ def plot_seed_prevalence(seed_percentages, output_file):
     ax.set_xticks([x + (group_width / 2) for x in index])
     ax.set_xticklabels(seed_percentages.index, rotation=0, ha='center', fontsize=112*scale_factor, weight='bold')
 
-    ax.set_ylim(0, 70)
-    ax.set_yticks(range(0, 71, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 71, 10)], fontsize=112*scale_factor)
+    ax.set_ylim(0, 60)
+    ax.set_yticks(range(0, 61, 10))
+    ax.set_yticklabels([f'{i}%' for i in range(0, 61, 10)], fontsize=112*scale_factor)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # Make x and y axes black and bolder
