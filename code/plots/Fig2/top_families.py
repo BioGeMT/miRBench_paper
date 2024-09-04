@@ -76,10 +76,10 @@ def save_output_data(output_df, output_file):
     ax.set_xticks(x_centers)
     ax.set_xticklabels(top_10_families, rotation=0, ha='center', fontsize=34, weight='semibold')
 
-    # adjust y-axis to 50% max
-    ax.set_ylim(0, 50)
-    ax.set_yticks(range(0, 51, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 51, 10)], fontsize=34)
+    # adjust y-axis to 30% max
+    ax.set_ylim(0, 30)
+    ax.set_yticks(range(0, 31, 10))
+    ax.set_yticklabels([f'{i}%' for i in range(0, 31, 10)], fontsize=34)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # increase width of x and y axis lines
