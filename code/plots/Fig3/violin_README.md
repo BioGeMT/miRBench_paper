@@ -1,7 +1,7 @@
 
 ## Description
 
-The `violin.py` script processes miRNA data from multiple datasets and generates a violin plot to visualize the prevalence of different seed types across these datasets. It uses the seed matching logic defined in `seed_utils.py` to categorize miRNA-target interactions. The script now also outputs a TSV file containing the data used to create the violin plot.
+The `violin.py` script processes miRNA data from multiple datasets and generates a violin plot to visualize the prevalence of canonical seed types of unique miRNA families across datasets. It uses the seed matching logic defined in `seed_utils.py` to categorize miRNA-target interactions. The script now also outputs a TSV file containing the data used to create the violin plot.
 
 ## Usage
 
