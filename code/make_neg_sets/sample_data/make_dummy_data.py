@@ -34,6 +34,11 @@ dummy_data = generate_dummy_data(num_samples)
 
 # Create a DataFrame and save to a file
 df = pd.DataFrame(dummy_data, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+
+# Sort the DataFrame by 'gene' column
+df = df.sort_values(by='gene')
+
+# Save to a tab-separated file
 df.to_csv('dummy_data_in.tsv', sep='\t', index=False)
 
-print("Dummy data generated and saved to 'dummy_data.tsv'")
+print("Dummy data generated and saved to 'dummy_data_in.tsv'")
