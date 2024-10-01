@@ -62,7 +62,6 @@ def add_conservation(df, phyloP_path, phastCons_path):
         print("Sample of rows with all NaN phyloP scores:")
         print(empty_results_phyloP.head())
         print("Unique chromosomes in rows with NaN phyloP scores:", empty_results_phyloP['chr'].unique())
-        exit(1)
 
     # Check for empty results for phastCons scores
     empty_results_phastCons = df[df['target_phastCons'].apply(lambda x: all(pd.isna(x)))]
@@ -71,7 +70,6 @@ def add_conservation(df, phyloP_path, phastCons_path):
         print("Sample of rows with all NaN phastCons scores:")
         print(empty_results_phastCons.head())
         print("Unique chromosomes in rows with NaN phastCons scores:", empty_results_phastCons['chr'].unique())
-        exit(1)
 
     return df
 
