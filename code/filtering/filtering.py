@@ -8,18 +8,21 @@ def filter_and_create_table(data):
     # filter rows where "noncodingRNA_type" is "miRNA".
     filtered_data = data[data['noncodingRNA_type'] == 'miRNA']
 
+    # filter out rows where "noncodingRNA_seq" is empty, if any are remaining. 
+    filtered_data = filtered_data[filtered_data['noncodingRNA_seq'].notnull()]
+
     # create the new dataframe with specific column names and transformations.
     filtered_table = pd.DataFrame({
         'gene': filtered_data['seq.g'],
-        'noncodingRNA': filtered_data[]'noncodingRNA_seq'],
+        'noncodingRNA': filtered_data['noncodingRNA_seq'],
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
         'feature': filtered_data['feature'],
         'test': filtered_data['chr'].apply(lambda x: True if x == '1' else False),
-        'label': '1'
+        'label': '1',
         'start': filtered_data['start'],
         'end': filtered_data['end'],
         'strand': filtered_data['strand.g'],
-        'chr': filtered_data['chr']
+        'chr': filtered_data['chr'],
         'target_phyloP': filtered_data['target_phyloP'],
         'target_phastCons': filtered_data['target_phastCons']
     }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand', 'target_phyloP', 'target_phastCons'])

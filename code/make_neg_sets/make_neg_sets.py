@@ -127,7 +127,7 @@ def main():
 
     unsuccessful = 0 
 
-    inconsistent_blocks = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+    inconsistent_blocks = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand', 'target_phyloP', 'target_phastCons'])
 
     with open(args.ofile, 'a') as ofile:
         
@@ -146,7 +146,7 @@ def main():
 
     if inconsistent_blocks.shape[0] > 0:
         # Print excluded positive examples block to stderr if no negative examples were generated
-        sys.stderr.write(f"Warning: Could not generate negative examples for the following positive examples due to inconsistent feature or chr.g for the same gene. Excluding positive examples. \n")
+        sys.stderr.write(f"Warning: Could not generate negative examples for the following positive examples due to inconsistent 'feature', 'chr', 'start', and 'end' for the same gene. Excluding positive examples. \n")
         sys.stderr.write(inconsistent_blocks.to_string(index=False) + '\n')
 
     if unsuccessful > 0:
