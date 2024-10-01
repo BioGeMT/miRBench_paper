@@ -89,23 +89,23 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
     family_assigned_file_sorted="$intermediate_dir/${base_name}${SORTED_FAMILY_ASSIGNED_SUFFIX}"
 
-    # # Step 1: Add conservation scores to the input file
-    # echo "Running conservation step on $input_file..."
-    # python3 "$conservation_dir/add_conservation.py" --ifile "$input_file" --ofile "$conservation_file" --phyloP_path "$phyloP_path" --phastCons_path "$phastCons_path"
-    # if [ $? -ne 0 ]; then
-    #     echo "Error in adding conservation step. Check your script and input file."
-    #     exit 1
-    # fi
-    # echo "Conservation scores added. Output saved to $conservation_file"
+    # Step 1: Add conservation scores to the input file
+    echo "Running conservation step on $input_file..."
+    python3 "$conservation_dir/add_conservation.py" --ifile "$input_file" --ofile "$conservation_file" --phyloP_path "$phyloP_path" --phastCons_path "$phastCons_path"
+    if [ $? -ne 0 ]; then
+        echo "Error in adding conservation step. Check your script and input file."
+        exit 1
+    fi
+    echo "Conservation scores added. Output saved to $conservation_file"
 
-    # # Step 2: Clean file
-    # echo "Running cleaning step on $conservation_file..."
-    # python3 "$cleaning_dir/clean.py" --ifile "$conservation_file" --ofile "$clean_file"
-    # if [ $? -ne 0 ]; then
-    #     echo "Error in cleaning step. Check your script and input file."
-    #     exit 1
-    # fi
-    # echo "Cleaning completed. Output saved to $clean_file"
+    # Step 2: Clean file
+    echo "Running cleaning step on $conservation_file..."
+    python3 "$cleaning_dir/clean.py" --ifile "$conservation_file" --ofile "$clean_file"
+    if [ $? -ne 0 ]; then
+        echo "Error in cleaning step. Check your script and input file."
+        exit 1
+    fi
+    echo "Cleaning completed. Output saved to $clean_file"
 
     # Step 3: Filtering
     echo "Running filtering step on $clean_file..."
