@@ -20,7 +20,7 @@ def check_conservation_scores(x):
 def check_conservation_length(row, column):
     try:
         conservation_scores = ast.literal_eval(row[column])
-        target_length = len(row['gene'])
+        target_length = len(row['seq.g'])
         return len(conservation_scores) == target_length and all(is_valid_number(score) for score in conservation_scores)
     except:
         return False
@@ -74,13 +74,13 @@ def clean_file(df):
         # Print details of the first mismatched row
         first_mismatch = mismatched_phyloP_rows.iloc[0]
         print("\nDetails of first mismatched row (phyloP):")
-        print(f"Target length: {len(first_mismatch['gene'])}")
+        print(f"Target length: {len(first_mismatch['seq.g'])}")
         try:
             phyloP_scores = ast.literal_eval(first_mismatch['target_phyloP'])
             print(f"'target_phyloP' scores length: {len(phyloP_scores)}")
         except:
             print("Unable to parse 'target_phyloP' scores")
-        print(f"Target sequence: {first_mismatch['gene']}")
+        print(f"Target sequence: {first_mismatch['seq.g']}")
         print(f"'target_phyloP' scores: {first_mismatch['target_phyloP']}")
 
     if not mismatched_phastCons_rows.empty:
@@ -90,13 +90,13 @@ def clean_file(df):
         # Print details of the first mismatched row
         first_mismatch = mismatched_phastCons_rows.iloc[0]
         print("\nDetails of first mismatched row (phastCons):")
-        print(f"Target length: {len(first_mismatch['gene'])}")
+        print(f"Target length: {len(first_mismatch['seq.g'])}")
         try:
             phastCons_scores = ast.literal_eval(first_mismatch['target_phastCons'])
             print(f"'target_phastCons' scores length: {len(phastCons_scores)}")
         except:
             print("Unable to parse 'target_phastCons' scores")
-        print(f"Target sequence: {first_mismatch['gene']}")
+        print(f"Target sequence: {first_mismatch['seq.g']}")
         print(f"'target_phastCons' scores: {first_mismatch['target_phastCons']}")
 
     # Drop the 'phyloP_check' and 'phastCons_check' columns
