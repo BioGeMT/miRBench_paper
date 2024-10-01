@@ -1,12 +1,14 @@
 
 # Post-Processing Pipeline Script
 
-This script is designed to process `.tsv` files through multiple stages including filtering, family assignment, data splitting, and negative sample generation. 
+This script is designed to process `.tsv` files through multiple stages including adding conservation scores, cleaning the file, filtering, family assignment, data splitting, and negative sample generation. 
 
 ## Requirements
 - Python 3
 - Run `conda env create --name <env_name> --file=post_process.yml`, then `conda activate <env_name>`
 - Necessary Python scripts located in specified directories:
+  - `add_conservation/add_conservation.py`
+  - `clean_conservation_file/clean.py`
   - `filtering/filtering.py`
   - `family_assign/family_assign.py`
   - `make_neg_sets/make_neg_sets.py`
@@ -14,17 +16,21 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Usage
 ```bash
-./post_process.sh -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]
+./post_process.sh -i input_dir -p phyloP_path -c phastCons_path [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]
 ```
 
 ## Options
 - `-i` : Input directory containing `.tsv` files (required).
+- `-p` : Path to phyloP bigwig file (required).
+- `-c` : Path to phastCons bigwig file (required). 
 - `-o` : Output directory (optional, default: `output` in current directory).
 - `-n` : Intermediate directory (optional, default: `intermediate` in current directory).
 - `-t` : Comma-separated list of negative ratios (optional, default: `1,10,100`).
 - `-r` : Minimum edit distance (optional, default: `3`).
 
 ## Script Directories
+- `conservation_dir="../add_conservation"`
+- `cleaning_dir="../clean_conservation_file"`
 - `filtering_dir="../filtering"`
 - `family_assign_dir="../family_assign"`
 - `make_neg_sets_dir="../make_neg_sets"`
@@ -32,27 +38,37 @@ This script is designed to process `.tsv` files through multiple stages includin
 Ensure that the directories containing the scripts are correctly set relative to the location of the `pipeline.sh` script.
 
 ## Process Details
-1. **Filtering**: The script filters the data using the `filtering.py` script.
+1. **Add conservation**: The script adds conservation scores. 
+   ```bash 
+   python3 add_conservation/add_conservation.py
+   ```
+
+2. **Clean file**: The script checks for inconsistencies, prints example rows, and drops invalids.
+   ```bash
+   python3 clean_conservation_file/clean.py
+   ```
+
+3. **Filtering**: The script filters the data using the `filtering.py` script.
    ```bash
    python3 filtering/filtering.py --ifile input_file --ofile filtered_file
    ```
    
-2. **Deduplication**: The script deduplicates the filtered data using `awk`.
+4. **Deduplication**: The script deduplicates the filtered data using `awk`.
    ```bash
    awk -F'\t' 'NR==1{print $0} NR>1{if(!seen[$1$2]++){print}}' "$filtered_file" > "$deduplicated_file"
    ```
 
-3. **Family Assignment**: The script assigns families using the `family_assign.py` script and the `mature.fa` file.
+5. **Family Assignment**: The script assigns families using the `family_assign.py` script and the `mature.fa` file.
    ```bash
    python3 family_assign/family_assign.py --ifile filtered_file --mature mature_file --ofile family_assigned_file
    ```
 
-4. **Negative Sample Generation**: Negative samples are generated using the `make_neg_sets.py` script for each specified ratio.
+6. **Negative Sample Generation**: Negative samples are generated using the `make_neg_sets.py` script for each specified ratio.
    ```bash
    python3 make_neg_sets/make_neg_sets.py --ifile family_assigned_file --ofile neg_file --neg_ratio ratio --min_required_edit_distance min_required_edit_distance
    ```
 
-5. **Data Splitting**: The data is split into train and test sets based on the `test` column using `awk`.
+7. **Data Splitting**: The data is split into train and test sets based on the `test` column using `awk`.
    ```bash
    awk -F'\t' 'NR==1{header=$0; print header > train_file; print header > test_file} NR>1{if($5=="False"){print > train_file} else {print > test_file}}' neg_file
    ```
@@ -64,12 +80,12 @@ The script logs all output to a file named `pipeline.log` in the output director
 
 ## Example
 ```bash
-./post_process.sh -i input_data -o output -n intermediate -t 1,10,100 -r 3
+./post_process.sh -i input_data -p phyloP_path -c phastCons_path -o output -n intermediate -t 1,10,100 -r 3
 ```
 
 This example processes `.tsv` files in the `input_data` directory, outputs results to the `output` directory, and uses the `intermediate` directory for intermediate files. It generates negative samples with ratios 1, 10, and 100, and uses a minimum edit distance of 3.
 
 ## Notes
-- Ensure the directories containing the Python scripts (`filtering`, `family_assign`, `make_neg_sets`) are correctly set relative to the location of this script.
+- Ensure the directories containing the Python scripts (`add_conservation`, `clean`, `filtering`, `family_assign`, `make_neg_sets`) are correctly set relative to the location of this script.
 - The `mature.fa` file will be downloaded if not already present in the `mature_data` directory.
 - The script creates the output and intermediate directories if they do not already exist.

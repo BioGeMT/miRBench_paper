@@ -52,8 +52,8 @@ def yield_gene_blocks(positive_file_path):
 # Generate negative examples for a gene block of positive examples
 def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allowed_mirnas, unsuccessful):
     
-    # Check if 'feature' and 'test' are consistent within the block
-    if block['feature'].nunique() != 1 or block['test'].nunique() != 1:
+    # If 'feature', 'chr', 'start', and 'end' are inconsistent within the block, return an empty list (to exclude the block from the final output file)
+    if block['feature'].nunique() != 1 or block['chr'].nunique() != 1 or block['start'].nunique() != 1 or block['end'].nunique() != 1:
         return [], unsuccessful
     
     neg_label = 0
@@ -85,10 +85,15 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
+    start = block['start'].iloc[0]
+    end = block['end'].iloc[0]
+    chrom = block['chr'].iloc[0]
+    phyloP = block['target_phyloP'].iloc[0]
+    phastCons = block['target_phastCons'].iloc[0]
 
     # Construct the df rows for the negative examples
     negative_sample_rows = [
-        [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label]
+        [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label, start, end, chrom, phyloP, phastCons]
         for neg_mirna in n_negative_mirnas
     ]
 

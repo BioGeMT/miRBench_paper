@@ -11,12 +11,18 @@ def filter_and_create_table(data):
     # create the new dataframe with specific column names and transformations.
     filtered_table = pd.DataFrame({
         'gene': filtered_data['seq.g'],
-        'noncodingRNA': filtered_data['noncodingRNA_seq'],
+        'noncodingRNA': filtered_data[]'noncodingRNA_seq'],
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
         'feature': filtered_data['feature'],
-        'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
+        'test': filtered_data['chr'].apply(lambda x: True if x == '1' else False),
         'label': '1'
-    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+        'start': filtered_data['start'],
+        'end': filtered_data['end'],
+        'strand': filtered_data['strand.g'],
+        'chr': filtered_data['chr']
+        'target_phyloP': filtered_data['target_phyloP'],
+        'target_phastCons': filtered_data['target_phastCons']
+    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand', 'target_phyloP', 'target_phastCons'])
 
     return filtered_table
 

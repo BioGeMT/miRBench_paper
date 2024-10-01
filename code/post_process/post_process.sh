@@ -6,9 +6,11 @@
 #SBATCH --cpus-per-task=8
 
 # parse command-line arguments
-while getopts i:o:n:t:r: flag; do
+while getopts i:p:c:o:n:t:r: flag; do
     case "${flag}" in
         i) input_dir=${OPTARG};;
+        p) phyloP_path=${OPTARG};;
+        c) phastCons_path=${OPTARG};;
         o) output_dir=${OPTARG};;
         n) intermediate_dir=${OPTARG};;
         t) IFS=',' read -r -a neg_ratios <<< "${OPTARG}";;
@@ -18,7 +20,7 @@ done
 
 # check if required argument is provided
 if [ -z "$input_dir" ]; then
-    echo "Usage: $0 -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
+    echo "Usage: $0 -i input_dir -p phyloP_path -c phastCons_path [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
     exit 1
 fi
 
@@ -27,7 +29,9 @@ default_ratios=(1 10 100)
 neg_ratios=( "${neg_ratios[@]:-"${default_ratios[@]}"}" )
 min_edit_distance=${min_edit_distance:-3}
 
-# define paths to the directories where the scripts are located
+# define paths to the directories where the scripts and conservation files are located
+conservation_dir="../add_conservation"
+cleaning_dir="../clean_conservation_file"
 filtering_dir="../filtering"
 family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
@@ -65,6 +69,8 @@ if [ ! -f "$mature_file" ]; then
 fi
 
 # define constants for suffixes with extensions
+CONSERVATION_SUFFIX="_conservation.tsv"
+CLEANED_SUFFIX="_cleaned.tsv"
 FILTERED_SUFFIX="_filtered_data.tsv"
 DEDUPLICATED_SUFFIX="_deduplicated_data.tsv"
 FAMILY_ASSIGNED_SUFFIX="_family_assigned_data.tsv"
@@ -76,21 +82,41 @@ NEG_SUFFIX="_with_negatives_"
 # process each .tsv file in the input directory
 for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
     base_name=$(basename "$input_file" .tsv)
+    conservation_file="$intermediate_dir/${base_name}${CONSERVATION_SUFFIX}"
+    clean_file="$intermediate_dir/${base_name}${CLEANED_SUFFIX}"
     filtered_file="$intermediate_dir/${base_name}${FILTERED_SUFFIX}"
     deduplicated_file="$intermediate_dir/${base_name}${DEDUPLICATED_SUFFIX}"
     family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
     family_assigned_file_sorted="$intermediate_dir/${base_name}${SORTED_FAMILY_ASSIGNED_SUFFIX}"
 
-    # Step 1: Filtering
-    echo "Running filtering step on $input_file..."
-    python3 "$filtering_dir/filtering.py" --ifile "$input_file" --ofile "$filtered_file"
+    # Step 1: Add conservation scores to the input file
+    echo "Running conservation step on $input_file..."
+    python3 "$conservation_dir/add_conservation.py" --ifile "$input_file" --ofile "$conservation_file" --phyloP_path "$phyloP_path" --phastCons_path "$phastCons_path"
+    if [ $? -ne 0 ]; then
+        echo "Error in adding conservation step. Check your script and input file."
+        exit 1
+    fi
+    echo "Conservation scores added. Output saved to $conservation_file"
+
+    # Step 2: Clean file
+    echo "Running cleaning step on $conservation_file..."
+    python3 "$cleaning_dir/clean.py" --ifile "$conservation_file" --ofile "$clean_file"
+    if [ $? -ne 0 ]; then
+        echo "Error in cleaning step. Check your script and input file."
+        exit 1
+    fi
+    echo "Cleaning completed. Output saved to $clean_file"
+
+    # Step 3: Filtering
+    echo "Running filtering step on $clean_file..."
+    python3 "$filtering_dir/filtering.py" --ifile "$clean_file" --ofile "$filtered_file"
     if [ $? -ne 0 ]; then
         echo "Error in filtering step. Check your script and input file."
         exit 1
     fi
     echo "Filtering completed. Output saved to $filtered_file"
 
-    # Step 2: Deduplication
+    # Step 4: Deduplication
     echo "Running deduplication step on $filtered_file..."
     # deduplicate based on combination of first two columns
     awk -F'\t' 'NR==1{print $0} NR>1{if(!seen[$1$2]++){print}}' "$filtered_file" > "$deduplicated_file"
@@ -99,7 +125,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         exit 1
     fi
 
-    # Step 3: Family Assignment
+    # Step 5: Family Assignment
     echo "Running family assignment step on $deduplicated_file..."
     python3 "$family_assign_dir/family_assign.py" --ifile "$deduplicated_file" --mature "$mature_file" --ofile "$family_assigned_file"
     if [ $? -ne 0 ]; then
@@ -108,12 +134,12 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     fi
     echo "Family assignment completed. Output saved to $family_assigned_file"
 
-    # Step 4: Sort the family assigned file based on the first column in preparation for negative sample generation
+    # Step 6: Sort the family assigned file based on the first column in preparation for negative sample generation
     echo "Sorting the family assigned file based on the first column..."
     (head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k 1) > "${family_assigned_file_sorted}"
     echo "Family assigned file sorted. Output saved to $family_assigned_file_sorted"
 
-    # Step 5: Make negatives with different ratios
+    # Step 7: Make negatives with different ratios
     for ratio in ${neg_ratios[@]}; do
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance..."
 
@@ -129,7 +155,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     done
     echo "Negative samples generation completed for $input_file"
 
-    # Step 6: Split Train/Test based on the test column
+    # Step 8: Split Train/Test based on the test column
     echo "Splitting data into train and test sets based on the test column..."
     for ratio in ${neg_ratios[@]}; do
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
@@ -143,7 +169,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         echo "Data split completed. Train set saved to $train_file, test set saved to $test_file"
     done
 
-    # Step 7: Remove the fifth column from the train and test files
+    # Step 9: Remove the fifth column from the train and test files
     echo "Removing the fifth column from the train and test sets..."
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
