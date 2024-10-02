@@ -85,10 +85,14 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
 
     feature = block['feature'].iloc[0]
     test = block['test'].iloc[0]
+    chromosome = block['chr'].iloc[0]
+    start = block['start'].iloc[0]
+    end = block['end'].iloc[0]
+    strand = block['strand'].iloc[0]
 
     # Construct the df rows for the negative examples
     negative_sample_rows = [
-        [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label]
+        [gene, neg_mirna, unique_seqm_fam_pairs_dict[neg_mirna], feature, test, neg_label, chromosome, start, end, strand]
         for neg_mirna in n_negative_mirnas
     ]
 
@@ -122,7 +126,7 @@ def main():
 
     unsuccessful = 0 
 
-    inconsistent_blocks = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+    inconsistent_blocks = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
 
     with open(args.ofile, 'a') as ofile:
         
