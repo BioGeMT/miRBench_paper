@@ -15,8 +15,12 @@ def filter_and_create_table(data):
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
-        'label': '1'
-    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label'])
+        'label': '1',
+        'chr': filtered_data['chr.g'],
+        'start': filtered_data['start.g'],
+        'end': filtered_data['end.g'],
+        'strand': filtered_data['strand.g']
+    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
 
     return filtered_table
 
