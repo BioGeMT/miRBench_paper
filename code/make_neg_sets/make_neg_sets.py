@@ -14,7 +14,6 @@ def precompute_allowed_mirnas(positive_samples_df, min_allowed_distance):
         allowed_mirnas[mirna] = [other_mirna for other_mirna in unique_mirnas 
                                  if mirna != other_mirna and 
                                  levenshtein_distance(mirna, other_mirna) > min_allowed_distance]
-    
     return allowed_mirnas
 
 # Get unique pairs of noncodingRNA sequence (seqm) and family
@@ -63,8 +62,7 @@ def generate_negative_samples(block, neg_ratio, unique_seqm_fam_pairs_dict, allo
     pos_mirnas = block['noncodingRNA'].unique().tolist()
     
     # Get the set of miRNAs that are allowed to be paired with this gene as negative examples
-    gene_allowed_mirnas = set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])
-    gene_allowed_mirnas = list(gene_allowed_mirnas)
+    gene_allowed_mirnas = sorted(set.intersection(*[set(allowed_mirnas[mirna]) for mirna in pos_mirnas])) # returns a sorted list for reproducibility
 
     # If neg_ratio is 'max', use all the negative examples possible for this gene
     if neg_ratio == 'max':
