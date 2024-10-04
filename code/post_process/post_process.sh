@@ -6,9 +6,11 @@
 #SBATCH --cpus-per-task=8
 
 # parse command-line arguments
-while getopts i:o:n:t:r: flag; do
+while getopts i:p:c:o:n:t:r: flag; do
     case "${flag}" in
         i) input_dir=${OPTARG};;
+        p) phyloP_path=${OPTARG};;
+        c) phastCons_path=${OPTARG};;
         o) output_dir=${OPTARG};;
         n) intermediate_dir=${OPTARG};;
         t) IFS=',' read -r -a neg_ratios <<< "${OPTARG}";;
@@ -18,7 +20,7 @@ done
 
 # check if required argument is provided
 if [ -z "$input_dir" ]; then
-    echo "Usage: $0 -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
+    echo "Usage: $0 -i input_dir -p phyloP_path -c phastCons_path [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
     exit 1
 fi
 
@@ -31,6 +33,7 @@ min_edit_distance=${min_edit_distance:-3}
 filtering_dir="../filtering"
 family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
+conservation_dir="../conservation"
 
 # define directories for output and intermediate files
 output_dir="${output_dir:-$(pwd)/output}"
@@ -72,6 +75,8 @@ SORTED_FAMILY_ASSIGNED_SUFFIX="_family_assigned_data_sorted.tsv"
 TRAIN_SUFFIX="_train_"
 TEST_SUFFIX="_test_"
 NEG_SUFFIX="_with_negatives_"
+CONSERVATION_SUFFIX="_conservation_scores.tsv"
+CLEANED_CONSERVATION_SUFFIX="_conservation_scores_cleaned.tsv"
 
 # process each .tsv file in the input directory
 for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
@@ -80,6 +85,8 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     deduplicated_file="$intermediate_dir/${base_name}${DEDUPLICATED_SUFFIX}"
     family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
     family_assigned_file_sorted="$intermediate_dir/${base_name}${SORTED_FAMILY_ASSIGNED_SUFFIX}"
+    conservation_file="$intermediate_dir/${base_name}${CONSERVATION_SUFFIX}"
+    cleaned_conservation_file="$intermediate_dir/${base_name}${CLEANED_CONSERVATION_SUFFIX}"
 
     # Step 1: Filtering
     echo "Running filtering step on $input_file..."
@@ -161,5 +168,31 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     
     done
 
+    # Step 8: Add conservation scores to the train and test sets
+    echo "Adding conservation scores to the train and test sets..."
+    for ratio in "${neg_ratios[@]}"; do
+        for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
+            file="$output_dir/${base_name}${suffix}${ratio}.tsv"
+            conservation_file="$intermediate_dir/${base_name}${CONSERVATION_SUFFIX}"
+            cleaned_conservation_file="$intermediate_dir/${base_name}${CLEANED_CONSERVATION_SUFFIX}"
+            python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
+            if [ $? -ne 0 ]; then
+                echo "Error in adding conservation scores. Check your script and input file."
+                exit 1
+            fi
+            echo "Conservation scores added. Output saved to $conservation_file"
+
+            # Step 9: Clean conservation scores
+            echo "Cleaning conservation scores..."
+            python3 "$conservation_dir/clean_conservation_scores.py" --ifile "$conservation_file" --ofile "$cleaned_conservation_file"
+            if [ $? -ne 0 ]; then
+                echo "Error in cleaning conservation scores. Check your script and input file."
+                exit 1
+            fi
+            echo "Conservation scores cleaned. Output saved to $cleaned_conservation_file"
+        done
+    done
+
 # Done
+
 echo "Post-processing pipeline completed successfully."
