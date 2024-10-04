@@ -3,23 +3,54 @@ import pyBigWig
 import argparse
 import warnings 
 
+# Function to yield blocks of rows with the same gene from a sorted DataFrame
+def yield_gene_blocks_from_df(df):
+    current_block = []
+    current_gene = None
+
+    # Iterate over DataFrame rows
+    for _, row in df.iterrows():
+        gene_value = row['gene']
+        
+        if gene_value != current_gene:
+            # If we have collected rows for the previous gene, yield them
+            if current_block:
+                yield pd.DataFrame(current_block)
+            # Start a new block for the new gene
+            current_block = [row]
+            current_gene = gene_value
+        else:
+            # If it's the same gene, keep adding to the current block
+            current_block.append(row)
+
+    # Yield the last block if it's not empty
+    if current_block:
+        yield pd.DataFrame(current_block)
+
 def add_inconsistent_column(df):
-    # Get the first row's values for comparison across the entire DataFrame
-    chr_val = df['chr'].iloc[0]
-    start_val = df['start'].iloc[0]
-    end_val = df['end'].iloc[0]
-    strand_val = df['strand'].iloc[0]
 
-    # Add 'inconsistent' column based on comparison with the first row
-    df['inconsistent'] = df.apply(
-        lambda row: 1 if (row['chr'] != chr_val or 
-                          row['start'] != start_val or 
-                          row['end'] != end_val or 
-                          row['strand'] != strand_val) else 0,
-        axis=1
-    )
+    df_inconsistent = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
 
-    return df
+    # Add 'inconsistent' column to DataFrame based on comparison of values within each gene block
+    for gene_block in yield_gene_blocks_from_df(df):
+        # Get the first row's values for comparison across the gene block
+        chr_val = gene_block['chr'].iloc[0]
+        start_val = gene_block['start'].iloc[0]
+        end_val = gene_block['end'].iloc[0]
+        strand_val = gene_block['strand'].iloc[0]
+
+        # Add 'inconsistent' column based on comparison with the first row
+        gene_block['inconsistent'] = gene_block.apply(
+            lambda row: 1 if (row['chr'] != chr_val or 
+                            row['start'] != start_val or 
+                            row['end'] != end_val or 
+                            row['strand'] != strand_val) else 0,
+            axis=1
+        )
+
+        df_inconsistent = pd.concat([df_inconsistent, gene_block], ignore_index=True)
+
+    return df_inconsistent
 
 def get_conservation(bw_file, chrom, start, end, chrom_sizes):
     # Convert to string
@@ -130,7 +161,7 @@ def main():
     # read input data.
     df = read_input(args.ifile)
 
-    # add inconsistent flag where necessary
+    # add inconsistent column.
     df = add_inconsistent_column(df)
 
     # process data.

@@ -44,7 +44,7 @@ def clean_file(df):
     print(f"Number of rows dropped due to invalid phyloP or phastCons conservation scores: {len(invalid_phyloP_rows) + len(invalid_phastCons_rows)}")
 
     # print(f"Number of rows remaining: {len(df)}")
-
+    
     # # Check for NaN values in each column
     # print("\nNaN values per column:")
     # for column in df.columns:
