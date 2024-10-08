@@ -72,14 +72,14 @@ def add_conservation(df, phyloP_path, phastCons_path, ofile):
         # Iterate over gene blocks
         for gene_block in yield_gene_blocks_from_df(df):
             
-            if header:
-                gene_block.head(0).to_csv(ofile, sep='\t', index=False, mode='w')
-                header = False
-            
             # Add conservation scores to the gene block
             gene_block['target_phyloP'] = gene_block.apply(lambda row: get_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP), axis=1)
             gene_block['target_phastCons'] = gene_block.apply(lambda row: get_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons), axis=1)
 
+            if header:
+                gene_block.head(0).to_csv(ofile, sep='\t', index=False, mode='w')
+                header = False
+                
             gene_block.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
 
     # Close the BigWig files
