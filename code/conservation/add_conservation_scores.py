@@ -3,7 +3,7 @@ import pyBigWig
 import argparse
 import warnings 
 
-# Function to yield blocks of rows with the same gene from a sorted DataFrame
+# Function to yield blocks of rows with the same gene from a DataFrame (alphabetically) sorted by gene sequence
 def yield_gene_blocks_from_df(df):
     current_block = []
     current_gene = None
@@ -13,8 +13,8 @@ def yield_gene_blocks_from_df(df):
         gene_value = row['gene']
         
         if gene_value != current_gene:
-            # If we have collected rows for the previous gene, yield them
-            if current_block:
+            # Check if current_block contains rows for the previous gene and if so yield them
+            if current_block: # returns True if not empty
                 yield pd.DataFrame(current_block)
             # Start a new block for the new gene
             current_block = [row]
@@ -26,31 +26,6 @@ def yield_gene_blocks_from_df(df):
     # Yield the last block if it's not empty
     if current_block:
         yield pd.DataFrame(current_block)
-
-def add_inconsistent_column(df):
-
-    df_inconsistent = pd.DataFrame(columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
-
-    # Add 'inconsistent' column to DataFrame based on comparison of values within each gene block
-    for gene_block in yield_gene_blocks_from_df(df):
-        # Get the first row's values for comparison across the gene block
-        chr_val = gene_block['chr'].iloc[0]
-        start_val = gene_block['start'].iloc[0]
-        end_val = gene_block['end'].iloc[0]
-        strand_val = gene_block['strand'].iloc[0]
-
-        # Add 'inconsistent' column based on comparison with the first row
-        gene_block['inconsistent'] = gene_block.apply(
-            lambda row: 1 if (row['chr'] != chr_val or 
-                            row['start'] != start_val or 
-                            row['end'] != end_val or 
-                            row['strand'] != strand_val) else 0,
-            axis=1
-        )
-
-        df_inconsistent = pd.concat([df_inconsistent, gene_block], ignore_index=True)
-
-    return df_inconsistent
 
 def get_conservation(bw_file, chrom, start, end, chrom_sizes):
     # Convert to string
@@ -81,7 +56,7 @@ def get_conservation(bw_file, chrom, start, end, chrom_sizes):
         print(f"Error processing {chrom}:{start}-{end}: {e}")
         return [float('nan')] * (end - start)
 
-def add_conservation(df, phyloP_path, phastCons_path):
+def add_conservation(df, phyloP_path, phastCons_path, ofile):
     # Open the BigWig files for phyloP and phastCons
     bw_phyloP = pyBigWig.open(phyloP_path)
     bw_phastCons = pyBigWig.open(phastCons_path)
@@ -90,40 +65,30 @@ def add_conservation(df, phyloP_path, phastCons_path):
     chrom_sizes_phyloP = bw_phyloP.chroms()
     chrom_sizes_phastCons = bw_phastCons.chroms()
 
-    # # Print unique chromosome names in input data
-    # print("Unique chromosome names in input data:", df['chr'].unique())
+    header = True
+    columns = ['chr', 'start', 'end', 'strand']
 
-    # Process each row for target sequence conservation
-    df['target_phyloP'] = df.apply(lambda row: get_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP) if row['inconsistent'] == 1 else '-', axis=1)
-    df['target_phastCons'] = df.apply(lambda row: get_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons) if row['inconsistent'] == 1 else '-', axis=1)
+    with open(ofile, 'a') as ofile:
+        # Iterate over gene blocks
+        for gene_block in yield_gene_blocks_from_df(df):
+            
+            if header:
+                gene_block.head(0).to_csv(ofile, sep='\t', index=False, mode='w')
+                header = False
+            
+            # Add conservation scores to the gene block
+            gene_block['target_phyloP'] = gene_block.apply(lambda row: get_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP), axis=1)
+            gene_block['target_phastCons'] = gene_block.apply(lambda row: get_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons), axis=1)
+
+            gene_block.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
 
     # Close the BigWig files
     bw_phyloP.close()
     bw_phastCons.close()
-
-    # # Check for empty results for phyloP scores
-    # empty_results_phyloP = df[df['target_phyloP'].apply(lambda x: all(pd.isna(x)))]
-    # if not empty_results_phyloP.empty:
-    #     print(f"Number of rows with all NaN phyloP scores: {len(empty_results_phyloP)}")
-    #     print("Sample of rows with all NaN phyloP scores:")
-    #     print(empty_results_phyloP.head())
-    #     print("Unique chromosomes in rows with NaN phyloP scores:", empty_results_phyloP['chr'].unique())
-
-    # # Check for empty results for phastCons scores
-    # empty_results_phastCons = df[df['target_phastCons'].apply(lambda x: all(pd.isna(x)))]
-    # if not empty_results_phastCons.empty:
-    #     print(f"Number of rows with all NaN phastCons scores: {len(empty_results_phastCons)}")
-    #     print("Sample of rows with all NaN phastCons scores:")
-    #     print(empty_results_phastCons.head())
-    #     print("Unique chromosomes in rows with NaN phastCons scores:", empty_results_phastCons['chr'].unique())
     
-    df = df.drop(columns=['inconsistent'])
 
-    return df
-
-# read input data from a file or stdin.
 def read_input(input_file):
-
+    # Read input data from a file or stdin.
     try:
         if input_file:
             data = pd.read_csv(input_file, sep='\t', dtype={'chr': str})
@@ -132,43 +97,24 @@ def read_input(input_file):
     except Exception as e:
         warnings.warn(f"Error reading input data: {e}", category=UserWarning)
         sys.exit(1)
-    
     return data
 
-# write output data to a file or stdout.
-def write_output(data, output_file):
 
-    try:
-        if output_file:
-            data.to_csv(output_file, sep='\t', index=False)
-        else:
-            data.to_csv(sys.stdout, sep='\t', index=False)
-    except Exception as e:
-        warnings.warn(f"Error writing to output stream: {e}", category=UserWarning)
-        sys.exit(1)
-
-# main function to handle argument parsing and calling the processing functions.
 def main():
-
-    parser = argparse.ArgumentParser(description="Clean file after conservation scores have been added.")
+    parser = argparse.ArgumentParser(description="Add conservation scores.")
     parser.add_argument('--ifile', help="Input file (default: STDIN)")
     parser.add_argument('--ofile', help="Output file (default: STDOUT)")
     parser.add_argument('--phyloP_path', help="Path to phyloP BigWig file")
     parser.add_argument('--phastCons_path', help="Path to phastCons BigWig file")
 
+    # Parse arguments
     args = parser.parse_args()
 
-    # read input data.
+    # Read input data into a df
     df = read_input(args.ifile)
 
-    # add inconsistent column.
-    df = add_inconsistent_column(df)
-
-    # process data.
-    df = add_conservation(df, args.phyloP_path, args.phastCons_path)
-
-    # write output data.
-    write_output(file_with_scores, args.ofile)
+    # Add conservation scores
+    add_conservation(df, args.phyloP_path, args.phastCons_path, args.ofile)
 
 if __name__ == "__main__":
     main()
