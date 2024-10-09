@@ -27,11 +27,11 @@ def check_conservation_length(row, column):
 
 def validate_conservation_scores(df):
     # Validate conservation score values
-    df['target_phyloP'] = df['target_phyloP'].apply(lambda x: x if check_conservation_scores(x) else np.nan)
-    df['target_phastCons'] = df['target_phastCons'].apply(lambda x: x if check_conservation_scores(x) else np.nan)
+    df['gene_phyloP'] = df['gene_phyloP'].apply(lambda x: x if check_conservation_scores(x) else np.nan)
+    df['gene_phastCons'] = df['gene_phastCons'].apply(lambda x: x if check_conservation_scores(x) else np.nan)
     # Validate conservation scores length
-    df['target_phyloP'] = df.apply(lambda row: row['target_phyloP'] if check_conservation_length(row, 'target_phyloP') else np.nan, axis=1)
-    df['target_phastCons'] = df.apply(lambda row: row['target_phastCons'] if check_conservation_length(row, 'target_phastCons') else np.nan, axis=1)
+    df['gene_phyloP'] = df.apply(lambda row: row['gene_phyloP'] if check_conservation_length(row, 'gene_phyloP') else np.nan, axis=1)
+    df['gene_phastCons'] = df.apply(lambda row: row['gene_phastCons'] if check_conservation_length(row, 'gene_phastCons') else np.nan, axis=1)
     return df
 
 # read input data from a file or stdin.
