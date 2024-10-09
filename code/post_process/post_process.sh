@@ -141,8 +141,8 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     echo "Splitting data into train and test sets based on the test column..."
     for ratio in ${neg_ratios[@]}; do
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
-        train_file="$output_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
-        test_file="$output_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
+        train_file="$intermediate_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
+        test_file="$intermediate_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
         awk -F'\t' 'NR==1{header=$0; print header > "'"$train_file"'"; print header > "'"$test_file"'"} NR>1{if($5=="False"){print > "'"$train_file"'"} else {print > "'"$test_file"'"}}' "$neg_file"
         if [ $? -ne 0 ]; then
             echo "Error in splitting data. Check your input file."
@@ -172,9 +172,9 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     # Step 8: Add conservation scores to all datasets
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
-            file="$output_dir/${base_name}${suffix}${ratio}.tsv"
+            file="$intermediate_dir/${base_name}${suffix}${ratio}.tsv"
             conservation_file="$intermediate_dir/${base_name}${suffix}${ratio}${CONSERVATION_SUFFIX}"
-            validated_conservation_file="$intermediate_dir/${base_name}${suffix}${ratio}${VALIDATED_CONSERVATION_SUFFIX}"
+            validated_conservation_file="$output_dir/${base_name}${suffix}${ratio}${VALIDATED_CONSERVATION_SUFFIX}"
             
             echo "Adding conservation scores to $file..."
             python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
