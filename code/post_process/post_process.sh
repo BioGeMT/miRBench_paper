@@ -166,8 +166,6 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     fi
     
     echo "Fifth column removed from train set and test set."
-    
-    done
 
     # Step 8: Add conservation scores to all datasets
     for ratio in "${neg_ratios[@]}"; do
