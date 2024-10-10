@@ -6,9 +6,13 @@
 #SBATCH --cpus-per-task=8
 
 # parse command-line arguments
-while getopts i:o:n:t:r: flag; do
+while getopts i:p:c:o:n:t:r: flag; do
     case "${flag}" in
         i) input_dir=${OPTARG};;
+
+        p) phyloP_path=${OPTARG};;
+        c) phastCons_path=${OPTARG};;
+        
         o) output_dir=${OPTARG};;
         n) intermediate_dir=${OPTARG};;
         t) IFS=',' read -r -a neg_ratios <<< "${OPTARG}";;
@@ -18,7 +22,7 @@ done
 
 # check if required argument is provided
 if [ -z "$input_dir" ]; then
-    echo "Usage: $0 -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
+    echo "Usage: $0 -i input_dir -p phyloP_path -c phastCons_path [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]"
     exit 1
 fi
 
@@ -31,6 +35,7 @@ min_edit_distance=${min_edit_distance:-3}
 filtering_dir="../filtering"
 family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
+conservation_dir="../conservation"
 
 # define directories for output and intermediate files
 output_dir="${output_dir:-$(pwd)/output}"
@@ -72,6 +77,9 @@ SORTED_FAMILY_ASSIGNED_SUFFIX="_family_assigned_data_sorted.tsv"
 TRAIN_SUFFIX="_train_"
 TEST_SUFFIX="_test_"
 NEG_SUFFIX="_with_negatives_"
+
+CONSERVATION_SUFFIX="_conservation_scores.tsv"
+VALIDATED_CONSERVATION_SUFFIX="_conservation_scores_validated.tsv"
 
 # process each .tsv file in the input directory
 for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
@@ -133,8 +141,8 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     echo "Splitting data into train and test sets based on the test column..."
     for ratio in ${neg_ratios[@]}; do
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
-        train_file="$output_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
-        test_file="$output_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
+        train_file="$intermediate_dir/${base_name}${TRAIN_SUFFIX}${ratio}.tsv"
+        test_file="$intermediate_dir/${base_name}${TEST_SUFFIX}${ratio}.tsv"
         awk -F'\t' 'NR==1{header=$0; print header > "'"$train_file"'"; print header > "'"$test_file"'"} NR>1{if($5=="False"){print > "'"$train_file"'"} else {print > "'"$test_file"'"}}' "$neg_file"
         if [ $? -ne 0 ]; then
             echo "Error in splitting data. Check your input file."
@@ -158,8 +166,33 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     fi
     
     echo "Fifth column removed from train set and test set."
-    
-    done
 
+    # Step 8: Add conservation scores to all datasets
+    for ratio in "${neg_ratios[@]}"; do
+        for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
+            file="$intermediate_dir/${base_name}${suffix}${ratio}.tsv"
+            conservation_file="$intermediate_dir/${base_name}${suffix}${ratio}${CONSERVATION_SUFFIX}"
+            validated_conservation_file="$output_dir/${base_name}${suffix}${ratio}${VALIDATED_CONSERVATION_SUFFIX}"
+            
+            echo "Adding conservation scores to $file..."
+            python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
+            if [ $? -ne 0 ]; then
+                echo "Error in adding conservation scores. Check your script and input file."
+                exit 1
+            fi
+            echo "Conservation scores added. Output saved to $conservation_file"
+
+            # Step 9: Validate conservation scores
+            echo "Validating conservation scores in $conservation_file..."
+            python3 "$conservation_dir/validate_conservation_scores.py" --ifile "$conservation_file" --ofile "$validated_conservation_file"
+            if [ $? -ne 0 ]; then
+                echo "Error in validating conservation scores. Check your script and input file."
+                exit 1
+            fi
+            echo "Conservation scores validated. Output saved to $validated_conservation_file"
+        done
+    done
+done
 # Done
+
 echo "Post-processing pipeline completed successfully."

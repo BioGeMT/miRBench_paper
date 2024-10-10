@@ -1,11 +1,13 @@
 
-name: post_process
+name: post_process_conservation
 channels:
   - defaults
   - conda-forge
+  - hcc
 dependencies:
   - pandas
   - matplotlib
   - pip
   - pip:
+      - pyBigWig
       - python-Levenshtein
