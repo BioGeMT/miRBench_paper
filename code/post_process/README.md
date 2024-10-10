@@ -45,9 +45,9 @@ This script is designed to process `.tsv` files through multiple stages includin
    ```
 
 4. **Sorting by Gene Sequence**: The command sorts the gene column alphabetically in preparation for the next step - negative sample generation. 
-```bash
-(head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k 1) > "${family_assigned_file_sorted}"
-```
+   ```bash
+   (head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k 1) > "${family_assigned_file_sorted}"
+   ```
 
 5. **Negative Sample Generation**: The script generates negative examples for each specified ratio.
    ```bash
