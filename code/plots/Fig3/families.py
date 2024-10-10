@@ -71,7 +71,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
 
     fig, ax = plt.subplots(figsize=(width_inches, height_inches))
 
-    colors = ['#f0e442', '#009e73', '#cc79a7', '#0072b2']
+    colors = ['#f0e442', '#009e73', '#cc79a7', '#0072b2', '#e9e9e9']
 
     # Increase bar width even more
     bar_width = 0.0693 * scale_factor * 3.5  # Increased from 2.5 to 3.5
@@ -88,6 +88,19 @@ def plot_seed_prevalence(seed_percentages, output_file):
 
     index = [left_padding + i * (group_width + group_spacing) for i in range(len(seed_percentages.index))]
 
+    # Rectangle around three seed types for total seed percentage
+    for i, total in enumerate(seed_percentages['TotalCanonicalSeed']):
+        # Calculate the coordinates for the rectangle
+        x_start = index[i] + (bar_width + bar_spacing) / 2
+        y_start = 0
+        width = 3 * (bar_width + bar_spacing)
+        height = total
+
+        # Draw the rectangle around the group of bars
+        rect = Rectangle((x_start, y_start), width, height, facecolor=colors[-1], edgecolor='black', linestyle=':',
+                         linewidth=4 * scale_factor)
+        ax.add_patch(rect)
+
     for i, seed_type in enumerate(['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
         values = seed_percentages[seed_type]
         bar_positions = [x + i*(bar_width + bar_spacing) for x in index]
@@ -99,13 +112,6 @@ def plot_seed_prevalence(seed_percentages, output_file):
             height = bar.get_height()
             # Increase border width for individual columns
             ax.add_patch(Rectangle((x, y), bar_width, height, fill=False, edgecolor='black', linewidth=4*scale_factor))
-
-    # Bolder horizontal lines for total seed percentage and vertical dotted lines
-    for i, total in enumerate(seed_percentages['TotalCanonicalSeed']):
-        group_center = index[i] + group_width / 2
-        ax.plot([index[i], index[i] + group_width], [total, total], color='black', linewidth=12*scale_factor)
-        # Add vertical dotted line
-        ax.plot([group_center, group_center], [0, total], color='black', linestyle=':', linewidth=4*scale_factor)
 
     ax.set_title('')
     ax.set_xlabel('')
@@ -135,14 +141,10 @@ def plot_seed_prevalence(seed_percentages, output_file):
     square_size = 96 * scale_factor
     legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
 
-    # Add black line handle for TotalCanonicalSeed
-    total_seed_handle = Line2D([0], [0], color='black', linewidth=12*scale_factor)
-    legend_handles.append(total_seed_handle)
-
     legend_labels = ['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer', 'TotalCanonicalSeed']
     legend = ax.legend(legend_handles, legend_labels, 
                        loc='upper center', bbox_to_anchor=(0.5, -0.05),
-                       ncol=5, columnspacing=0.5, handlelength=1, handleheight=1,
+                       ncol=5, columnspacing=1.5, handlelength=1, handleheight=1,
                        prop={'size': 96*scale_factor, 'weight': 'semibold'})
 
     for handle in legend.get_patches():
