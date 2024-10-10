@@ -141,10 +141,6 @@ def plot_seed_prevalence(seed_percentages, output_file):
     square_size = 96 * scale_factor
     legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
 
-    # Add black line handle for TotalCanonicalSeed
-    # total_seed_handle = Line2D([0], [0], color='black', linewidth=12*scale_factor)
-    # legend_handles.append(total_seed_handle)
-
     legend_labels = ['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer', 'TotalCanonicalSeed']
     legend = ax.legend(legend_handles, legend_labels, 
                        loc='upper center', bbox_to_anchor=(0.5, -0.05),
