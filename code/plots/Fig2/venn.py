@@ -17,33 +17,61 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
     v = venn3([manakov_set, hejret_set, klimentova_set], 
               set_labels=('Manakov2022', 'Hejret2023', 'Klimentova2022'))
 
-    # set colors for each section
-    colors = ['#f0e442', '#0072b2', '#009e73', '#e69f00', '#cc79a7', '#56b4e9', '#d55e00']
-    for i, patch in enumerate(v.patches):
+    # Updated colors
+    colors = ['#f0e442', '#0072b2', '#cc79a7']
+
+    # Remove fill colors
+    for patch in v.patches:
         if patch:
-            patch.set_color(colors[i])
-            patch.set_alpha(1)
+            patch.set_alpha(0)
 
-    # draw circles
-    venn3_circles([manakov_set, hejret_set, klimentova_set], linewidth=1.5, color='black')
+    # Define line width for colored circles
+    color_width = 8.0
 
-    # set font size and weight for set labels
+    # Draw colored circles
+    c_color = venn3_circles([manakov_set, hejret_set, klimentova_set], linewidth=color_width)
+    
+    for i, color_circle in enumerate(c_color):
+        color_circle.set_edgecolor(colors[i])
+        color_circle.set_zorder(1)
+
+    # Set font size and weight for set labels
     for text in v.set_labels:
         text.set_fontsize(20)
         text.set_fontweight('bold')
 
-    # set font size and weight for subset labels
-    for text in v.subset_labels:
+    # Set font size and weight for subset labels (numbers) and adjust positions
+    for i, text in enumerate(v.subset_labels):
         if text:
-            text.set_fontsize(16)
+            text.set_fontsize(12)
             text.set_fontweight('bold')
+            text.set_color('black')
+            if text.get_text() == '0':
+                text.set_visible(False)
+            else:
+                # Adjust position of non-zero labels
+                position = text.get_position()
+                if i == 0:  # '100' label (Manakov2022 unique)
+                    text.set_position((position[0] - 0.15, position[1] + 0.08))
+                elif i == 1:  # '010' label (Hejret2023 unique)
+                    text.set_position((position[0] - 0.00, position[1] + 0.0))
+                elif i == 2:  # '110' label (Manakov2022 & Hejret2023)
+                    text.set_position((position[0], position[1] + 0.08))
+                elif i == 3:  # '001' label (Klimentova2022 unique)
+                    text.set_position((position[0], position[1] - 0.08))
+                elif i == 4:  # '101' label (Manakov2022 & Klimentova2022)
+                    text.set_position((position[0] + 0.005, position[1] + 0.005))
+                elif i == 5:  # '011' label (Hejret2023 & Klimentova2022)
+                    text.set_position((position[0] + 0.05, position[1] - 0.02))
+                elif i == 6:  # '111' label (common to all)
+                    text.set_position((position[0], position[1] + 0.02))
 
-    # adjust position of set labels
-    v.set_labels[0].set_position((-0.40, 0.50))
-    v.set_labels[1].set_position((0.45, 0.25))
-    v.set_labels[2].set_position((0.55, -0.35))
+    # Adjust position of set labels
+    v.set_labels[0].set_position((-0.55, 0.40))  # Manakov2022
+    v.set_labels[1].set_position((0.45, 0.25))   # Hejret2023
+    v.set_labels[2].set_position((0.60, -0.35))  # Klimentova2022
 
-    # remove axes
+    # Remove axes
     plt.axis('off')
     return v
 
