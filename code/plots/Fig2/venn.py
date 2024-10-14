@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3, venn3_circles
 import argparse
+from matplotlib.patches import Patch, Rectangle
 
 def read_data(file_path):
     return pd.read_csv(file_path, sep='\t')
@@ -13,7 +14,7 @@ def create_sets(df):
     return manakov_set, hejret_set, klimentova_set
 
 def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
-    plt.figure(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
     v = venn3([manakov_set, hejret_set, klimentova_set], 
               set_labels=('Manakov2022', 'Hejret2023', 'Klimentova2022'))
 
@@ -26,7 +27,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
             patch.set_alpha(0)
 
     # Define line width for colored circles
-    color_width = 8.0
+    color_width = 10.0
 
     # Draw colored circles
     c_color = venn3_circles([manakov_set, hejret_set, klimentova_set], linewidth=color_width)
@@ -35,15 +36,35 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
         color_circle.set_edgecolor(colors[i])
         color_circle.set_zorder(1)
 
+    # Configurable positions for labels and rectangles
+    label_positions = [
+        (-0.50, 0.42),  # Manakov2022
+        (0.45, 0.25),   # Hejret2023
+        (0.55, -0.35)   # Klimentova2022
+    ]
+    
+    rectangle_positions = [
+        (-0.68, 0.35),  # Manakov2022
+        (0.55, 0.18),   # Hejret2023
+        (0.52, -0.45)   # Klimentova2022
+    ]
+
     # Set font size and weight for set labels
-    for text in v.set_labels:
+    for i, text in enumerate(v.set_labels):
         text.set_fontsize(20)
         text.set_fontweight('bold')
+        text.set_color('black')
+        text.set_position(label_positions[i])
+
+    # Add rectangles
+    for i, pos in enumerate(rectangle_positions):
+        rect = Rectangle(pos, 0.05, 0.05, facecolor=colors[i], edgecolor='none')
+        ax.add_artist(rect)
 
     # Set font size and weight for subset labels (numbers) and adjust positions
     for i, text in enumerate(v.subset_labels):
         if text:
-            text.set_fontsize(12)
+            text.set_fontsize(15)
             text.set_fontweight('bold')
             text.set_color('black')
             if text.get_text() == '0':
@@ -65,11 +86,6 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
                     text.set_position((position[0] + 0.05, position[1] - 0.02))
                 elif i == 6:  # '111' label (common to all)
                     text.set_position((position[0], position[1] + 0.02))
-
-    # Adjust position of set labels
-    v.set_labels[0].set_position((-0.55, 0.40))  # Manakov2022
-    v.set_labels[1].set_position((0.45, 0.25))   # Hejret2023
-    v.set_labels[2].set_position((0.60, -0.35))  # Klimentova2022
 
     # Remove axes
     plt.axis('off')
