@@ -1,37 +1,31 @@
- # miRBind model training
- 
-## 1) Data encoding
+# miRBind CNN model retraining
 
-Run the `encode_dataset.py` script to transform dataset in tsv into numpy miRNA x target binding matrix.
+Train miRBind CNN model on a subsets of [Manakov 1:1 train dataset](https://zenodo.org/records/13909173) with different sizes
 
-The tsv file is expected to have `gene`, `noncodingRNA` and `label` columns.
+The subset sizes are:
+- 200
+- 2 000
+- 7 720 = 3 860 (Hejret train set positives) * 2
+- 20 000
+- 200 000
+- 2 524 246 = full Manakov train
 
-## 2) Train the model
+## 1) Dataset subsampling
 
-Have a look at the `training.ipynb` notebook with model training.
+Run [make subset](make_subset.py) to create a subset of the dataset containing N positive and N negative samples.
 
-### Notes - Dataset sizes and times to encode:
+`python make_subset.py --N <n> --dataset <dataset> --output <output>`
 
-**1:1**
+## 2) Data encoding
 
-Number of training samples:  2 524 246
+Run the [encode dataset](encode_dataset.py) script to transform dataset in tsv into numpy miRNA x target binding matrix.
 
-Encoding time: 928 s ~ 15 min
+`python encode_dataset.py -i <input_dataset> -o <output_prefix>`
 
-Training cca 1,5 hours
+## 3) Train the model
 
-**1:10**
+Have a look at the [training](training.py) script with model training.
 
-Number of training samples:  13 883 353
+`python training.py --data <endoced_dataset> --labels <encoded_labels> --dataset_size <number_of_dataset_samples> --ratio <neg:pos ratio> --model <model_name>`
 
-Encoding time: 5019 s ~ 84 min
-
-Training cca 10 hours
-
-**1:100**
-
-Number of training samples: 127 476 014 !! the set bigger than should be? 126 213 891 negatives vs. 1 262 123 positives 
-
-Elapsed time: 48725 s ~ 812 min ~ 13,5 h
-
-Training around 2 weeks
+The trained models are available at https://drive.google.com/drive/folders/1jJQY8XcSYGhS_P7L0MG02u9wM0IGHhle?usp=sharing
