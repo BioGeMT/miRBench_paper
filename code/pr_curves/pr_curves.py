@@ -10,10 +10,11 @@ def load_data(input_file):
     # load the data from the input file
     return pd.read_csv(input_file, sep='\t')
 
-def plot_pr_curve(data, predictors, figsize=(6, 6), dpi=300, title=None):
+def plot_pr_curve(data, predictors, figsize=(6, 6), dpi=300, title="1:1"):
 
     # set color scheme with 20 colors
-    colors = plt.cm.tab20(np.linspace(0, 1, 11))
+    #colors = plt.cm.tab20(np.linspace(0, 1, 11))
+    colors = ['#cc79a7', '#d55e00', '#0072b2', '#f0e442', '#009e73', '#56b4e9', '#e69f00'] # 000000
     plt.rcParams['axes.prop_cycle'] = plt.cycler(color=colors)
 
     markers = ['o', 's', '^', 'X']
@@ -28,20 +29,34 @@ def plot_pr_curve(data, predictors, figsize=(6, 6), dpi=300, title=None):
             
         if predictor.startswith('Seed'):
             p, r, _, _ = precision_recall_fscore_support(data['label'].values, data[predictor].values, average='binary')
-            ax.plot(r, p, color='black', marker=markers[i], label=predictor)
+            ax.plot(r, p, color='black', marker=markers[i], markersize=12, label=predictor)
             i += 1
         else:
             precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
-            ax.plot(recall, precision, label=predictor)
+            ax.plot(recall, precision, label=predictor, linewidth=2.5)
     
-        ax.set_xlabel('Recall')
-        ax.set_ylabel('Precision')
+        ax.set_xlabel('Recall', fontsize=15, labelpad=-15)
+        ax.set_ylabel('Precision', fontsize=16, labelpad=-20)
 
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
 
-    ax.legend()
-    ax.set_title(title)
+        ax.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.tick_params(axis='both', length=8)
+
+        ax.set_xticklabels(['0.0', '', '', '', '', '1.0'], fontsize=14)
+        ax.set_yticklabels(['0.0', '', '', '', '', '1.0'], fontsize=14)
+
+    #ax.legend()
+
+    #Title at the top
+    ax.set_title(title, fontsize=20, pad=10)
+    # Title on the left, parallel to the y-axis
+    ax.text(-0.15, 0.5, 'CLASH_Hejret2023', va='center', ha='center', rotation=90, fontsize=20, transform=ax.transAxes)
+    # Adjust plot to fit the side text
+    plt.subplots_adjust(left=0.2)
+
     fig.tight_layout()
 
     return fig, ax
@@ -83,7 +98,7 @@ def main():
     # plot precision-recall curves for all predictors
     fig, ax = plot_pr_curve(data, args.predictors, title=args.title)
 
-    plt.savefig(args.ofile, format='svg')
+    plt.savefig(args.ofile, format='png')
     plt.close()
 
 if __name__ == "__main__":
