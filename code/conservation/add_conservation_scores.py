@@ -3,30 +3,6 @@ import pyBigWig
 import argparse
 import warnings 
 
-# Function to yield blocks of rows with the same gene from a DataFrame (alphabetically) sorted by gene sequence
-def yield_gene_blocks_from_df(df):
-    current_block = []
-    current_gene = None
-
-    # Iterate over DataFrame rows
-    for _, row in df.iterrows():
-        gene_value = row['gene']
-        
-        if gene_value != current_gene:
-            # Check if current_block contains rows for the previous gene and if so yield them
-            if current_block: # returns True if not empty
-                yield pd.DataFrame(current_block)
-            # Start a new block for the new gene
-            current_block = [row]
-            current_gene = gene_value
-        else:
-            # If it's the same gene, keep adding to the current block
-            current_block.append(row)
-
-    # Yield the last block if it's not empty
-    if current_block:
-        yield pd.DataFrame(current_block)
-
 def get_conservation(bw_file, chrom, start, end, chrom_sizes):
     # Convert to string
     chrom = str(chrom)
@@ -57,34 +33,26 @@ def get_conservation(bw_file, chrom, start, end, chrom_sizes):
         return [float('nan')] * (end - start)
 
 def add_conservation(df, phyloP_path, phastCons_path, ofile):
-    # Open the BigWig files for phyloP and phastCons
-    bw_phyloP = pyBigWig.open(phyloP_path)
-    bw_phastCons = pyBigWig.open(phastCons_path)
+    # Open BigWig files
+    with pyBigWig.open(phyloP_path) as bw_phyloP, pyBigWig.open(phastCons_path) as bw_phastCons:
 
-    # Get chromosome sizes for both files
-    chrom_sizes_phyloP = bw_phyloP.chroms()
-    chrom_sizes_phastCons = bw_phastCons.chroms()
+        # Get chromosome sizes for both files
+        chrom_sizes_phyloP = bw_phyloP.chroms()
+        chrom_sizes_phastCons = bw_phastCons.chroms()
 
-    header = True
-    columns = ['chr', 'start', 'end', 'strand']
+        header = True
+        columns = ['chr', 'start', 'end', 'strand']
 
-    with open(ofile, 'a') as ofile:
-        # Iterate over gene blocks
-        for gene_block in yield_gene_blocks_from_df(df):
-            
-            # Add conservation scores to the gene block
-            gene_block['gene_phyloP'] = gene_block.apply(lambda row: get_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP), axis=1)
-            gene_block['gene_phastCons'] = gene_block.apply(lambda row: get_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons), axis=1)
+        with open(ofile, 'a') as ofile:                
+            # Add conservation scores
+            df['gene_phyloP'] = df.apply(lambda row: get_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP), axis=1)
+            df['gene_phastCons'] = df.apply(lambda row: get_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons), axis=1)
 
             if header:
-                gene_block.head(0).to_csv(ofile, sep='\t', index=False, mode='w')
+                df.head(0).to_csv(ofile, sep='\t', index=False, mode='w')
                 header = False
-                
-            gene_block.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
-
-    # Close the BigWig files
-    bw_phyloP.close()
-    bw_phastCons.close()
+                    
+            df.to_csv(ofile, sep='\t', index=False, header=False, mode='a')
     
 
 def read_input(input_file):
