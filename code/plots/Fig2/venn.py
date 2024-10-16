@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3, venn3_circles
 import argparse
+from matplotlib.patches import Patch, Rectangle
 
 def read_data(file_path):
     return pd.read_csv(file_path, sep='\t')
@@ -13,37 +14,80 @@ def create_sets(df):
     return manakov_set, hejret_set, klimentova_set
 
 def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
-    plt.figure(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
     v = venn3([manakov_set, hejret_set, klimentova_set], 
               set_labels=('Manakov2022', 'Hejret2023', 'Klimentova2022'))
 
-    # set colors for each section
-    colors = ['#f0e442', '#0072b2', '#009e73', '#e69f00', '#cc79a7', '#56b4e9', '#d55e00']
-    for i, patch in enumerate(v.patches):
+    # Updated colors
+    colors = ['#f0e442', '#0072b2', '#cc79a7']
+
+    # Remove fill colors
+    for patch in v.patches:
         if patch:
-            patch.set_color(colors[i])
-            patch.set_alpha(1)
+            patch.set_alpha(0)
 
-    # draw circles
-    venn3_circles([manakov_set, hejret_set, klimentova_set], linewidth=1.5, color='black')
+    # Define line width for colored circles
+    color_width = 10.0
 
-    # set font size and weight for set labels
-    for text in v.set_labels:
+    # Draw colored circles
+    c_color = venn3_circles([manakov_set, hejret_set, klimentova_set], linewidth=color_width)
+    
+    for i, color_circle in enumerate(c_color):
+        color_circle.set_edgecolor(colors[i])
+        color_circle.set_zorder(1)
+
+    # Configurable positions for labels and rectangles
+    label_positions = [
+        (-0.50, 0.42),  # Manakov2022
+        (0.45, 0.25),   # Hejret2023
+        (0.55, -0.35)   # Klimentova2022
+    ]
+    
+    rectangle_positions = [
+        (-0.68, 0.35),  # Manakov2022
+        (0.55, 0.18),   # Hejret2023
+        (0.52, -0.45)   # Klimentova2022
+    ]
+
+    # Set font size and weight for set labels
+    for i, text in enumerate(v.set_labels):
         text.set_fontsize(20)
         text.set_fontweight('bold')
+        text.set_color('black')
+        text.set_position(label_positions[i])
 
-    # set font size and weight for subset labels
-    for text in v.subset_labels:
+    # Add rectangles
+    for i, pos in enumerate(rectangle_positions):
+        rect = Rectangle(pos, 0.05, 0.05, facecolor=colors[i], edgecolor='none')
+        ax.add_artist(rect)
+
+    # Set font size and weight for subset labels (numbers) and adjust positions
+    for i, text in enumerate(v.subset_labels):
         if text:
-            text.set_fontsize(16)
+            text.set_fontsize(15)
             text.set_fontweight('bold')
+            text.set_color('black')
+            if text.get_text() == '0':
+                text.set_visible(False)
+            else:
+                # Adjust position of non-zero labels
+                position = text.get_position()
+                if i == 0:  # '100' label (Manakov2022 unique)
+                    text.set_position((position[0] - 0.15, position[1] + 0.08))
+                elif i == 1:  # '010' label (Hejret2023 unique)
+                    text.set_position((position[0] - 0.00, position[1] + 0.0))
+                elif i == 2:  # '110' label (Manakov2022 & Hejret2023)
+                    text.set_position((position[0], position[1] + 0.08))
+                elif i == 3:  # '001' label (Klimentova2022 unique)
+                    text.set_position((position[0], position[1] - 0.08))
+                elif i == 4:  # '101' label (Manakov2022 & Klimentova2022)
+                    text.set_position((position[0] + 0.005, position[1] + 0.005))
+                elif i == 5:  # '011' label (Hejret2023 & Klimentova2022)
+                    text.set_position((position[0] + 0.05, position[1] - 0.02))
+                elif i == 6:  # '111' label (common to all)
+                    text.set_position((position[0], position[1] + 0.02))
 
-    # adjust position of set labels
-    v.set_labels[0].set_position((-0.40, 0.50))
-    v.set_labels[1].set_position((0.45, 0.25))
-    v.set_labels[2].set_position((0.55, -0.35))
-
-    # remove axes
+    # Remove axes
     plt.axis('off')
     return v
 
