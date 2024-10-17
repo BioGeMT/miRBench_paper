@@ -1,4 +1,6 @@
-import miRBench
+from miRBench.encoder import get_encoder
+from miRBench.predictor import get_predictor, list_predictors
+from miRBench.dataset import get_dataset_path, list_datasets
 import pandas as pd
 import argparse
 import os
@@ -20,10 +22,10 @@ def yield_blocks(file_path, block_size):
 
 
 def benchmark_all(block, dset, ratio):
-    for tool in miRBench.predictor.list_predictors():
+    for tool in list_predictors():
         print(f"Running {tool} on {dset} dataset, ratio {ratio}")           
-        encoder = miRBench.encoder.get_encoder(tool)
-        predictor = miRBench.predictor.get_predictor(tool)
+        encoder = get_encoder(tool)
+        predictor = get_predictor(tool)
         input = encoder(block)
         output = predictor(input)
         block[tool] = output
@@ -39,10 +41,10 @@ def main():
     split = "test"
 
     # loop over all available datasets
-    for dset in miRBench.dataset.list_datasets():
+    for dset in list_datasets():
         for ratio in ["1", "10", "100"]:
             print(f"Downloading {dset} dataset, ratio {ratio}")
-            input_file = miRBench.dataset.get_dataset_path(dset, split=split, ratio=ratio)
+            input_file = get_dataset_path(dset, split=split, ratio=ratio)
             output_file = os.path.join(args.out_dir, f"{dset}_{ratio}_predictions.tsv")
             header_written = False
             for block in yield_blocks(input_file, 339066): 
