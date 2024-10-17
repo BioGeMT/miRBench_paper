@@ -11,7 +11,6 @@ This script is designed to process `.tsv` files through multiple stages includin
   - `../family_assign/family_assign.py`
   - `../make_neg_sets/make_neg_sets.py`
   - `../conservation/add_conservation_scores.py`
-  - `../conservation/validate_conservation_scores.py`
 - `wget` for downloading the `mature.fa` file
 
 ## Usage
@@ -64,14 +63,9 @@ This script is designed to process `.tsv` files through multiple stages includin
    awk -F'\t' 'BEGIN{OFS="\t"} {for(i=1;i<=NF;i++) if(i!=5) printf "%s%s", $i, (i==NF?"\n":OFS)}' "$file" > "${file}_tmp" && mv "${file}_tmp" "$file"
    ```
 
-8. **Addition of Conservation scores**: This script adds phyloP and phastCons conservation scores to the data. 
+8. **Addition of Conservation scores**: This script adds validated phyloP and phastCons conservation scores to the data. 
    ```bash
    python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
-   ```
-
-9. **Validation of Conservation scores**: This script validates conservaton scores values and length, relative to the gene sequence length. 
-   ```bash
-   python3 "$conservation_dir/validate_conservation_scores.py" --ifile "$conservation_file" --ofile "$cleaned_conservation_file"
    ```
 
 ## Log File

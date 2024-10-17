@@ -79,7 +79,6 @@ TEST_SUFFIX="_test_"
 NEG_SUFFIX="_with_negatives_"
 
 CONSERVATION_SUFFIX="_conservation_scores.tsv"
-VALIDATED_CONSERVATION_SUFFIX="_conservation_scores_validated.tsv"
 
 # process each .tsv file in the input directory
 for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.tsv; do
@@ -167,29 +166,19 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     
     echo "Fifth column removed from train set and test set."
 
-    # Step 8: Add conservation scores to all datasets
+    # Step 8: Add validated conservation scores to all datasets
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
             file="$intermediate_dir/${base_name}${suffix}${ratio}.tsv"
             conservation_file="$intermediate_dir/${base_name}${suffix}${ratio}${CONSERVATION_SUFFIX}"
-            validated_conservation_file="$output_dir/${base_name}${suffix}${ratio}${VALIDATED_CONSERVATION_SUFFIX}"
             
-            echo "Adding conservation scores to $file..."
+            echo "Adding validated conservation scores to $file..."
             python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
             if [ $? -ne 0 ]; then
                 echo "Error in adding conservation scores. Check your script and input file."
                 exit 1
             fi
             echo "Conservation scores added. Output saved to $conservation_file"
-
-            # Step 9: Validate conservation scores
-            echo "Validating conservation scores in $conservation_file..."
-            python3 "$conservation_dir/validate_conservation_scores.py" --ifile "$conservation_file" --ofile "$validated_conservation_file"
-            if [ $? -ne 0 ]; then
-                echo "Error in validating conservation scores. Check your script and input file."
-                exit 1
-            fi
-            echo "Conservation scores validated. Output saved to $validated_conservation_file"
         done
     done
 done
