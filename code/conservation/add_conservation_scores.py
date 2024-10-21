@@ -48,8 +48,6 @@ def get_conservation(bw_file, chrom, start, end, chrom_sizes):
             print(f"Invalid interval for {chrom}:{start}-{end}")
             return np.nan 
         # Get conservation score values
-        start = max(0, start)
-        end = min(chrom_size, end)
         conservation_scores = bw_file.values(chrom, start, end)
         # Check if all values are valid numbers
         if all(is_valid_number(score) for score in conservation_scores):
@@ -65,8 +63,13 @@ def check_conservation_length(row, column):
     try:
         conservation_scores_length = len(row[column])
         target_length = len(row['gene'])
-        return conservation_scores_length == target_length
+        if conservation_scores_length != target_length:
+            print(f"Conservation scores length does not match gene sequence length for {row['chr']}:{row['start']}-{row['end']}")
+            return False
+        else:
+            return True
     except:
+        print(f"Error checking conservation scores length for {row['chr']}:{row['start']}-{row['end']}")
         return False
 
 def add_conservation(df, phyloP_path, phastCons_path, ofile):
