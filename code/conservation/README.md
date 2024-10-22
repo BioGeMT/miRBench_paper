@@ -4,6 +4,11 @@ A Python script for processing genomic interval data and adding conservation sco
 
 ## Requirements
 
+- phyloP and phastCons BigWig files need to be downloaded from:
+  - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/hg38.phyloP100way.bw 
+  - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/hg38.phastCons100way.bw 
+- Note that the conservation files used to create the Manakov datasets with conservation were downloaded on 15 September 2024 by Dimosthenis Tzimotoudis. 
+
 - Required Python packages:
   - pandas
   - numpy
