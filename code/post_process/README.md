@@ -5,13 +5,16 @@ This script is designed to process `.tsv` files through multiple stages includin
 
 ## Requirements
 - Python 3
+- Manually download the `hg38.phyloP100way.bw` and `hg38.phastCons100way.bw` files from:
+   - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/ 
+   - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
 - Run `conda env create --name <env_name> --file=post_process.yml`, then `conda activate <env_name>`
 - Necessary Python scripts located in specified directories relative to the post_process.sh script:
-  - `../filtering/filtering.py`
-  - `../family_assign/family_assign.py`
-  - `../make_neg_sets/make_neg_sets.py`
-  - `../conservation/add_conservation_scores.py`
-- `wget` for downloading the `mature.fa` file
+   - `../filtering/filtering.py`
+   - `../family_assign/family_assign.py`
+   - `../make_neg_sets/make_neg_sets.py`
+   - `../conservation/add_conservation_scores.py`
+- `wget` for downloading the `mature.fa`file. 
 
 ## Usage
 ```bash
