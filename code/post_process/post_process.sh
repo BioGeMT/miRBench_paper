@@ -154,7 +154,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     echo "Removing the fifth column from the train and test sets..."
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
-            file="$output_dir/${base_name}${suffix}${ratio}.tsv"
+            file="$intermediate_dir/${base_name}${suffix}${ratio}.tsv"
             # Use awk to remove the fifth column without causing column shifts
             awk -F'\t' 'BEGIN{OFS="\t"} {for(i=1;i<=NF;i++) if(i!=5) printf "%s%s", $i, (i==NF?"\n":OFS)}' "$file" > "${file}_tmp" && mv "${file}_tmp" "$file"
         done
@@ -170,7 +170,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
             file="$intermediate_dir/${base_name}${suffix}${ratio}.tsv"
-            conservation_file="$intermediate_dir/${base_name}${suffix}${ratio}${CONSERVATION_SUFFIX}"
+            conservation_file="$output_dir/${base_name}${suffix}${ratio}${CONSERVATION_SUFFIX}"
             
             echo "Adding validated conservation scores to $file..."
             python3 "$conservation_dir/add_conservation_scores.py" --ifile "$file" --phyloP "$phyloP_path" --phastCons "$phastCons_path" --ofile "$conservation_file"
