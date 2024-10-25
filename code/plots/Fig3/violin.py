@@ -34,6 +34,9 @@ def process_dataset(file_path):
     return result
 
 def plot_violin(dataframes, output_file):
+    # Extract the file extension to determine the output format
+    file_extension = os.path.splitext(output_file)[1].lower()
+    
     fig, ax = plt.subplots(figsize=(3500 / 300, 3500 / 300), dpi=300)
     colors = ['#f0e442', '#0072b2', '#cc79a7']
     positions = np.arange(len(dataframes))
@@ -75,8 +78,15 @@ def plot_violin(dataframes, output_file):
     ax.set_xlim(-0.5, len(positions) - 0.5)
 
     plt.tight_layout()
-    plt.savefig(output_file, dpi=300, bbox_inches='tight', format='png')
+    
+    # Save the plot based on the file extension
+    if file_extension == '.svg':
+        plt.savefig(output_file, format='svg', bbox_inches='tight')
+    else:  # Default to PNG
+        plt.savefig(output_file, dpi=300, bbox_inches='tight', format='png')
+    
     print(f"Plot saved as {output_file}")
+    plt.close()
 
 def create_output_tsv(dataframes, output_file):
     # Create a list to store data from all datasets
@@ -106,8 +116,10 @@ def create_output_tsv(dataframes, output_file):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Process miRNA datasets, create violin plots, and output data to TSV.')
     parser.add_argument('input_files', nargs='+', help='Input TSV files')
-    parser.add_argument('-o', '--output_png', default='seed_prevalence_violin_plot.png', help='Output file for the violin plot')
-    parser.add_argument('-t', '--output_tsv', default='seed_prevalence_data.tsv', help='Output TSV file for plot data')
+    parser.add_argument('-o', '--output_plot', default='seed_prevalence_plot.png', 
+                      help='Output file for the plot (supported formats: .png, .svg)')
+    parser.add_argument('-t', '--output_tsv', default='seed_prevalence_data.tsv', 
+                      help='Output TSV file for plot data')
     return parser.parse_args()
 
 def main():
@@ -130,7 +142,7 @@ def main():
         
         dataframes[dataset_name] = df
     
-    plot_violin(dataframes, args.output_png)
+    plot_violin(dataframes, args.output_plot)
     create_output_tsv(dataframes, args.output_tsv)
 
 if __name__ == "__main__":
