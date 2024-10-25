@@ -1,0 +1,8 @@
+Intersection	Count	miRNA_Families
+Manakov2022 only	918	918 families
+Hejret2023 only	5	mir-1249, mir-1911, mir-379, mir-614, mir-634
+Klimentova2022 only	0	
+Manakov2022 ∩ Hejret2023 only	120	120 families
+Manakov2022 ∩ Klimentova2022 only	5	mir-132, mir-3136, mir-449, mir-4677, mir-612
+Hejret2023 ∩ Klimentova2022 only	1	0
+All three studies	61	61 families
