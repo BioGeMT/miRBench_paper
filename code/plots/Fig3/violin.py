@@ -53,12 +53,12 @@ def plot_violin(dataframes, output_file):
         parts = ax.violinplot(violin_data, positions=[i], showmeans=False, showmedians=False, showextrema=False, widths=0.7)  
         for pc in parts['bodies']:
             pc.set_facecolor(colors[i % len(colors)])
-            pc.set_edgecolor('black')
+            pc.set_edgecolor('none')
             pc.set_linewidth(1.5)  
             pc.set_alpha(1)
 
         median = np.median(violin_data)
-        ax.hlines(median, i - 0.35, i + 0.35, color='black', linewidth=2.5)
+        ax.hlines(median, i - 0.35, i + 0.35, color='black', linewidth=1.5)
 
     ax.set_ylim(0, 100)
     ax.set_yticks(range(0, 101, 10))
@@ -67,7 +67,7 @@ def plot_violin(dataframes, output_file):
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     for spine in ['left', 'bottom']:
-        ax.spines[spine].set_linewidth(1.5)
+        ax.spines[spine].set_linewidth(1)
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
 

@@ -38,7 +38,7 @@ def plot_mirna_families(df, output_file):
         
         for j, (col, val) in enumerate(non_zero.items()):
             ax.bar(start, val, width, label=col if i == 0 else "", 
-                  color=colors[j % len(colors)], edgecolor='black', linewidth=1.5)
+                  color=colors[j % len(colors)], edgecolor='none', linewidth=1.5)
             start += width
     
     # remove labels and title
@@ -57,8 +57,8 @@ def plot_mirna_families(df, output_file):
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
     
     # increase width of x and y axis lines
-    ax.spines['left'].set_linewidth(1.5)
-    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['left'].set_linewidth(1)
+    ax.spines['bottom'].set_linewidth(1)
     
     # remove top and right spines
     ax.spines['top'].set_visible(False)
@@ -70,6 +70,12 @@ def plot_mirna_families(df, output_file):
     # add legend without border and with semibold text
     legend = ax.legend(fontsize=34, loc='upper center', bbox_to_anchor=(0.5, -0.12), 
                       ncol=3, frameon=False)
+    
+    # adjust legend marker size and alignment
+    square_size = 40
+    for handle in legend.get_patches():
+        handle.set_height(square_size)
+        handle.set_width(square_size)
     
     # make legend text semibold
     for text in legend.get_texts():

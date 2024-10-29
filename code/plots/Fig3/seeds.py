@@ -62,12 +62,12 @@ def plot_seed_prevalence(tsv_file, output_file):
 
     for i, seed in enumerate(['None', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
         values = df_pivot_pct[seed].values
-        ax.bar(bar_positions, values, bar_width, bottom=bottom, color=colors[i], edgecolor='black', linewidth=0.5)
+        ax.bar(bar_positions, values, bar_width, bottom=bottom, color=colors[i], edgecolor='none', linewidth=0.5)
         bottom = [b + v for b, v in zip(bottom, values)]
 
     # Add black borders to the entire columns
     for pos in bar_positions:
-        ax.bar(pos, 100, bar_width, fill=False, edgecolor='black', linewidth=2.0)
+        ax.bar(pos, 100, bar_width, fill=False, edgecolor='none', linewidth=2.0)
 
     # Adjust y-axis
     ax.set_yticks(range(0, 101, 10))
@@ -76,8 +76,8 @@ def plot_seed_prevalence(tsv_file, output_file):
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # Increase width of x and y axis lines
-    ax.spines['left'].set_linewidth(2.0)
-    ax.spines['bottom'].set_linewidth(2.0)
+    ax.spines['left'].set_linewidth(1)
+    ax.spines['bottom'].set_linewidth(1)
 
     # Remove top and right spines
     ax.spines['top'].set_visible(False)
@@ -92,7 +92,7 @@ def plot_seed_prevalence(tsv_file, output_file):
 
     # Create custom square legend handles
     square_size = 24
-    legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
+    legend_handles = [Patch(facecolor=color, edgecolor='none') for color in colors]
 
     # Add legend to the bottom of the plot with corrected labels
     legend_labels = ['None', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']

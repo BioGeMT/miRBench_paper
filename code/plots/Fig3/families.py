@@ -77,7 +77,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
     bar_width = 0.0693 * scale_factor * 3.5  # Increased from 2.5 to 3.5
 
     # Add small space between bars within a group to prevent overlap
-    bar_spacing = bar_width * 0.03  # Reduced spacing percentage to allow for wider bars
+    bar_spacing = bar_width * 0 #0.03  # Reduced spacing percentage to allow for wider bars
 
     group_width = 4 * (bar_width + bar_spacing) - bar_spacing
     # Adjust spacing between grouped columns
@@ -97,21 +97,21 @@ def plot_seed_prevalence(seed_percentages, output_file):
         height = total
 
         # Draw the rectangle around the group of bars
-        rect = Rectangle((x_start, y_start), width, height, facecolor=colors[-1], edgecolor='black', linestyle=':',
+        rect = Rectangle((x_start, y_start), width, height, facecolor=colors[-1], edgecolor='none', linestyle=':',
                          linewidth=4 * scale_factor)
         ax.add_patch(rect)
 
     for i, seed_type in enumerate(['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
         values = seed_percentages[seed_type]
         bar_positions = [x + i*(bar_width + bar_spacing) for x in index]
-        bars = ax.bar(bar_positions, values, bar_width, color=colors[i], edgecolor='black', linewidth=0.5*scale_factor, label=seed_type)
+        bars = ax.bar(bar_positions, values, bar_width, color=colors[i], edgecolor='none', linewidth=0.5*scale_factor, label=seed_type)
 
         for bar in bars:
             x = bar.get_x()
             y = bar.get_y()
             height = bar.get_height()
             # Increase border width for individual columns
-            ax.add_patch(Rectangle((x, y), bar_width, height, fill=False, edgecolor='black', linewidth=4*scale_factor))
+            ax.add_patch(Rectangle((x, y), bar_width, height, fill=False, edgecolor='none', linewidth=4*scale_factor))
 
     ax.set_title('')
     ax.set_xlabel('')
@@ -129,8 +129,8 @@ def plot_seed_prevalence(seed_percentages, output_file):
     # Make x and y axes black and bolder
     ax.spines['left'].set_color('black')
     ax.spines['bottom'].set_color('black')
-    ax.spines['left'].set_linewidth(6*scale_factor)
-    ax.spines['bottom'].set_linewidth(6*scale_factor)
+    ax.spines['left'].set_linewidth(4*scale_factor)
+    ax.spines['bottom'].set_linewidth(4*scale_factor)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.tick_params(axis='x', colors='black', width=6*scale_factor, length=10*scale_factor)
@@ -140,7 +140,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
     ax.xaxis.set_tick_params(pad=15)
 
     square_size = 102 * scale_factor
-    legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
+    legend_handles = [Patch(facecolor=color, edgecolor='none') for color in colors]
 
     legend_labels = ['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer', 'TotalCanonicalSeed']
     legend = ax.legend(legend_handles, legend_labels, 

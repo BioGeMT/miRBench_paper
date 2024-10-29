@@ -53,13 +53,13 @@ def create_heatmap(corr_matrix, output_file):
     # create the heatmap 
     heatmap = sns.heatmap(corr_matrix, ax=ax_heatmap, mask=mask, annot=True, fmt=".3f", cmap=cmap, 
                           vmin=vmin, vmax=vmax, square=True, cbar=False,
-                          annot_kws={'size': 22, 'weight': 'semibold'})
+                          annot_kws={'size': 22, 'weight': 'medium'})
 
     # add black borders to each cell in the heatmap
     for i in range(len(corr_matrix)):
         for j in range(len(corr_matrix)):
             if not mask[i, j]:
-                heatmap.add_patch(plt.Rectangle((j, i), 1, 1, fill=False, edgecolor='black', lw=2))
+                heatmap.add_patch(plt.Rectangle((j, i), 1, 1, fill=False, edgecolor='none', lw=2))
 
     # set the rotation for x-axis and y-axis labels
     ax_heatmap.set_xticklabels(ax_heatmap.get_xticklabels(), rotation=0)

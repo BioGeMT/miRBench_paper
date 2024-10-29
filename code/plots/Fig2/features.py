@@ -54,12 +54,12 @@ def create_plot(percentages, labels):
     for i, dataset in enumerate(datasets):
         bottom = 0
         for j, value in enumerate(dataset):
-            ax.bar(bar_positions[i], value, bar_width, bottom=bottom, color=colors[j], edgecolor='black', linewidth=0.5)
+            ax.bar(bar_positions[i], value, bar_width, bottom=bottom, color=colors[j], edgecolor='none', linewidth=0.5)
             bottom += value
 
     # add black borders to the entire columns
     for pos in bar_positions:
-        ax.bar(pos, 100, bar_width, fill=False, edgecolor='black', linewidth=1.5)
+        ax.bar(pos, 100, bar_width, fill=False, edgecolor='none', linewidth=1.5)
 
     # adjust y-axis
     ax.set_yticks(range(0, 101, 10))
@@ -67,8 +67,8 @@ def create_plot(percentages, labels):
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # increase width of x and y axis lines
-    ax.spines['left'].set_linewidth(1.5)
-    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['left'].set_linewidth(1)
+    ax.spines['bottom'].set_linewidth(1)
 
     # remove top and right spines
     ax.spines['top'].set_visible(False)
@@ -83,7 +83,7 @@ def create_plot(percentages, labels):
 
     # create custom square legend handles
     square_size = 25  # reduced by 1/3 from 30
-    legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
+    legend_handles = [Patch(facecolor=color, edgecolor='none') for color in colors]
 
     # add legend below x-axis
     legend = ax.legend(legend_handles, categories, loc='upper center', bbox_to_anchor=(0.5, -0.10),
