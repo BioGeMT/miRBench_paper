@@ -54,6 +54,9 @@ def calculate_seed_percentages(df, top_families):
     # Sort the DataFrame based on the order of top_families
     seed_percentages = seed_percentages.reindex(top_families)
 
+    with open("plotted_seed_percentages.txt", "w") as file:
+        print("Plotted seed percentages:\n", seed_percentages, file=file)
+
     return seed_percentages
 
 def plot_seed_prevalence(seed_percentages, output_file):
