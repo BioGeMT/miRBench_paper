@@ -33,4 +33,4 @@ def find_seed_match(target, mirna):
                 if pos < len(seed) and (seed[:pos] + nt + seed[pos+1:]) in rc_target:
                     return 'SeedNonCanonical'
 
-    return 'none'
+    return 'None'

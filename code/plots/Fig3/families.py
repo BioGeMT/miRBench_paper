@@ -119,7 +119,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
 
     # Adjust x-ticks to match the center of the groups
     ax.set_xticks([x + (group_width / 2) for x in index])
-    ax.set_xticklabels(seed_percentages.index, rotation=0, ha='center', fontsize=112*scale_factor, weight='bold')
+    ax.set_xticklabels(seed_percentages.index, rotation=0, ha='center', fontsize=112*scale_factor, weight='medium')
 
     ax.set_ylim(0, 60)
     ax.set_yticks(range(0, 61, 10))
@@ -136,16 +136,17 @@ def plot_seed_prevalence(seed_percentages, output_file):
     ax.tick_params(axis='x', colors='black', width=6*scale_factor, length=10*scale_factor)
     ax.tick_params(axis='y', colors='black', width=6*scale_factor, length=10*scale_factor)
 
-    ax.xaxis.set_tick_params(pad=15*scale_factor)
+    #ax.xaxis.set_tick_params(pad=15*scale_factor)
+    ax.xaxis.set_tick_params(pad=15)
 
-    square_size = 96 * scale_factor
+    square_size = 102 * scale_factor
     legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
 
     legend_labels = ['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer', 'TotalCanonicalSeed']
     legend = ax.legend(legend_handles, legend_labels, 
                        loc='upper center', bbox_to_anchor=(0.5, -0.05),
                        ncol=5, columnspacing=1.5, handlelength=1, handleheight=1,
-                       prop={'size': 96*scale_factor, 'weight': 'semibold'})
+                       prop={'size': 96*scale_factor, 'weight': 'medium'})
 
     for handle in legend.get_patches():
         handle.set_height(square_size)

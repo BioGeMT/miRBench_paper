@@ -22,7 +22,7 @@ def create_tsv(datasets, tsv_output):
 
     df = pd.concat(data)
     df_pivot = df.pivot(index='Dataset', columns='Seed', values='Count')
-    df_pivot = df_pivot.reindex(columns=['none', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer'])
+    df_pivot = df_pivot.reindex(columns=['Seed6mer', 'Seed7mer', 'Seed8mer', 'SeedNonCanonical', 'None'])
     df_pivot = df_pivot.fillna(0)
 
     # Reorder rows to match input order
@@ -52,7 +52,7 @@ def plot_seed_prevalence(tsv_file, output_file):
     fig, ax = plt.subplots(figsize=(3500 / 300, 3500 / 300), dpi=300)
 
     # Set up the color palette (order as specified)
-    colors = ['#d55e00','#f0e442','#009e73' ,'#cc79a7', '#0072b2']
+    colors = ['#d55e00', '#f0e442', '#009e73' ,'#cc79a7', '#0072b2' ] 
 
     # Create the vertical stacked bar plot
     bar_width = 3.9
@@ -60,7 +60,7 @@ def plot_seed_prevalence(tsv_file, output_file):
 
     bottom = [0] * len(df_pivot_pct)
 
-    for i, seed in enumerate(['none', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
+    for i, seed in enumerate(['None', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
         values = df_pivot_pct[seed].values
         ax.bar(bar_positions, values, bar_width, bottom=bottom, color=colors[i], edgecolor='black', linewidth=0.5)
         bottom = [b + v for b, v in zip(bottom, values)]
@@ -71,7 +71,8 @@ def plot_seed_prevalence(tsv_file, output_file):
 
     # Adjust y-axis
     ax.set_yticks(range(0, 101, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=30)
+    ax.set_yticklabels(["0%", "", "20%", "", "40%", "", "60%", "", "80%", "", "100%"],fontsize=30)
+    #ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=30)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # Increase width of x and y axis lines
@@ -84,7 +85,7 @@ def plot_seed_prevalence(tsv_file, output_file):
 
     # Adjust x-axis with reduced font size and specified order
     x_labels = df_pivot_pct.index
-    plt.xticks(bar_positions, x_labels, fontsize=24, rotation=0, ha='center', weight='semibold')
+    plt.xticks(bar_positions, x_labels, fontsize=26, rotation=0, ha='center', weight='medium')
 
     # Move x-axis ticks down
     ax.xaxis.set_tick_params(pad=15)
@@ -94,11 +95,11 @@ def plot_seed_prevalence(tsv_file, output_file):
     legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
 
     # Add legend to the bottom of the plot with corrected labels
-    legend_labels = ['none', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']
+    legend_labels = ['None', 'SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']
     legend = ax.legend(legend_handles, legend_labels, 
                        loc='upper center', bbox_to_anchor=(0.5, -0.10),
                        ncol=5, columnspacing=0.6, handletextpad=0.2, handlelength=1, handleheight=1,
-                       prop={'size': 20, 'weight': 'semibold'})
+                       prop={'size': 20, 'weight': 'medium'})
 
     # Adjust legend marker size and alignment
     for handle in legend.get_patches():

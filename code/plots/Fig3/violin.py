@@ -62,7 +62,8 @@ def plot_violin(dataframes, output_file):
 
     ax.set_ylim(0, 100)
     ax.set_yticks(range(0, 101, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=28)
+    #ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=28)
+    ax.set_yticklabels(["0%", "", "20%", "", "40%", "", "60%", "", "80%", "", "100%"],fontsize=30)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     for spine in ['left', 'bottom']:
@@ -71,7 +72,7 @@ def plot_violin(dataframes, output_file):
         ax.spines[spine].set_visible(False)
 
     ax.set_xticks(positions)
-    ax.set_xticklabels(list(dataframes.keys()), fontsize=24, rotation=0, ha='center', weight='semibold')  
+    ax.set_xticklabels(list(dataframes.keys()), fontsize=26, rotation=0, ha='center', weight='medium')  
     ax.xaxis.set_tick_params(pad=15)
     ax.set_xlabel('')
     ax.set_ylabel('')
