@@ -38,7 +38,7 @@ def plot_mirna_families(df, output_file):
         
         for j, (col, val) in enumerate(non_zero.items()):
             ax.bar(start, val, width, label=col if i == 0 else "", 
-                  color=colors[j % len(colors)], edgecolor='black', linewidth=0.5)
+                  color=colors[j % len(colors)], edgecolor='black', linewidth=1.5)
             start += width
     
     # remove labels and title
@@ -48,7 +48,7 @@ def plot_mirna_families(df, output_file):
     
     # set x-ticks to the center of each group
     ax.set_xticks(x_centers)
-    ax.set_xticklabels(top_10_families, rotation=0, ha='center', fontsize=34, weight='semibold')
+    ax.set_xticklabels(top_10_families, rotation=0, ha='center', fontsize=34, weight='medium')
     
     # adjust y-axis to 30% max
     ax.set_ylim(0, 30)
@@ -73,7 +73,7 @@ def plot_mirna_families(df, output_file):
     
     # make legend text semibold
     for text in legend.get_texts():
-        text.set_fontweight('semibold')
+        text.set_fontweight('medium')
     
     plt.tight_layout()
     

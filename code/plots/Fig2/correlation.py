@@ -10,7 +10,7 @@ def load_data(file_path):
     return pd.read_csv(file_path, sep='\t')
 
 def calculate_mirna_percentages(df):
-    mirna_counts = df['miRNA_fam'].value_counts()
+    mirna_counts = df['noncodingRNA_fam'].value_counts()
     total_count = mirna_counts.sum()
     return (mirna_counts / total_count) * 100
 
@@ -47,7 +47,7 @@ def create_heatmap(corr_matrix, output_file):
     mask = np.tril(np.ones_like(corr_matrix, dtype=bool), k=-1)
     
     # get the minimum and maximum correlation values for color scaling
-    vmin = corr_matrix.min().min()
+    vmin = 0.5 #corr_matrix.min().min()
     vmax = corr_matrix.max().max()
 
     # create the heatmap 
@@ -66,9 +66,9 @@ def create_heatmap(corr_matrix, output_file):
     ax_heatmap.set_yticklabels(ax_heatmap.get_yticklabels(), rotation=90)
 
     # set the font size and weight for tick labels
-    tick_font_size = 17
-    ax_heatmap.set_xticklabels(ax_heatmap.get_xticklabels(), weight='semibold', size=tick_font_size)
-    ax_heatmap.set_yticklabels(ax_heatmap.get_yticklabels(), weight='semibold', size=tick_font_size)
+    tick_font_size = 18
+    ax_heatmap.set_xticklabels(ax_heatmap.get_xticklabels(), weight='medium', size=tick_font_size)
+    ax_heatmap.set_yticklabels(ax_heatmap.get_yticklabels(), weight='medium', size=tick_font_size)
 
     # adjust the padding for tick labels
     ax_heatmap.tick_params(axis='x', which='major', pad=7)

@@ -7,12 +7,12 @@ from seed_utils import find_seed_match
 
 def process_dataset(file_path):
     df = pd.read_csv(file_path, sep='\t')
-    df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
+    df['seed_type'] = df.apply(lambda row: find_seed_match(row['gene'], row['noncodingRNA']), axis=1)
     
-    grouped = df.groupby('miRNA_fam')
+    grouped = df.groupby('noncodingRNA_fam')
     result = grouped.agg({
         'seed_type': lambda x: (x.isin(['Seed6mer', 'Seed7mer', 'Seed8mer']).sum() / len(x)) * 100,
-        'miRNA_fam': 'count'
+        'noncodingRNA_fam': 'count'
     })
     
     result.columns = ['TotalCanonicalSeed%', 'EntryCount']

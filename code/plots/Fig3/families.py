@@ -10,29 +10,29 @@ def process_datasets(datasets):
     all_data = {}
     for name, file_path in datasets.items():
         df = pd.read_csv(file_path, sep='\t')
-        df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
+        df['seed_type'] = df.apply(lambda row: find_seed_match(row['gene'], row['noncodingRNA']), axis=1)
         all_data[name] = df
 
     combined_df = pd.concat(all_data.values())
 
     # Calculate total counts per family across all datasets
-    family_counts = combined_df['miRNA_fam'].value_counts()
+    family_counts = combined_df['noncodingRNA_fam'].value_counts()
     total_percentage = (family_counts / family_counts.sum()) * 100
 
     # Create a DataFrame for total counts and total percentages
     total_counts_df = pd.DataFrame({
-        'miRNA_fam': family_counts.index,
+        'noncodingRNA_fam': family_counts.index,
         'Total_Count': family_counts.values,
         'Total_Percentage': total_percentage.values
     })
 
     # Calculate counts and percentages for each dataset
     for dataset_name, df in all_data.items():
-        counts = df['miRNA_fam'].value_counts()
-        percentages = df['miRNA_fam'].value_counts(normalize=True) * 100
+        counts = df['noncodingRNA_fam'].value_counts()
+        percentages = df['noncodingRNA_fam'].value_counts(normalize=True) * 100
 
-        total_counts_df[f'{dataset_name}_Count'] = total_counts_df['miRNA_fam'].map(counts).fillna(0).astype(int)
-        total_counts_df[f'{dataset_name}_Percentage'] = total_counts_df['miRNA_fam'].map(percentages).fillna(0)
+        total_counts_df[f'{dataset_name}_Count'] = total_counts_df['noncodingRNA_fam'].map(counts).fillna(0).astype(int)
+        total_counts_df[f'{dataset_name}_Percentage'] = total_counts_df['noncodingRNA_fam'].map(percentages).fillna(0)
 
     # Sort the DataFrame by total counts in descending order
     total_counts_df = total_counts_df.sort_values(by='Total_Count', ascending=False)
@@ -40,10 +40,10 @@ def process_datasets(datasets):
     return combined_df, total_counts_df
 
 def calculate_seed_percentages(df, top_families):
-    df_top = df[df['miRNA_fam'].isin(top_families)]
+    df_top = df[df['noncodingRNA_fam'].isin(top_families)]
 
     # Calculate seed type percentages for the top families
-    seed_percentages = df_top.groupby('miRNA_fam')['seed_type'].value_counts(normalize=True).unstack() * 100
+    seed_percentages = df_top.groupby('noncodingRNA_fam')['seed_type'].value_counts(normalize=True).unstack() * 100
 
     # Calculate total seed percentage (excluding 'none')
     seed_percentages['TotalCanonicalSeed'] = seed_percentages['Seed6mer'] + seed_percentages['Seed7mer'] + seed_percentages['Seed8mer']
@@ -191,7 +191,7 @@ def main():
     print(f"Combined TSV file saved as {args.tsv_output}")
 
     # Generate a plot for the top 10 families based on total counts
-    top_10_families = total_counts_df['miRNA_fam'].head(10).tolist()
+    top_10_families = total_counts_df['noncodingRNA_fam'].head(10).tolist()
     seed_percentages = calculate_seed_percentages(combined_df, top_10_families)
     plot_seed_prevalence(seed_percentages, args.output)
 
