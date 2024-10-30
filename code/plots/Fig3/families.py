@@ -10,29 +10,29 @@ def process_datasets(datasets):
     all_data = {}
     for name, file_path in datasets.items():
         df = pd.read_csv(file_path, sep='\t')
-        df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
+        df['seed_type'] = df.apply(lambda row: find_seed_match(row['gene'], row['noncodingRNA']), axis=1)
         all_data[name] = df
 
     combined_df = pd.concat(all_data.values())
 
     # Calculate total counts per family across all datasets
-    family_counts = combined_df['miRNA_fam'].value_counts()
+    family_counts = combined_df['noncodingRNA_fam'].value_counts()
     total_percentage = (family_counts / family_counts.sum()) * 100
 
     # Create a DataFrame for total counts and total percentages
     total_counts_df = pd.DataFrame({
-        'miRNA_fam': family_counts.index,
+        'noncodingRNA_fam': family_counts.index,
         'Total_Count': family_counts.values,
         'Total_Percentage': total_percentage.values
     })
 
     # Calculate counts and percentages for each dataset
     for dataset_name, df in all_data.items():
-        counts = df['miRNA_fam'].value_counts()
-        percentages = df['miRNA_fam'].value_counts(normalize=True) * 100
+        counts = df['noncodingRNA_fam'].value_counts()
+        percentages = df['noncodingRNA_fam'].value_counts(normalize=True) * 100
 
-        total_counts_df[f'{dataset_name}_Count'] = total_counts_df['miRNA_fam'].map(counts).fillna(0).astype(int)
-        total_counts_df[f'{dataset_name}_Percentage'] = total_counts_df['miRNA_fam'].map(percentages).fillna(0)
+        total_counts_df[f'{dataset_name}_Count'] = total_counts_df['noncodingRNA_fam'].map(counts).fillna(0).astype(int)
+        total_counts_df[f'{dataset_name}_Percentage'] = total_counts_df['noncodingRNA_fam'].map(percentages).fillna(0)
 
     # Sort the DataFrame by total counts in descending order
     total_counts_df = total_counts_df.sort_values(by='Total_Count', ascending=False)
@@ -40,10 +40,10 @@ def process_datasets(datasets):
     return combined_df, total_counts_df
 
 def calculate_seed_percentages(df, top_families):
-    df_top = df[df['miRNA_fam'].isin(top_families)]
+    df_top = df[df['noncodingRNA_fam'].isin(top_families)]
 
     # Calculate seed type percentages for the top families
-    seed_percentages = df_top.groupby('miRNA_fam')['seed_type'].value_counts(normalize=True).unstack() * 100
+    seed_percentages = df_top.groupby('noncodingRNA_fam')['seed_type'].value_counts(normalize=True).unstack() * 100
 
     # Calculate total seed percentage (excluding 'none')
     seed_percentages['TotalCanonicalSeed'] = seed_percentages['Seed6mer'] + seed_percentages['Seed7mer'] + seed_percentages['Seed8mer']
@@ -53,6 +53,9 @@ def calculate_seed_percentages(df, top_families):
 
     # Sort the DataFrame based on the order of top_families
     seed_percentages = seed_percentages.reindex(top_families)
+
+    with open("plotted_seed_percentages.txt", "w") as file:
+        print("Plotted seed percentages:\n", seed_percentages, file=file)
 
     return seed_percentages
 
@@ -77,7 +80,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
     bar_width = 0.0693 * scale_factor * 3.5  # Increased from 2.5 to 3.5
 
     # Add small space between bars within a group to prevent overlap
-    bar_spacing = bar_width * 0.03  # Reduced spacing percentage to allow for wider bars
+    bar_spacing = bar_width * 0 #0.03  # Reduced spacing percentage to allow for wider bars
 
     group_width = 4 * (bar_width + bar_spacing) - bar_spacing
     # Adjust spacing between grouped columns
@@ -97,21 +100,21 @@ def plot_seed_prevalence(seed_percentages, output_file):
         height = total
 
         # Draw the rectangle around the group of bars
-        rect = Rectangle((x_start, y_start), width, height, facecolor=colors[-1], edgecolor='black', linestyle=':',
+        rect = Rectangle((x_start, y_start), width, height, facecolor=colors[-1], edgecolor='none', linestyle=':',
                          linewidth=4 * scale_factor)
         ax.add_patch(rect)
 
     for i, seed_type in enumerate(['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer']):
         values = seed_percentages[seed_type]
         bar_positions = [x + i*(bar_width + bar_spacing) for x in index]
-        bars = ax.bar(bar_positions, values, bar_width, color=colors[i], edgecolor='black', linewidth=0.5*scale_factor, label=seed_type)
+        bars = ax.bar(bar_positions, values, bar_width, color=colors[i], edgecolor='none', linewidth=0.5*scale_factor, label=seed_type)
 
         for bar in bars:
             x = bar.get_x()
             y = bar.get_y()
             height = bar.get_height()
             # Increase border width for individual columns
-            ax.add_patch(Rectangle((x, y), bar_width, height, fill=False, edgecolor='black', linewidth=4*scale_factor))
+            ax.add_patch(Rectangle((x, y), bar_width, height, fill=False, edgecolor='none', linewidth=4*scale_factor))
 
     ax.set_title('')
     ax.set_xlabel('')
@@ -119,7 +122,7 @@ def plot_seed_prevalence(seed_percentages, output_file):
 
     # Adjust x-ticks to match the center of the groups
     ax.set_xticks([x + (group_width / 2) for x in index])
-    ax.set_xticklabels(seed_percentages.index, rotation=0, ha='center', fontsize=112*scale_factor, weight='bold')
+    ax.set_xticklabels(seed_percentages.index, rotation=0, ha='center', fontsize=112*scale_factor, weight='medium')
 
     ax.set_ylim(0, 60)
     ax.set_yticks(range(0, 61, 10))
@@ -129,23 +132,24 @@ def plot_seed_prevalence(seed_percentages, output_file):
     # Make x and y axes black and bolder
     ax.spines['left'].set_color('black')
     ax.spines['bottom'].set_color('black')
-    ax.spines['left'].set_linewidth(6*scale_factor)
-    ax.spines['bottom'].set_linewidth(6*scale_factor)
+    ax.spines['left'].set_linewidth(4*scale_factor)
+    ax.spines['bottom'].set_linewidth(4*scale_factor)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.tick_params(axis='x', colors='black', width=6*scale_factor, length=10*scale_factor)
     ax.tick_params(axis='y', colors='black', width=6*scale_factor, length=10*scale_factor)
 
-    ax.xaxis.set_tick_params(pad=15*scale_factor)
+    #ax.xaxis.set_tick_params(pad=15*scale_factor)
+    ax.xaxis.set_tick_params(pad=15)
 
-    square_size = 96 * scale_factor
-    legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
+    square_size = 102 * scale_factor
+    legend_handles = [Patch(facecolor=color, edgecolor='none') for color in colors]
 
     legend_labels = ['SeedNonCanonical', 'Seed6mer', 'Seed7mer', 'Seed8mer', 'TotalCanonicalSeed']
     legend = ax.legend(legend_handles, legend_labels, 
                        loc='upper center', bbox_to_anchor=(0.5, -0.05),
                        ncol=5, columnspacing=1.5, handlelength=1, handleheight=1,
-                       prop={'size': 96*scale_factor, 'weight': 'semibold'})
+                       prop={'size': 96*scale_factor, 'weight': 'medium'})
 
     for handle in legend.get_patches():
         handle.set_height(square_size)
@@ -191,7 +195,7 @@ def main():
     print(f"Combined TSV file saved as {args.tsv_output}")
 
     # Generate a plot for the top 10 families based on total counts
-    top_10_families = total_counts_df['miRNA_fam'].head(10).tolist()
+    top_10_families = total_counts_df['noncodingRNA_fam'].head(10).tolist()
     seed_percentages = calculate_seed_percentages(combined_df, top_10_families)
     plot_seed_prevalence(seed_percentages, args.output)
 

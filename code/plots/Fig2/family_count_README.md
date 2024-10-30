@@ -16,7 +16,7 @@ python family_count.py input_file1.tsv input_file2.tsv input_file3.tsv output_fi
 
 ## Input File Format
 
-The input TSV files should have a header row and include a column named 'miRNA_fam' which contains the miRNA family names.
+The input TSV files should have a header row and include a column named 'noncodingRNA_fam' which contains the miRNA family names.
 
 ## Output
 

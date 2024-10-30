@@ -12,8 +12,9 @@ python venn.py -i input_file.tsv -o output_diagram.png -s output_stats.tsv
 
 ### Arguments:
 - `-i`, `--input`: Required. The input TSV file containing miRNA family data.
-- `-o`, `--output`: Required. The name of the output file for the Venn diagram (e.g., diagram.png).
-- `-s`, `--stats`: Required. The name of the output TSV file for the statistics.
+- `-o`, `--output`: Required. The name of the output file path for the Venn diagram (e.g., diagram.png).
+- `-s`, `--stats`: Required. The name of the output TSV file  path for the statistics.
+- `-d`, `--detailed`: Required. The name of the output TSV file path with detailed intersection statistics. 
 
 ## Input File Format
 

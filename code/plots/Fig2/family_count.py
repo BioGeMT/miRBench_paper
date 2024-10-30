@@ -8,7 +8,7 @@ def count_mirna_families(filename):
     with open(filename, 'r') as f:
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
-            family = row['miRNA_fam']
+            family = row['noncodingRNA_fam']
             family_counts[family] += 1
     return family_counts
 

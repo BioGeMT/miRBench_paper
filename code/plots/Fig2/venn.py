@@ -70,8 +70,8 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
     # Set font size and weight for set labels
     for i, text in enumerate(v.set_labels):
         if text:
-            text.set_fontsize(20)
-            text.set_fontweight('bold')
+            text.set_fontsize(23)
+            text.set_fontweight('medium')
             text.set_color('black')
             text.set_position(label_positions[i])
 
@@ -82,8 +82,8 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
     # Set font size and weight for subset labels (numbers) and store positions
     for i, text in enumerate(v.subset_labels):
         if text:
-            text.set_fontsize(20)
-            text.set_fontweight('bold')
+            text.set_fontsize(25)
+            text.set_fontweight('medium')
             text.set_color('black')
             # Store all visible numbers and their positions
             if text.get_text() != '0':  # Only store non-zero values
@@ -116,7 +116,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
         ax.text(new_pos[0], new_pos[1],
                 label_text,
                 fontsize=20,
-                fontweight='bold',
+                fontweight='medium',
                 ha='left',
                 va='center')
         

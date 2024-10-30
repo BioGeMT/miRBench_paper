@@ -7,12 +7,12 @@ from seed_utils import find_seed_match
 
 def process_dataset(file_path):
     df = pd.read_csv(file_path, sep='\t')
-    df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
+    df['seed_type'] = df.apply(lambda row: find_seed_match(row['gene'], row['noncodingRNA']), axis=1)
     
-    grouped = df.groupby('miRNA_fam')
+    grouped = df.groupby('noncodingRNA_fam')
     result = grouped.agg({
         'seed_type': lambda x: (x.isin(['Seed6mer', 'Seed7mer', 'Seed8mer']).sum() / len(x)) * 100,
-        'miRNA_fam': 'count'
+        'noncodingRNA_fam': 'count'
     })
     
     result.columns = ['TotalCanonicalSeed%', 'EntryCount']
@@ -53,25 +53,26 @@ def plot_violin(dataframes, output_file):
         parts = ax.violinplot(violin_data, positions=[i], showmeans=False, showmedians=False, showextrema=False, widths=0.7)  
         for pc in parts['bodies']:
             pc.set_facecolor(colors[i % len(colors)])
-            pc.set_edgecolor('black')
+            pc.set_edgecolor('none')
             pc.set_linewidth(1.5)  
             pc.set_alpha(1)
 
         median = np.median(violin_data)
-        ax.hlines(median, i - 0.35, i + 0.35, color='black', linewidth=2.5)
+        ax.hlines(median, i - 0.35, i + 0.35, color='black', linewidth=1.5)
 
     ax.set_ylim(0, 100)
     ax.set_yticks(range(0, 101, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=28)
+    #ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=28)
+    ax.set_yticklabels(["0%", "", "20%", "", "40%", "", "60%", "", "80%", "", "100%"],fontsize=30)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     for spine in ['left', 'bottom']:
-        ax.spines[spine].set_linewidth(1.5)
+        ax.spines[spine].set_linewidth(1)
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
 
     ax.set_xticks(positions)
-    ax.set_xticklabels(list(dataframes.keys()), fontsize=24, rotation=0, ha='center', weight='semibold')  
+    ax.set_xticklabels(list(dataframes.keys()), fontsize=26, rotation=0, ha='center', weight='medium')  
     ax.xaxis.set_tick_params(pad=15)
     ax.set_xlabel('')
     ax.set_ylabel('')

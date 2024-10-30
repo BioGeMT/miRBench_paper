@@ -36,9 +36,9 @@ def save_to_tsv(percentages, labels, output_file):
     pd.DataFrame(percentages, index=labels).to_csv(output_file, sep='\t', index_label='Dataset')
 
 def create_plot(percentages, labels):
-    categories = ["5' UTR", "3' UTR", 'Intron', 'Exon', 'Unknown']
+    categories = ["3' UTR", "5' UTR", 'Intron', 'Exon', 'Unknown']
     datasets = [
-        [p['five_prime_utr'], p['three_prime_utr'], p['intron'], p['exon'], p['Unknown']]
+        [p['three_prime_utr'], p['five_prime_utr'], p['intron'], p['exon'], p['Unknown']]
         for p in percentages
     ]
 
@@ -54,21 +54,21 @@ def create_plot(percentages, labels):
     for i, dataset in enumerate(datasets):
         bottom = 0
         for j, value in enumerate(dataset):
-            ax.bar(bar_positions[i], value, bar_width, bottom=bottom, color=colors[j], edgecolor='black', linewidth=0.5)
+            ax.bar(bar_positions[i], value, bar_width, bottom=bottom, color=colors[j], edgecolor='none', linewidth=0.5)
             bottom += value
 
     # add black borders to the entire columns
     for pos in bar_positions:
-        ax.bar(pos, 100, bar_width, fill=False, edgecolor='black', linewidth=1.5)
+        ax.bar(pos, 100, bar_width, fill=False, edgecolor='none', linewidth=1.5)
 
     # adjust y-axis
     ax.set_yticks(range(0, 101, 10))
-    ax.set_yticklabels([f'{i}%' for i in range(0, 101, 10)], fontsize=22)
+    ax.set_yticklabels(["0%", "", "20%", "", "40%", "", "60%", "", "80%", "", "100%"],fontsize=19)
     ax.yaxis.grid(True, linestyle=':', alpha=0.8, color='black')
 
     # increase width of x and y axis lines
-    ax.spines['left'].set_linewidth(1.5)
-    ax.spines['bottom'].set_linewidth(1.5)
+    ax.spines['left'].set_linewidth(1)
+    ax.spines['bottom'].set_linewidth(1)
 
     # remove top and right spines
     ax.spines['top'].set_visible(False)
@@ -76,19 +76,19 @@ def create_plot(percentages, labels):
 
     # adjust x-axis with half-bold font
     x_labels = [label.replace('.tsv', '') for label in labels]
-    plt.xticks(bar_positions, x_labels, fontsize=19, rotation=0, ha='center', weight='semibold')
+    plt.xticks(bar_positions, x_labels, fontsize=19, rotation=0, ha='center', weight='medium')
 
     # move x-axis ticks down by 1/3
     ax.xaxis.set_tick_params(pad=15)
 
     # create custom square legend handles
-    square_size = 20  # reduced by 1/3 from 30
-    legend_handles = [Patch(facecolor=color, edgecolor='black') for color in colors]
+    square_size = 25  # reduced by 1/3 from 30
+    legend_handles = [Patch(facecolor=color, edgecolor='none') for color in colors]
 
     # add legend below x-axis
     legend = ax.legend(legend_handles, categories, loc='upper center', bbox_to_anchor=(0.5, -0.10),
-                       ncol=5, columnspacing=1, handlelength=1.5, handleheight=1.5,
-                       prop={'size': 16, 'weight': 'semibold'})
+                       ncol=5, columnspacing=1, handlelength=1.5, handleheight=1.5, handletextpad=0.0,
+                       prop={'size': 17, 'weight': 'medium'})
 
     # adjust legend marker size and alignment
     for handle in legend.get_patches():

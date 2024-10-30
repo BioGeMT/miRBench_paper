@@ -7,10 +7,10 @@ from seed_utils import find_seed_match
 
 def process_dataset(file_path):
     df = pd.read_csv(file_path, sep='\t')
-    df['seed_type'] = df.apply(lambda row: find_seed_match(row['seq.g'], row['seq.m']), axis=1)
+    df['seed_type'] = df.apply(lambda row: find_seed_match(row['gene'], row['noncodingRNA']), axis=1)
     
     # Count seed types for each miRNA family
-    seed_counts = df.groupby('miRNA_fam')['seed_type'].value_counts().unstack(fill_value=0)
+    seed_counts = df.groupby('noncodingRNA_fam')['seed_type'].value_counts().unstack(fill_value=0)
     
     # Ensure all seed type columns exist
     for seed_type in ['Seed6mer', 'Seed7mer', 'Seed8mer']:
