@@ -17,7 +17,7 @@ python correlation.py input1.tsv input2.tsv input3.tsv output_correlations.tsv o
 
 ## Input File Format
 
-The input TSV files should have a header row and include a column named 'miRNA_fam' which contains the miRNA family names.
+The input TSV files should have a header row and include a column named 'noncodingRNA_fam' which contains the miRNA family names.
 
 ## Output
 

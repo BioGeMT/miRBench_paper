@@ -10,9 +10,9 @@ def process_hejret(input_filepath):
     # Drop duplicates in gene + miRNA sequence but keep first occurrence
     hejret = hejret.drop_duplicates(subset=['seq.g', 'noncodingRNA_seq'], keep='first')
     hejret = hejret.rename(columns={'seq.g': 'gene',
-                                               'noncodingRNA': 'noncodingRNA_renamed',
-                                               'noncodingRNA_seq': 'noncodingRNA',
-                                               'miRNA_fam': 'noncodingRNA_fam'})
+                                    'noncodingRNA': 'noncodingRNA_renamed',
+                                    'noncodingRNA_seq': 'noncodingRNA',
+                                    'miRNA_fam': 'noncodingRNA_fam'})
     print("Hejret2023: ", len(hejret))
     return hejret
 
@@ -25,7 +25,6 @@ def process_klimentova_full(input_filepath):
                                                       'noncodingRNA': 'noncodingRNA_renamed',
                                                       'noncodingRNA_seq': 'noncodingRNA',
                                                       'miRNA_fam': 'noncodingRNA_fam'})
-    print("Klimentova2022: ", len(klimentova_full))
     return klimentova_full
 
 def process_klimentova_test(input_filepath):

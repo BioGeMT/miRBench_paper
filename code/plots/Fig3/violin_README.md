@@ -18,7 +18,7 @@ python violin.py dataset1.tsv dataset2.tsv dataset3.tsv -o output_plot.png -t ou
 
 ## Input File Format
 
-The input TSV files should have a header row and include columns named 'seq.g' (guide sequence) and 'seq.m' (miRNA sequence).
+The input TSV files should have a header row and include columns named 'gene' (guide sequence) and 'noncodingRNA' (miRNA sequence).
 
 
 ## Dependencies
