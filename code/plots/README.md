@@ -8,7 +8,7 @@ For **Hejret2023** dataset, download [this file](https://raw.githubusercontent.c
 
 For **Klimentova2022** dataset, download [this raw HybriDetector (HD) output file](https://raw.githubusercontent.com/ML-Bioinfo-CEITEC/miRBind/refs/heads/main/Datasets/AGO2_eCLIP_Klimentova22_full_dataset.tsv) and [this file prepared for model testing](https://raw.githubusercontent.com/ML-Bioinfo-CEITEC/miRBind/refs/heads/main/Datasets/AGO2_eCLIP_Klimentova2022_1_test.tsv). 
 
-For **Manakov2022** dataset, download [this miRBench_paper post-process pipeline intermediate file](). 
+For **Manakov2022** dataset, download [this miRBench_paper post-process pipeline intermediate file](https://zenodo.org/records/13993348/files/concat.unified_length_all_types_unique_high_confidence_with_negatives_1.tsv). You might need to request access from Stephanie Sammut (stephanie.sammut@um.edu.mt). 
 
 ## 2. Run `miRBench_paper/code/plots/process_datasets_for_plots.py`
 
