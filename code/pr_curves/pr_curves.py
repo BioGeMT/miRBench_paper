@@ -53,7 +53,7 @@ def plot_pr_curve(data, predictors, title, dpi):
         ax.text(-0.05, -0.05, '0', fontsize=16, ha='center', va='center', transform=ax.transAxes)
 
 
-    #ax.legend()
+    ax.legend()
 
     #Title at the top
     ax.set_title(title, fontsize=22, fontweight='bold', pad=10)
