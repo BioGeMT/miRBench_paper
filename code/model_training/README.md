@@ -1,6 +1,6 @@
 # miRBind CNN model retraining
 
-Train miRBind CNN model on a subsets of [Manakov 1:1 train dataset](https://zenodo.org/records/13909173) with different sizes
+Train the Hejret 2023 CNN model on a subsets of [Manakov 1:1 train dataset](https://zenodo.org/records/13909173) with different sizes.
 
 The subset sizes are:
 - 200
@@ -9,6 +9,12 @@ The subset sizes are:
 - 20 000
 - 200 000
 - 2 524 246 = full Manakov train
+
+To run the whole analysis presented in the paper, run 
+
+`bash model_training_analysis.sh -i <Manakov dataset>`
+
+with the Manakov 1:1 train dataset as input.
 
 ## 1) Dataset subsampling
 
@@ -24,7 +30,14 @@ Run the [encode dataset](encode_dataset.py) script to transform dataset in tsv i
 
 ## 3) Train the model
 
-Have a look at the [training](training.py) script with model training.
+Have a look at the [training](training.py) script with model training. The script loads an encoded training dataset and trains the [Hejret 2023 CNN model](https://www.nature.com/articles/s41598-023-49757-z).
+
+Input parameters are:
+- *data*: file with the encoded dataset, output from the step (2)
+- *labels*: file with the encoded labels, output from (2)
+- *dataset_size*: number of samples in the encoded dataset
+- *ratio*: ratio of positives to negatives in the train dataset, 10 ~ you have 10x more negatives than positives
+- *model*: filename for saving the trained model
 
 `python training.py --data <endoced_dataset> --labels <encoded_labels> --dataset_size <number_of_dataset_samples> --ratio <neg:pos ratio> --model <model_name>`
 
