@@ -106,36 +106,3 @@ phastCons estimates conservation using a hidden Markov model (HMM) approach by:
 * **phyloP**: |2| typically used as significance threshold
 * **phastCons**: 0.7 typically used as conservation threshold
 
-## Score Validation Process
-
-### Chromosome Validation
-* Standardizes chromosome naming (adds 'chr' prefix if missing)
-* Converts mitochondrial chromosome 'MT' to 'chrM'
-* Verifies chromosome exists in BigWig file
-* Returns NaN if chromosome is invalid
-
-### Coordinate Validation
-* Converts coordinates to 0-based system (BigWig standard)
-* Ensures coordinates are within chromosome boundaries
-* Validates that start position is less than end position
-* Returns NaN if coordinates are invalid
-
-### Score Value Validation
-* Verifies all scores can be converted to float numbers
-* Checks for presence of NaN values
-* Ensures number of scores matches gene sequence length
-* Returns NaN for any validation failure
-
-### Validation Rules Summary
-1. **Valid Chromosome Format**
-   * Must exist in BigWig file
-   * Must use standard naming convention
-
-2. **Valid Coordinates**
-   * Must be within chromosome boundaries
-   * Must maintain correct order (start < end)
-
-3. **Valid Scores**
-   * Must be actual numbers
-   * Must match sequence length
-   * Must not be NaN
