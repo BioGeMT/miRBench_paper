@@ -66,9 +66,7 @@ def get_valid_conservation(bw_file, chrom, start, end, chrom_sizes, gene):
             return np.nan
 
         # Check if length of conservation scores matches gene sequence length
-        conservation_scores_length = len(conservation_scores)
-        target_length = len(gene)
-        if conservation_scores_length != target_length:
+        if len(conservation_scores) != len(gene):
             print(f"Conservation scores length does not match gene sequence length for {chrom}:{start}-{end}. Returning NaN.")
             return np.nan
 
@@ -86,13 +84,12 @@ def add_conservation(df, phyloP_path, phastCons_path, ofile):
         # Get chromosome sizes for both files
         chrom_sizes_phyloP = bw_phyloP.chroms()
         chrom_sizes_phastCons = bw_phastCons.chroms()
-
-        with open(ofile, 'a') as ofile:                
-            # Add conservation scores
-            df['gene_phyloP'] = df.apply(lambda row: get_valid_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP, row['gene']), axis=1)
-            df['gene_phastCons'] = df.apply(lambda row: get_valid_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons, row['gene']), axis=1)
-                    
-            df.to_csv(ofile, sep='\t', index=False, header=True, mode='a')
+              
+        # Add conservation scores
+        df['gene_phyloP'] = df.apply(lambda row: get_valid_conservation(bw_phyloP, row['chr'], row['start'], row['end'], chrom_sizes_phyloP, row['gene']), axis=1)
+        df['gene_phastCons'] = df.apply(lambda row: get_valid_conservation(bw_phastCons, row['chr'], row['start'], row['end'], chrom_sizes_phastCons, row['gene']), axis=1)
+                
+        df.to_csv(ofile, sep='\t', index=False, header=True, mode='a')
 
         return df
 
