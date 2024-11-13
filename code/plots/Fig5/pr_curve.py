@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, auc
 from sklearn.metrics import precision_recall_fscore_support
-from plot_avrg_fp_per_sensitivity import COLOR_PALETTE, generate_random_predictions
+from avrg_fp_per_sensitivity import COLOR_PALETTE, generate_random_predictions
 
 
 def plot_pr_curve(
@@ -13,9 +13,6 @@ def plot_pr_curve(
     colors = COLOR_PALETTE
 ):
     plt.rcParams['axes.prop_cycle'] = plt.cycler(color=colors)
-
-    markers = ['o', 's', '^', 'X']
-    i = 0
 
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     
@@ -28,20 +25,16 @@ def plot_pr_curve(
             
         if predictor.startswith('Seed'):
             p, r, _, _ = precision_recall_fscore_support(data['label'].values, data[predictor].values, average='binary')
-            ax.plot(r, p, color='black', marker=markers[i], label=predictor)
-            i += 1
+            ax.plot(r, p, color='black', label=predictor)
         else:
             precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
             ax.plot(recall, precision, label=predictor)
-            # print(f"{predictor} : {auc(recall, precision)}")
             result[predictor] = auc(recall, precision)
     
         ax.set_xlabel('Recall', fontsize=font_size)
         ax.set_ylabel('Precision', fontsize=font_size)
 
-        # Set font size for tick labels
         ax.tick_params(axis='both', which='major', labelsize=font_size)
-    # ax.legend()
     ax.set_title(title)
     fig.tight_layout()
     
