@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from plot_avrg_fp_per_sensitivity import COLOR_PALETTE, generate_random_predictions
+from avrg_fp_per_sensitivity import COLOR_PALETTE, generate_random_predictions
 from sklearn.metrics import precision_recall_curve
 
 
@@ -19,31 +19,24 @@ def plot_precision_at_recall(
     - sensitivity_thresholds: List of recall (sensitivity) thresholds to use.
     - labels: Column name for the true labels.
     """
-    # Extract true labels
     true_labels = df[labels]
     
     precision_at_sensitivities = []
 
-    # Calculate precision at different recall thresholds for each model
     for model in model_names:
         precisions = []
         predictions = df[model]
         
-        # Get precision, recall, and thresholds using precision_recall_curve
         precision, recall, thresholds = precision_recall_curve(true_labels, predictions)
         
-        # Find precision at the closest recall to each sensitivity threshold
         for threshold in sensitivity_thresholds:
-            # Find the index where recall is closest to the desired threshold
             idx_closest = np.argmin(np.abs(recall - threshold))
             precisions.append(precision[idx_closest])
         
         precision_at_sensitivities.append(precisions)
     
-    # Convert the precision results into a numpy array for plotting
     precision_values = np.array(precision_at_sensitivities)
 
-    # Plot settings
     n_models = len(model_names)
     n_sensitivities = len(sensitivity_thresholds)
     total_bar_width = 1  # Total width of all bars at one sensitivity threshold
@@ -51,15 +44,12 @@ def plot_precision_at_recall(
     group_spacing = 1.1  # Adjust this value to bring groups closer together (less than 1)
     index = np.arange(n_sensitivities) * group_spacing
 
-    # Adjust the positions to center the bars within each group
     offset = (group_spacing - total_bar_width) / 2
 
-    # Create a figure and axis with adjusted width to accommodate the legend
     fig, ax = plt.subplots(figsize=(14, 5), dpi=dpi)
     
     small_offset = 0.1
     
-    # Generate the bar plot for each model
     for i, model in enumerate(model_names):
         bars = ax.bar(
             index + offset + i * bar_width,
@@ -69,7 +59,6 @@ def plot_precision_at_recall(
             color=COLOR_PALETTE[i % len(COLOR_PALETTE)]
         )
         
-        # Add precision value annotations above each bar
         for bar in bars:
             height = bar.get_height()
             ax.annotate(
