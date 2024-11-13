@@ -1,10 +1,10 @@
+import argparse
 import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, auc
-from plot_avrg_fp_per_sensitivity import COLOR_PALETTE
-import argparse
+from avrg_fp_per_sensitivity import COLOR_PALETTE
 
 
 def generate_random_predictions(length):
