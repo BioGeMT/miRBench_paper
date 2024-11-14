@@ -70,6 +70,9 @@ def get_valid_conservation(bw_file, chrom, start, end, chrom_sizes, gene):
             print(f"Conservation scores length does not match gene sequence length for {chrom}:{start}-{end}. Returning NaN.")
             return np.nan
 
+        # Round conservation scores to 3 decimal places
+        conservation_scores = [round(float(score), 3) for score in conservation_scores]
+
         # Return conservation scores if all checks pass    
         return conservation_scores
 
