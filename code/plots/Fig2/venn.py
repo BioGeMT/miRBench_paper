@@ -9,9 +9,9 @@ def read_data(file_path):
     return pd.read_csv(file_path, sep='\t')
 
 def create_sets(df):
-    manakov_set = set(df[df['Manakov2022'] > 0]['miRNA Family'])
-    hejret_set = set(df[df['Hejret2023'] > 0]['miRNA Family'])
-    klimentova_set = set(df[df['Klimentova2022'] > 0]['miRNA Family'])
+    manakov_set = set(df[df['Manakov2022'] > 0]['noncodingRNA_sequence'])
+    hejret_set = set(df[df['Hejret2023'] > 0]['noncodingRNA_sequence'])
+    klimentova_set = set(df[df['Klimentova2022'] > 0]['noncodingRNA_sequence'])
     return manakov_set, hejret_set, klimentova_set
 
 def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
