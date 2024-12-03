@@ -62,25 +62,31 @@ def encode_large_tsv_to_numpy(tsv_file_path, data_output_path, labels_output_pat
     labels_shape = (num_rows,)
     data_shape = (num_rows, *tensor_dim)
 
-    # Create memory-mapped files
-    ohe_matrix_2d = np.memmap(data_output_path, dtype='float32', mode='w+', shape=data_shape)
-    labels = np.memmap(labels_output_path, dtype='float32', mode='w+', shape=labels_shape)
+    try:
+        # Create memory-mapped files
+        ohe_matrix_2d = np.memmap(data_output_path, dtype='float32', mode='w+', shape=data_shape)
+        labels = np.memmap(labels_output_path, dtype='float32', mode='w+', shape=labels_shape)
 
-    row_offset = 0
+        row_offset = 0
 
-    # Process each chunk
-    for chunk in pd.read_csv(tsv_file_path, sep='\t', chunksize=chunk_size):
-        encoded_data, encoded_labels = binding_encoding(chunk, ncRNA_col=ncRNA_col, gene_col=gene_col, label_col=label_col)
+        # Process each chunk
+        for chunk in pd.read_csv(tsv_file_path, sep='\t', chunksize=chunk_size):
+            encoded_data, encoded_labels = binding_encoding(chunk, ncRNA_col=ncRNA_col, gene_col=gene_col, label_col=label_col)
 
-        # Write the chunk's data and labels to the memory-mapped files
-        ohe_matrix_2d[row_offset:row_offset + len(chunk)] = encoded_data
-        labels[row_offset:row_offset + len(chunk)] = encoded_labels
-        row_offset += len(chunk)
+            # Write the chunk's data and labels to the memory-mapped files
+            ohe_matrix_2d[row_offset:row_offset + len(chunk)] = encoded_data
+            labels[row_offset:row_offset + len(chunk)] = encoded_labels
+            row_offset += len(chunk)
 
-    # Flush changes to disk
-    ohe_matrix_2d.flush()
-    labels.flush()
-
+        # Flush changes to disk
+        ohe_matrix_2d.flush()
+        labels.flush()
+    except Exception as e:
+        print(f"There was an unexpected error while encoding the dataset: {e}")
+    finally:
+        # Ensure the memory-mapped files are closed properly
+        del ohe_matrix_2d
+        del labels
 
 def main():
     """
