@@ -1,6 +1,6 @@
 ## Description
 
-The `family_count.py` script processes multiple TSV files containing miRNA data. It counts the occurrences of miRNA families in each file and generates a summary table. The output is a new TSV file with miRNA families as rows and input files as columns, showing the count of each family in each file. This output is necessary for venn.py and top_families.py
+The `family_count.py` script processes multiple TSV files containing miRNA data. It counts the occurrences of miRNA families in each file and generates a summary table. The output is a new TSV file with miRNA families as rows and input files as columns, showing the count of each family in each file. This output is necessary for top_families.py
 
 ## Usage
 
