@@ -19,6 +19,7 @@ def make_architecture():
     """
     Build model architecture
     The parameters are based on the CNN model presented in miRBind paper (2022) https://doi.org/10.3390/genes13122323
+    Link to the original implementation: https://github.com/ML-Bioinfo-CEITEC/miRBind/blob/main/Additional_scripts/hyperparams.ipynb
     """
     cnn_num = 6
     kernel_size = 5
