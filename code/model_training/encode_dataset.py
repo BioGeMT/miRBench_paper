@@ -49,6 +49,9 @@ def encode_large_tsv_to_numpy(tsv_file_path, data_output_path, labels_output_pat
     - labels_output_path: Path to the output labels .npy file.
     - chunk_size: Number of rows to process at a time.
     - ncRNA_col, gene_col, label_col: Column name for noncoding RNA sequences, gene sequences and label.
+
+    Output:
+    The function just writes the encoded data and labels to the specified output files.
     """
     tensor_dim = (50, 20, 1)
 
