@@ -10,7 +10,7 @@ def binding_encoding(df, alphabet={"AT": 1., "TA": 1., "GC": 1., "CG": 1.}, tens
     Transform input sequence pairs to a binding matrix with corresponding labels.
 
     Parameters:
-    - df: Pandas DataFrame with columns "noncodingRNA", "gene", "label"
+    - df: Pandas DataFrame with columns corresponding to ncRNA_col, gene_col, label_col
     - alphabet: dictionary with letter tuples as keys and 1s when they bind
     - tensor_dim: 2D binding matrix shape
     - ncRNA_col, gene_col, label_col: Column name for noncoding RNA sequences, gene sequences and label.
