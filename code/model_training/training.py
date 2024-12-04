@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import random
 import numpy as np
 import argparse
 import time
 import tensorflow as tf
-from tensorflow import keras as K
 import matplotlib.pyplot as plt
 from tensorflow.keras.layers import (
                                 BatchNormalization, LeakyReLU,
@@ -13,6 +13,7 @@ from tensorflow.keras.layers import (
                                 MaxPooling2D, Flatten, Dropout)
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import Sequence
+import os
 
 
 def make_architecture():
@@ -55,13 +56,13 @@ def make_architecture():
 
     main_output = Dense(1, activation='sigmoid', name='main_output')(x)
 
-    model = K.Model(inputs=[main_input], outputs=[main_output], name='arch_00')
+    model = tf.keras.Model(inputs=[main_input], outputs=[main_output], name='arch_00')
     
     return model
 
 
 def compile_model():
-    K.backend.clear_session()
+    tf.keras.backend.clear_session()
     model = make_architecture()
     
     opt = Adam(
@@ -160,10 +161,10 @@ class DataGenerator(Sequence):
 def train_model(data, labels, dataset_size, ratio, model_file, debug=False):
 
     # set random state for reproducibility
+    random.seed(42)
     np.random.seed(42)
     tf.random.set_seed(42)
-    K.utils.set_random_seed(42)
-    # TODO still not fully reproducible? why?
+    os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
     train_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=False)
     val_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=True)
