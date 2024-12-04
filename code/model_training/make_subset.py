@@ -7,6 +7,10 @@ def subsample_dataset(dataset, size, output):
     df = pd.read_csv(dataset, sep='\t')
     pos = df[df['label']==1]
     neg = df[df['label']==0]
+
+    if size > len(pos) or size > len(neg):
+        raise ValueError("Requested subsample size is larger than the dataset size.")
+
     pos = pos.sample(n=size, ignore_index=True, random_state=42)
     neg = neg.sample(n=size, ignore_index=True, random_state=42)
     subsampled = pd.concat([pos, neg]).sample(frac=1, ignore_index=True, random_state=42)
@@ -20,7 +24,11 @@ def main():
     parser.add_argument('--output', type=str, required=False, help="Filename to save the subsampled dataset")
     args = parser.parse_args()
 
-    subsample_dataset(args.dataset, args.N, args.output)
+    try:
+        subsample_dataset(args.dataset, args.N, args.output)
+    except ValueError as e:
+        print(e)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -37,8 +37,16 @@ mkdir -p "$intermediate_dir" "$output_dir"
 # Make subsets, encode dataset and train models
 for size in ${subsets[@]}; do
   echo "Creating subset of size $size..."
+
   python make_subset.py --N "$size" --dataset "$input_file" --output "${intermediate_dir}/subset_${size}.tsv"
+  # Handle potential errors in the make_subset.py script - N is bigger than the dataset size
+  if [ $? -ne 0 ]; then
+        echo "Error making subset of size $size. Check if the dataset size is not smaller than $size."
+        continue
+  fi
+
   python encode_dataset.py -i "${intermediate_dir}/subset_${size}.tsv" -o "${intermediate_dir}/subset_${size}"
+
   echo "Training model"
   python training.py --data "${intermediate_dir}/subset_${size}_dataset.npy" --labels "${intermediate_dir}/subset_${size}_labels.npy" --dataset_size "$((size*2))" --ratio 1 --model "${output_dir}/CNN_subset_${size}.keras"
 done
