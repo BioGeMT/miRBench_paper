@@ -111,7 +111,7 @@ def plot_history(history, size):
 
 
 class DataGenerator(Sequence):
-    def __init__(self, data_path, labels_path, dataset_size, batch_size, ratio, validation_split=0.1, is_validation=False, shuffle=True):
+    def __init__(self, data_path, labels_path, dataset_size, batch_size, validation_split=0.1, is_validation=False, shuffle=True):
         # preload the encoded numpy data
         # the dataset size is needed to properly load the numpy files
         self.size = dataset_size
@@ -165,8 +165,8 @@ def train_model(data, labels, dataset_size, ratio, model_file, debug=False):
     K.utils.set_random_seed(42)
     # TODO still not fully reproducible? why?
 
-    train_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, ratio=ratio, validation_split=0.1, is_validation=False)
-    val_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, ratio=ratio, validation_split=0.1, is_validation=True)
+    train_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=False)
+    val_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=True)
 
     model = compile_model()
     model_history = model.fit(
