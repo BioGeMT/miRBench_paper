@@ -12,7 +12,7 @@ def filter_and_create_table(data):
     filtered_table = pd.DataFrame({
         'gene': filtered_data['seq.g'],
         'noncodingRNA': filtered_data['noncodingRNA_seq'],
-        'noncodingRNA_name': filtered_data['noncodingRNA'],
+        'noncodingRNA_name': filtered_data['noncodingRNA'].apply(lambda x: x.split('|')[0]),
         'noncodingRNA_fam': filtered_data['noncodingRNA_fam'].apply(lambda x: x if x != '0' else 'unknown'),
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
