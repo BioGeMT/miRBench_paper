@@ -20,13 +20,11 @@ def binding_encoding(df, alphabet={"AT": 1., "TA": 1., "GC": 1., "CG": 1.}, tens
     """
     labels = df[label_col].to_numpy()
 
-    # Initialize dot matrix with zeros
-    ohe_matrix_2d = np.zeros((len(df), *tensor_dim), dtype="float32")
-
     df = df.reset_index(drop=True)
 
-    # Compile matrix with Watson-Crick interactions
-    for index, row in df.iterrows():
+    def encode_row(row):
+    # Helper function to encode a single row in dataframe
+        ohe_matrix = np.zeros(tensor_dim, dtype="float32")
         for bind_index, bind_nt in enumerate(row[gene_col].upper()):
             if bind_index >= tensor_dim[0]:
                 break
@@ -34,7 +32,13 @@ def binding_encoding(df, alphabet={"AT": 1., "TA": 1., "GC": 1., "CG": 1.}, tens
                 if ncrna_index >= tensor_dim[1]:
                     break
                 base_pairs = bind_nt + ncrna_nt
-                ohe_matrix_2d[index, bind_index, ncrna_index, 0] = alphabet.get(base_pairs, 0)
+                ohe_matrix[bind_index, ncrna_index, 0] = alphabet.get(base_pairs, 0)
+        return ohe_matrix
+
+    # Compile matrix with Watson-Crick interactions
+    ohe_matrix_2d = np.array(
+        df.apply(encode_row, axis=1).tolist())
+
     return ohe_matrix_2d, labels
 
 
