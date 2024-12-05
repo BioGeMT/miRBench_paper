@@ -29,7 +29,8 @@ def process_input_files(input_files, count_column):
     return all_counts, all_values
 
 def get_column_names(input_files, count_column):
-    return [count_column, 'Manakov2022', 'Hejret2023', 'Klimentova2022']
+    file_names = [os.path.splitext(os.path.basename(f))[0] for f in input_files]
+    return [count_column] + file_names
 
 def sort_values(all_values, all_counts):
     return sorted(all_values, 
