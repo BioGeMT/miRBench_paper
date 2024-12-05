@@ -43,26 +43,8 @@ The input TSV files should:
 The script generates a TSV file with the following structure:
 * First column contains the unique values from the specified count column
 * Subsequent columns contain the count of each value in each input file
-* Column headers are fixed as: [count_column, 'Manakov2022', 'Hejret2023', 'Klimentova2022']
+* Column headers are named according to input datasets: [count_column, input1, input2, input3]
 * Rows are sorted by total frequency across all files (descending order)
-
-### Output Examples
-
-For family counting:
-```
-noncodingRNA_fam   Manakov2022  Hejret2023  Klimentova2022
-let-7              150          80          45
-mir-181            120          60          30
-...
-```
-
-For sequence counting:
-```
-noncodingRNA       Manakov2022  Hejret2023  Klimentova2022
-TGAGGTAGTAGGTTGT   100          50          25
-TGAGGTAGTAGGTTGC   80           40          20
-...
-```
 
 ## Dependencies
 * Python 3.x
