@@ -12,7 +12,8 @@ def filter_and_create_table(data):
     filtered_table = pd.DataFrame({
         'gene': filtered_data['seq.g'],
         'noncodingRNA': filtered_data['noncodingRNA_seq'],
-        'noncodingRNA_fam': filtered_data['noncodingRNA_fam'],
+        'noncodingRNA_name': filtered_data['noncodingRNA'].apply(lambda x: x.split('|')[0]),
+        'noncodingRNA_fam': filtered_data['noncodingRNA_fam'].apply(lambda x: x if x != '0' else 'unknown'),
         'feature': filtered_data['feature'],
         'test': filtered_data['chr.g'].apply(lambda x: True if x == '1' else False),
         'label': '1',
@@ -20,7 +21,7 @@ def filter_and_create_table(data):
         'start': filtered_data['start.g'],
         'end': filtered_data['end.g'],
         'strand': filtered_data['strand.g']
-    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
+    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_name', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
 
     return filtered_table
 

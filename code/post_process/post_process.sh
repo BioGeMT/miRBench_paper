@@ -29,7 +29,6 @@ min_edit_distance=${min_edit_distance:-3}
 
 # define paths to the directories where the scripts are located
 filtering_dir="../filtering"
-family_assign_dir="../family_assign"
 make_neg_sets_dir="../make_neg_sets"
 
 # define directories for output and intermediate files
@@ -67,8 +66,7 @@ fi
 # define constants for suffixes with extensions
 FILTERED_SUFFIX="_filtered_data.tsv"
 DEDUPLICATED_SUFFIX="_deduplicated_data.tsv"
-FAMILY_ASSIGNED_SUFFIX="_family_assigned_data.tsv"
-SORTED_FAMILY_ASSIGNED_SUFFIX="_family_assigned_data_sorted.tsv"
+SORTED_SUFFIX="_data_sorted.tsv"
 TRAIN_SUFFIX="_train_"
 TEST_SUFFIX="_test_"
 NEG_SUFFIX="_with_negatives_"
@@ -78,8 +76,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     base_name=$(basename "$input_file" .tsv)
     filtered_file="$intermediate_dir/${base_name}${FILTERED_SUFFIX}"
     deduplicated_file="$intermediate_dir/${base_name}${DEDUPLICATED_SUFFIX}"
-    family_assigned_file="$intermediate_dir/${base_name}${FAMILY_ASSIGNED_SUFFIX}"
-    family_assigned_file_sorted="$intermediate_dir/${base_name}${SORTED_FAMILY_ASSIGNED_SUFFIX}"
+    deduplicated_file_sorted="$intermediate_dir/${base_name}${SORTED_SUFFIX}"
 
     # Step 1: Filtering
     echo "Running filtering step on $input_file..."
@@ -99,28 +96,19 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         exit 1
     fi
 
-    # Step 3: Family Assignment
-    echo "Running family assignment step on $deduplicated_file..."
-    python3 "$family_assign_dir/family_assign.py" --ifile "$deduplicated_file" --mature "$mature_file" --ofile "$family_assigned_file"
-    if [ $? -ne 0 ]; then
-        echo "Error in family assignment step. Check your script and input file."
-        exit 1
-    fi
-    echo "Family assignment completed. Output saved to $family_assigned_file"
-
-    # Step 4: Sort the family assigned file based on the first column in preparation for negative sample generation
+    # Step 3: Sort the file based on the first column in preparation for negative sample generation
     echo "Sorting the family assigned file based on the first column..."
-    (head -n 1 "$family_assigned_file" && tail -n +2 "$family_assigned_file" | sort -k 1) > "${family_assigned_file_sorted}"
-    echo "Family assigned file sorted. Output saved to $family_assigned_file_sorted"
+    (head -n 1 "$deduplicated_file" && tail -n +2 "$deduplicated_file" | sort -k 1) > "${deduplicated_file_sorted}"
+    echo "Family assigned file sorted. Output saved to $deduplicated_file_sorted"
 
-    # Step 5: Make negatives with different ratios
+    # Step 4: Make negatives with different ratios
     for ratio in ${neg_ratios[@]}; do
         echo "Generating negative samples with ratio $ratio and min edit distance $min_edit_distance..."
 
         neg_output="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
 
-        echo "Running make_neg_sets.py for $family_assigned_file_sorted with ratio $ratio..."
-        python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$family_assigned_file_sorted" --ofile "$neg_output" --neg_ratio "$ratio" --min_required_edit_distance "$min_edit_distance"
+        echo "Running make_neg_sets.py for $deduplicated_file_sorted with ratio $ratio..."
+        python3 "$make_neg_sets_dir/make_neg_sets.py" --ifile "$deduplicated_file_sorted" --ofile "$neg_output" --neg_ratio "$ratio" --min_required_edit_distance "$min_edit_distance"
         if [ $? -ne 0 ]; then
             echo "Error in generating negative samples. Check your script and input file."
             exit 1
@@ -129,7 +117,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
     done
     echo "Negative samples generation completed for $input_file"
 
-    # Step 6: Split Train/Test based on the test column
+    # Step 5: Split Train/Test based on the test column
     echo "Splitting data into train and test sets based on the test column..."
     for ratio in ${neg_ratios[@]}; do
         neg_file="$intermediate_dir/${base_name}${NEG_SUFFIX}${ratio}.tsv"
@@ -143,7 +131,7 @@ for input_file in "$input_dir"/*unified_length_all_types_unique_high_confidence.
         echo "Data split completed. Train set saved to $train_file, test set saved to $test_file"
     done
 
-    # Step 7: Remove the fifth column from the train and test files
+    # Step 6: Remove the fifth column from the train and test files
     echo "Removing the fifth column from the train and test sets..."
     for ratio in "${neg_ratios[@]}"; do
         for suffix in "$TRAIN_SUFFIX" "$TEST_SUFFIX"; do
