@@ -1,6 +1,6 @@
-# Creation of dataset with excluded unique miRNA families
+# Creation of dataset with excluded unique miRNA families of one dataset
 
-These scripts find all unique miRNA families of one dataset (compared against 2 others) and create a new dataset including only those unique rows. 
+These scripts find all unique miRNA families of one dataset (compared against 2 others) and create two new datasets originating from the original one excluding or including these families. 
 
 ## Scripts
 
@@ -32,22 +32,26 @@ python unique_family_counter.py \
 
 ### 2. Family Filter (`exclude_fam.py`)
 
-Filters a dataset to keep only entries matching specific ncRNA families.
+Creates two datasets by splitting the input based on specific ncRNA families.
 
 **Input:**
 * Original dataset (TSV format)
-* File containing allowed families (from unique_family_counter.py output)
+* File containing families to filter by (from unique_family_counter.py output)
 * Both files must contain a 'noncodingRNA_fam' column
 
 **Output:**
-* Filtered TSV file containing only rows with matching families
+* Two TSV files:
+  * One containing rows with matching families (excluded dataset)
+  * One containing rows without matching families (leftout dataset)
+* Prints summary statistics showing row counts for both outputs
 
 **Usage:**
 ```bash
 python exclude_fam.py \
   --input original_dataset.tsv \
   --families allowed_families.tsv \
-  --output filtered_dataset.tsv
+  --excluded excluded_dataset.tsv \
+  --leftout leftout_dataset.tsv
 ```
 
 ## Requirements
