@@ -23,7 +23,7 @@ def train_random_forest(X_train, y_train):
     return model
 
 # Evaluate the model and plot AUC-PR
-def evaluate_model(model, X_test, y_test):
+def evaluate_model(model, X_test, y_test, output_file):
     y_probs = model.predict_proba(X_test)[:, 1]  # Get probabilities for the positive class
     precision, recall, _ = precision_recall_curve(y_test, y_probs)
     aucpr = auc(recall, precision)
@@ -34,13 +34,15 @@ def evaluate_model(model, X_test, y_test):
     plt.plot(recall, precision, label=f"AUCPR = {aucpr:.2f}")
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.savefig("PR_curve_random_forest.png")
+    plt.legend(loc="best")
+    plt.savefig(output_file)
 
 # Main function
 def main():
     parser = argparse.ArgumentParser(description="Train and evaluate a Random Forest model with k-mers.")
     parser.add_argument("--train", required=True, help="Path to the training dataset file.")
     parser.add_argument("--test", required=True, help="Path to the testing dataset file.")
+    parser.add_argument("--output", required=True, help="Path to save the Precision-Recall curve image.")
     args = parser.parse_args()
 
     # Load and process data
@@ -59,7 +61,7 @@ def main():
     model = train_random_forest(X_train, y_train)
 
     # Evaluate model
-    evaluate_model(model, X_test, y_test)
+    evaluate_model(model, X_test, y_test, args.output)
 
 if __name__ == "__main__":
     main()
