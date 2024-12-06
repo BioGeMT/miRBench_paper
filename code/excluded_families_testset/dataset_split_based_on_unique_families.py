@@ -7,7 +7,7 @@ def filter_dataset(input_dataset, families_file, excluded_output, leftout_output
     
     # Read the families file
     families_df = pd.read_csv(families_file, sep='\t')
-    unique_families = set(families_df['noncodingRNA_fam'])
+    unique_families = families_df['noncodingRNA_fam']
     
     # Split the dataset into two parts
     excluded_dataset = df[df['noncodingRNA_fam'].isin(unique_families)]
