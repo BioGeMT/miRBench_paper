@@ -27,7 +27,7 @@ python unique_family_counter.py \
 ```
 
 **Notes:**
-* Automatically excludes 'unknown' and '0' family annotations
+* Does not account for families with the value "0" or "unknown"
 * Output includes both the family name and occurrence count
 
 ### 2. Family Filter (`exclude_fam.py`)
@@ -36,13 +36,13 @@ Creates two datasets by splitting the input based on specific ncRNA families.
 
 **Input:**
 * Original dataset (TSV format)
-* File containing families to filter by (from unique_family_counter.py output)
+* File containing families to filter by. This file contains all families that are unique the original dataset compared to other datasets. It is the output of unique_family_counter.py. The noncodingRNA_fam values of this file will be selected and removed from the original file into a new dataset (see excluded dataset output). The remaining original dataset after this removal will be saved (see remaining dataset output)
 * Both files must contain a 'noncodingRNA_fam' column
 
 **Output:**
 * Two TSV files:
-  * One containing rows with matching families (excluded dataset)
-  * One containing rows without matching families (leftout dataset)
+  * One containing rows with the unique noncodingRNA_fam values that were removed from the original file (excluded dataset)
+  * One containing all the remaining rows after the above removal (remaining dataset)
 * Prints summary statistics showing row counts for both outputs
 
 **Usage:**
