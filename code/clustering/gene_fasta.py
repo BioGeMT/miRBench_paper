@@ -2,10 +2,9 @@ import pandas as pd
 import argparse
 
 def convert_tsv_to_fasta(input_file, output_file):
-    # Load the TSV file
+   
     data = pd.read_csv(input_file, sep='\t')
     
-    # Write sequences to FASTA file
     with open(output_file, 'w') as fasta_file:
         for index, row in data.iterrows():
             sequence = row['gene']
@@ -14,15 +13,13 @@ def convert_tsv_to_fasta(input_file, output_file):
     print(f"FASTA file created: {output_file}")
 
 def main():
-    # Set up argument parser
+
     parser = argparse.ArgumentParser(description='Convert TSV file with gene sequences to FASTA format')
     parser.add_argument('--input', required=True, help='Input TSV file path')
     parser.add_argument('--output', required=True, help='Output FASTA file path')
-    
-    # Parse arguments
+
     args = parser.parse_args()
     
-    # Convert file
     convert_tsv_to_fasta(args.input, args.output)
 
 if __name__ == "__main__":
