@@ -1,15 +1,13 @@
+set.seed(42)  
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("Biostrings")
-
-library(Biostrings)
-
 BiocManager::install("DECIPHER")
 
 library(Biostrings)  # For reading and handling DNA sequences
 library(DECIPHER)    # For clustering sequences
-
 
 # Specify the path to your FASTA file
 file_path <- "genes.fasta"
@@ -17,7 +15,7 @@ file_path <- "genes.fasta"
 # Read the DNA sequences from the file
 dna <- readDNAStringSet(file_path)
 
-# View the first few sequences
+# View the first few sequences to check if they were loaded correctly
 dna
 
 # Cluster the sequences
