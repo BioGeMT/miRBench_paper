@@ -52,7 +52,7 @@ Maps cluster assignments back to the original dataset.
 **Input:**
 - Cluster CSV file from step 2
 - Original dataset TSV file
-- Fasta file with Seq_IDs from step 1
+- FASTA file with Seq_IDs from step 1
 
 **Output:**
 - TSV file containing original data plus a new 'gene_cluster_ID' column
