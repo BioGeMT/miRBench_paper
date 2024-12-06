@@ -1,3 +1,9 @@
+#!/usr/bin/env Rscript
+
+args <- commandArgs(trailingOnly = TRUE)
+file_path <- args[1]
+output_file <- args[2]
+
 set.seed(42)  
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -6,20 +12,21 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("Biostrings")
 BiocManager::install("DECIPHER")
 
-library(Biostrings)  # For reading and handling DNA sequences
-library(DECIPHER)    # For clustering sequences
+library(Biostrings)  
+library(DECIPHER)    
 
-# Specify the path to your FASTA file
-file_path <- "genes.fasta"
-
-# Read the DNA sequences from the file
 dna <- readDNAStringSet(file_path)
-
-# View the first few sequences to check if they were loaded correctly
 dna
 
-# Cluster the sequences
 clusters <- Clusterize(myXStringSet = dna, cutoff = 0.1, processors = 8)
 
-# Save the clusters to a CSV file
-write.csv(clusters, file = "clusters_cutoff_0.1.csv")
+# Create data frame
+clusters_df <- data.frame(
+    Seq_ID = names(dna),
+    Cluster_ID = clusters
+)
+
+# Rename the column
+names(clusters_df)[2] <- "Cluster_ID"
+
+write.csv(clusters_df, file = output_file, row.names = FALSE)
