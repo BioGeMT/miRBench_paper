@@ -1,4 +1,4 @@
-# Creation of dataset with excluded unique miRNA families of one dataset
+# Creation of dataset with excluded unique miRNA families
 
 These scripts find all unique miRNA families of one dataset (compared against 2 others) and create a new dataset including only those unique rows. 
 
