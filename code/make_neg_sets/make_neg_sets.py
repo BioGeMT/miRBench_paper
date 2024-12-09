@@ -31,16 +31,16 @@ def yield_mirnafam_blocks(positive_file_path):
 
 def process_block(block, positive_samples, all_clusters, output_file, seed):
     # Get the set of cluster ids that share this miRNA family
-    block_clusters = block['ClusterID'].unique().tolist()
+    block_clusters = block['gene_cluster_ID'].unique().tolist()
 
     # Get the set of cluster ids that are allowed to be paired with this miRNA family
     mirfam_allowed_clusters = [cluster for cluster in all_clusters if cluster not in block_clusters]
 
     # Pool gene rows from allowed clusters
-    negative_pool = positive_samples[positive_samples['ClusterID'].isin(mirfam_allowed_clusters)]
+    negative_pool = positive_samples[positive_samples['gene_cluster_ID'].isin(mirfam_allowed_clusters)]
 
     # Shuffle the negative pool and drop duplicates based on ClusterID
-    negative_pool = negative_pool.sample(frac=1, random_state=seed).drop_duplicates(subset=['ClusterID'], keep='first')
+    negative_pool = negative_pool.sample(frac=1, random_state=seed).drop_duplicates(subset=['gene_cluster_ID'], keep='first')
 
     # Get the number of negatives to be generated for this miRNA family block
     num_neg = block.shape[0]
@@ -52,8 +52,8 @@ def process_block(block, positive_samples, all_clusters, output_file, seed):
     negative_genes = negative_pool.sample(n=num_neg, random_state=seed)
 
     # Start constructing the df rows for the negative examples
-    negatives = negative_genes.apply(lambda row: [row['gene'], row['feature'], row['test'], row['chr'], row['start'], row['end'], row['strand'], row['ClusterID']], axis=1).tolist()
-    columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'ClusterID']
+    negatives = negative_genes.apply(lambda row: [row['gene'], row['feature'], row['test'], row['chr'], row['start'], row['end'], row['strand'], row['gene_cluster_ID']], axis=1).tolist()
+    columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'gene_cluster_ID']
     negatives_df = pd.DataFrame(negatives, columns=columns)
 
     # Add the miRNA sequence, name and family columns from block to negatives_df by index
@@ -93,7 +93,7 @@ def main():
     positive_samples.head(0).to_csv(args.ofile, sep='\t', index=False, mode='w')    
 
     # Get the set of all cluster ids
-    all_clusters = positive_samples['ClusterID'].unique().tolist()
+    all_clusters = positive_samples['gene_cluster_ID'].unique().tolist()
 
     with open(args.ofile, 'a') as ofile:
         
