@@ -52,9 +52,8 @@ def process_block(block, positive_samples, all_clusters, output_file, seed):
     negative_genes = negative_pool.sample(n=num_neg, random_state=seed)
 
     # Start constructing the df rows for the negative examples
-    negatives = negative_genes.apply(lambda row: [row['gene'], row['feature'], row['test'], row['chr'], row['start'], row['end'], row['strand'], row['gene_cluster_ID']], axis=1).tolist()
     columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'gene_cluster_ID']
-    negatives_df = pd.DataFrame(negatives, columns=columns)
+    negatives_df  = negative_genes[columns]
 
     # Add the miRNA sequence, name and family columns from block to negatives_df by index
     negatives_df['noncodingRNA'] = block['noncodingRNA'].values
