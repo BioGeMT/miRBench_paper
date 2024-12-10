@@ -1,66 +1,42 @@
 
-# Post-Processing Pipeline Script
+# Post-Processing Pipelines
 
-This script is designed to process `.tsv` files through multiple stages including filtering, data splitting, and negative sample generation. 
+This series of pipelines is designed to process as input, the HybriDetector `*.unified_length_all_types_unique_high_confidence.tsv` output files. 
+
+
+It is intended to be used on the following datasets:
+- https://github.com/ML-Bioinfo-CEITEC/HybriDetector/blob/main/ML/Datasets/AGO2_CLASH_Hejret2023_full_dataset.tsv 
+- https://github.com/ML-Bioinfo-CEITEC/miRBind/blob/main/Datasets/AGO2_eCLIP_Klimentova22_full_dataset.tsv
+- the concatenated output of HD when processing selected samples from the Manakov data (to be uploaded somewhere still)
+
+
+The scope is to filter the files for miRNA data, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
+
+
+The series is composed of 5 pipelines:
+
+1. postprocess_0_filter_and_deduplicate
+2. postprocess_1_exclude_mirna_families
+3. postprocess_2_make_negatives
+4. postprocess_3_train_test_splits
+5. postprocess_4_add_conservation
 
 ## Requirements
 - Python 3
-- Run `conda env create --name <env_name> --file=post_process.yml`, then `conda activate <env_name>`
-- Necessary Python scripts located in specified directories:
-  - `filtering/filtering.py`
-  - `make_neg_sets/make_neg_sets.py`
+- Run `conda env create --file=post_process.yml`, then `conda activate postprocess`
+- Manually download the `hg38.phyloP100way.bw` and `hg38.phastCons100way.bw` files from:
+   - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/ 
+   - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
+- Ensure the necessary Python scripts are located in the specified relative paths:
+  - `../filtering/filtering.py`
+  - `../excluded_families_testset/unique_family_counter.py`
+  - `../excluded_families_testset/dataset_split_based_on_unique_families.py`
+  - `../clustering/gene_fasta.py`
+  - `../clustering/clustering.R `
+  - `../clustering/map_gene_clusters.py`
+  - `../make_neg_sets/make_neg_sets.py`
+  - `../conservation/add_conservation_scores.py`
 
 ## Usage
-```bash
-./post_process.sh -i input_dir [-o output_dir] [-n intermediate_dir] [-t neg_ratios] [-r min_edit_distance]
-```
 
-## Options
-- `-i` : Input directory containing `.tsv` files (required).
-- `-o` : Output directory (optional, default: `output` in current directory).
-- `-n` : Intermediate directory (optional, default: `intermediate` in current directory).
-- `-t` : Comma-separated list of negative ratios (optional, default: `1,10,100`).
-- `-r` : Minimum edit distance (optional, default: `3`).
-
-## Script Directories
-- `filtering_dir="../filtering"`
-- `make_neg_sets_dir="../make_neg_sets"`
-
-Ensure that the directories containing the scripts are correctly set relative to the location of the `pipeline.sh` script.
-
-## Process Details
-1. **Filtering**: The script filters the data using the `filtering.py` script.
-   ```bash
-   python3 filtering/filtering.py --ifile input_file --ofile filtered_file
-   ```
-   
-2. **Deduplication**: The script deduplicates the filtered data using `awk`.
-   ```bash
-   awk -F'\t' 'NR==1{print $0} NR>1{if(!seen[$1$2]++){print}}' "$filtered_file" > "$deduplicated_file"
-   ```
-
-3. **Negative Sample Generation**: Negative samples are generated using the `make_neg_sets.py` script for each specified ratio.
-   ```bash
-   python3 make_neg_sets/make_neg_sets.py --ifile deduplicated_file --ofile neg_file --neg_ratio ratio --min_required_edit_distance min_required_edit_distance
-   ```
-
-4. **Data Splitting**: The data is split into train and test sets based on the `test` column using `awk`.
-   ```bash
-   awk -F'\t' 'NR==1{header=$0; print header > train_file; print header > test_file} NR>1{if($5=="False"){print > train_file} else {print > test_file}}' neg_file
-   ```
-
-
-
-## Log File
-The script logs all output to a file named `pipeline.log` in the output directory.
-
-## Example
-```bash
-./post_process.sh -i input_data -o output -n intermediate -t 1,10,100 -r 3
-```
-
-This example processes `.tsv` files in the `input_data` directory, outputs results to the `output` directory, and uses the `intermediate` directory for intermediate files. It generates negative samples with ratios 1, 10, and 100, and uses a minimum edit distance of 3.
-
-## Notes
-- Ensure the directories containing the Python scripts (`filtering`, `make_neg_sets`) are correctly set relative to the location of this script.
-- The script creates the output and intermediate directories if they do not already exist.
+Each pipeline of the series must be run separately. Refer to the corresponding README files. 
