@@ -76,7 +76,7 @@ def main():
     # Record start time
     start = time.time()
 
-    parser = argparse.ArgumentParser(description="Generate negative examples with specific edit distance.")
+    parser = argparse.ArgumentParser(description="Generate negative examples.")
     parser.add_argument('--ifile', type=str, required=True, help="Input file name, MUST BE SORTED by 'miRNA family!'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     args = parser.parse_args()
