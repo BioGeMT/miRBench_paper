@@ -1,7 +1,7 @@
 import argparse
 import pandas as pd
-import random
 import time
+import hashlib
 
 # Yield blocks of positive examples with the same mirnafam to process at a time
 def yield_mirnafam_blocks(positive_file_path):
@@ -29,7 +29,21 @@ def yield_mirnafam_blocks(positive_file_path):
         block_df = pd.DataFrame(current_block, columns=header_columns)
         yield block_df
 
-def process_block(block, positive_samples, all_clusters, output_file, seed):
+def process_block(block, positive_samples, all_clusters, output_file):
+
+    # Set a fixed seed for reproducibility
+    ## Get the first item from 'miRNA_name'
+    miRNA_name = block['noncodingRNA_name'][0]
+
+    ## Generate a SHA-256 hash and get the hexadecimal string
+    miRNA_hash_hex = hashlib.sha256(miRNA_name.encode()).hexdigest()
+
+    ## Convert the hexadecimal hash to a decimal integer
+    miRNA_hash_int = int(miRNA_hash_hex, 16)
+
+    ## Reduce the size using modulo (e.g., within the range of a 32-bit unsigned integer) and set it as the seed
+    seed = miRNA_hash_int % 4294967295
+
     # Get the set of cluster ids that share this miRNA family
     block_clusters = block['gene_cluster_ID'].unique().tolist()
 
@@ -80,10 +94,6 @@ def main():
     parser.add_argument('--ifile', type=str, required=True, help="Input file name, MUST BE SORTED by 'miRNA family!'")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     args = parser.parse_args()
-
-    # Set a fixed random seed for reproducibility
-    seed = 42
-    random.seed(seed)
     
     # Read the entire positive examples file
     positive_samples = pd.read_csv(args.ifile, sep='\t')
@@ -111,13 +121,13 @@ def main():
                     sub_block = block[block['noncodingRNA'] == mirna]
 
                     # Run rest of code for each sub_block
-                    process_block(sub_block, positive_samples, all_clusters, args.ofile, seed)
+                    process_block(sub_block, positive_samples, all_clusters, args.ofile)
                 
                     print(f"Processed miRNA sequence block: {sub_block['noncodingRNA'].iloc[0]}", flush=True)
 
             else:
                 # Process the block normally if not 'unknown'
-                process_block(block, positive_samples, all_clusters, args.ofile, seed)
+                process_block(block, positive_samples, all_clusters, args.ofile)
 
                 print(f"Processed miRNA family block: {block['noncodingRNA_fam'].iloc[0]}", flush=True)
     
