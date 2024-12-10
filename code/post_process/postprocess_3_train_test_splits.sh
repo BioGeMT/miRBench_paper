@@ -14,7 +14,7 @@ while getopts i:o: flag; do
 done
 
 # Check if required arguments are provided
-if [ -d "$input_dir" ] || [ -d "$output_dir" ]; then
+if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ]; then
     echo "Usage: $0 -i input_dir -o output_dir"
     exit 1
 fi

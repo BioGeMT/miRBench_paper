@@ -16,7 +16,7 @@ while getopts i:o:p:c: flag; do
 done
 
 # Check if required arguments are provided
-if [ -d "$input_dir" ] || [ -d "$output_dir" ] || [ -f "$phyloP_file" ] || [ -f "$phastCons_file" ]; then
+if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -f "$phyloP_file" ] || [ ! -f "$phastCons_file" ]; then
     echo "Usage: $0 -i input_dir -o output_dir -p phyloP_file -c phastCons_file"
     exit 1
 fi

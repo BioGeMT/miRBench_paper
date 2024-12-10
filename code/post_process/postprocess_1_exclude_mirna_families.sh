@@ -17,7 +17,7 @@ while getopts i:j:k:o:n: flag; do
 done
 
 # check if required argument is provided
-if [ -f "$input_file" ] || [ -f "$input_file_2" ] || [ -f "$input_file_3" ] || [ -d "$output_dir" ] || [ -d "$intermediate_dir" ]; then
+if [ ! -f "$input_file" ] || [ ! -f "$input_file_2" ] || [ ! -f "$input_file_3" ] || [ ! -d "$output_dir" ] || [ ! -d "$intermediate_dir" ]; then
     echo "Usage: $0 -i input_file -j input_file_2 -k input_file_3 -o output_dir -n intermediate_dir"
     exit 1
 fi
