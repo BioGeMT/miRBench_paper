@@ -32,19 +32,20 @@ The script processes input data block-wise to optimize memory usage and efficien
 - **Required Libraries**:
   - `argparse`
   - `pandas`
-  - `random`
   - `time`
 
 ## Usage
 
 ### Command
 
+```
 python make_neg_sets.py --ifile <input_file> --ofile <output_file>
+```
 
 ### Arguments
 
 - `--ifile` (required):  
-  Path to the input file containing positive examples. **This file must be sorted by the `noncoding_fam` column.**
+  Path to the input file containing positive examples. **This file must be sorted by the `noncodingRNA_fam` column.**
 
 - `--ofile` (required):  
   Path to the output file where both positive and negative examples will be saved.
