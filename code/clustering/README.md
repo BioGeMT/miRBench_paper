@@ -52,7 +52,6 @@ Maps cluster assignments back to the original dataset.
 **Input:**
 - Cluster CSV file from step 2
 - Original dataset TSV file
-- FASTA file with Seq_IDs from step 1
 
 **Output:**
 - TSV file containing original data plus a new 'gene_cluster_ID' column
@@ -62,7 +61,6 @@ Maps cluster assignments back to the original dataset.
 python map_gene_clusters.py \
   --cluster_csv clusters.csv \
   --dataset_tsv data.tsv \
-  --genes_fasta sequences.fasta \
   --output_tsv final_output.tsv
 
 ```
