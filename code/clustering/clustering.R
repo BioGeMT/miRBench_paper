@@ -6,12 +6,6 @@ output_file <- args[2]
 
 set.seed(42)  
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("Biostrings")
-BiocManager::install("DECIPHER")
-
 library(Biostrings)  
 library(DECIPHER)    
 
