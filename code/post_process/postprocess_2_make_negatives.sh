@@ -32,8 +32,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "debugging"
-
 # define paths to the directories where the scripts are located
 clustering_dir="../clustering"
 make_negs_dir="../make_neg_sets"
