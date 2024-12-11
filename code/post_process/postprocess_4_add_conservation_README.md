@@ -8,10 +8,10 @@ postprocess_4_add_conservation.sh -i input_dir -o output_dir -p phyloP_file -c p
 ```
 ### Parameters
 
-`-i`: Input directory containing .tsv files
-`-o`: Output directory for final files
-`-p`: Path to phyloP file
-`-c`: Path to phastCons file
+`-i`: Input directory containing .tsv files  
+`-o`: Output directory for final files  
+`-p`: Path to phyloP file  
+`-c`: Path to phastCons file  
 
 ## Pipeline Steps
 

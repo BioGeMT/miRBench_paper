@@ -9,11 +9,12 @@ It is intended to be used on the following datasets:
 - https://github.com/ML-Bioinfo-CEITEC/miRBind/blob/main/Datasets/AGO2_eCLIP_Klimentova22_full_dataset.tsv
 - the concatenated output of HD when processing selected samples from the Manakov data (to be uploaded somewhere still)
 
+Note that for the Hejret and Klimentova datasets above, the `miRNA_fam` column must be renamed to `noncodingRNA_fam` after downloading, prior to any processing, for consistency of all column names.
 
-The scope is to filter the files for miRNA data, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
+The scope of the pipeline series is to filter the files for miRNA data, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
 
 
-The series is composed of 5 pipelines:
+The series is composed of 5 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the worflow diagram. 
 
 1. postprocess_0_filter_and_deduplicate
 2. postprocess_1_exclude_mirna_families

@@ -8,11 +8,11 @@ postprocess_1_exclude_mirna_families.sh -i primary_input_file -j input_file_2 -k
 ```
 ### Parameters
 
-`-i`: Primary input .tsv file to be split into an excluded (miRNA fams unique to this dataset) and a remaining dataset
-`-j`: First .tsv file to compare miRNA fams against
-`-k`: Second .tsv file to compare miRNA fams against
-`-o`: Output directory for final files
-`-n`: Intermediate directory for intermediate files
+`-i`: Primary input .tsv file to be split into an excluded (miRNA fams unique to this dataset) and a remaining dataset  
+`-j`: First .tsv file to compare miRNA fams against  
+`-k`: Second .tsv file to compare miRNA fams against  
+`-o`: Output directory for final files  
+`-n`: Intermediate directory for intermediate files  
 
 ## Pipeline Steps
 

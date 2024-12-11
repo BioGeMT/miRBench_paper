@@ -48,8 +48,8 @@ for input_file in "$input_dir"/*.tsv; do
     fasta_file="$intermediate_dir/${base_name}.fasta"
     clustering_output="$intermediate_dir/${base_name}${CLUSTERING_OUTPUT_SUFFIX}.csv"
     input_file_with_clusters="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}.tsv"
-    mirfam_sorted_file="$intermediate_dir/${base_name}${SORTED_SUFFIX}.tsv"
-    neg_output="$output_dir/${base_name}${NEG_SUFFIX}.tsv"
+    mirfam_sorted_file="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${SORTED_SUFFIX}.tsv"
+    neg_output="$output_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${SORTED_SUFFIX}${NEG_SUFFIX}.tsv"
 
     # Step 1: Generating FASTA file
     echo "Generating FASTA file for $input_file..."

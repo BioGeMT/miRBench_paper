@@ -8,9 +8,9 @@ postprocess_0_filter_and_deduplicate.sh -i input_dir -o output_dir -n intermedia
 ```
 ### Parameters
 
-`-i`: Input directory containing .tsv files
-`-o`: Output directory for final files
-`-n`: Intermediate directory for intermediate files
+`-i`: Input directory containing .tsv files  
+`-o`: Output directory for final files  
+`-n`: Intermediate directory for intermediate files  
 
 ## Pipeline Steps
 

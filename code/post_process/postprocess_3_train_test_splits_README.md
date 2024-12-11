@@ -8,8 +8,8 @@ postprocess_3_train_test_splits.sh -i input_dir -o output_dir
 ```
 ### Parameters
 
-`-i`: Input directory containing .tsv files
-`-o`: Output directory for final files
+`-i`: Input directory containing .tsv files  
+`-o`: Output directory for final files  
 
 ## Pipeline Steps
 
