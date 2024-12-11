@@ -62,7 +62,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 2: Performing sequence clustering on gene sequences in the generated FASTA file
     echo "Running gene sequence clustering for $fasta_file..."
-    Rscript "$clustering_dir/clustering.R $fasta_file $clustering_output"
+    Rscript "$clustering_dir/clustering.R" "$fasta_file" "$clustering_output"
     if [ $? -ne 0 ]; then
         echo "Error in running gene sequence clustering. Check your script and input file."
         exit 1
