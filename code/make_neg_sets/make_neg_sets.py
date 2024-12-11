@@ -32,8 +32,8 @@ def yield_mirnafam_blocks(positive_file_path):
 def process_block(block, positive_samples, all_clusters, output_file):
 
     # Set a fixed seed for reproducibility
-    ## Get the first item from 'miRNA_name'
-    miRNA_name = block['noncodingRNA_name'][0]
+    ## Get the first item from 'noncodingRNA_name'
+    miRNA_name = block['noncodingRNA_name'].iloc[0]
 
     ## Generate a SHA-256 hash and get the hexadecimal string
     miRNA_hash_hex = hashlib.sha256(miRNA_name.encode()).hexdigest()
@@ -67,7 +67,7 @@ def process_block(block, positive_samples, all_clusters, output_file):
 
     # Start constructing the df rows for the negative examples
     columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'gene_cluster_ID']
-    negatives_df  = negative_genes[columns]
+    negatives_df  = negative_genes[columns].copy()
 
     # Add the miRNA sequence, name and family columns from block to negatives_df by index
     negatives_df['noncodingRNA'] = block['noncodingRNA'].values
