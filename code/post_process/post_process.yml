@@ -1,12 +1,14 @@
 name: postprocess
 channels:
-  - defaults
-  - conda-forge
-  - hcc
   - bioconda
+  - conda-forge
+  - defaults
+  - hcc
 dependencies:
   - pandas
-  - r
+  - r-base
+  - r-biostrings
+  - r-decipher
   - pip
   - pip:
       - pyBigWig
