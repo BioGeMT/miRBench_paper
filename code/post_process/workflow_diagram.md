@@ -76,9 +76,9 @@ graph TD
   pp_4 --> K_neg_conserv
   pp_4 --> M_excluded_conserv
 
-  %% Add styles
-  classDef file fill:#B3E5FC,stroke:#0277BD,stroke-width:2px;
-  classDef process fill:#FFE0B2,stroke:#E65100,stroke-width:2px,shape:rect;
+  %% Define file and process styles
+  classDef file fill:#E0F7FA,stroke:#00796B,stroke-width:2px,color:black;
+  classDef process fill:#FFE0B2,stroke:#E65100,stroke-width:2px,color:black;
 
   %% Apply styles
   class M,H,K,M_filtered,H_filtered,K_filtered,M_excluded,M_remaining,M_neg,H_neg,K_neg,M_excluded_neg,M_neg_train,M_neg_test,H_neg_train,H_neg_test,M_train_conserv,M_test_conserv,H_train_conserv,H_test_conserv,K_neg_conserv,M_excluded_conserv file;
