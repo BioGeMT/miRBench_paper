@@ -14,13 +14,14 @@ Note that for the Hejret and Klimentova datasets above, the `miRNA_fam` column m
 The scope of the pipeline series is to filter the files for miRNA data, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
 
 
-The series is composed of 5 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the worflow diagram. 
+The series is composed of 6 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the worflow diagram. 
 
 1. postprocess_0_filter_and_deduplicate
 2. postprocess_1_exclude_mirna_families
 3. postprocess_2_make_negatives
 4. postprocess_3_train_test_splits
-5. postprocess_4_add_conservation
+5. postprocess_4_drop_test_col
+6. postprocess_4_add_conservation
 
 ## Requirements
 - Python 3

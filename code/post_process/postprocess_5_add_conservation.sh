@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_4
+#SBATCH --job-name=pp_5
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -22,7 +22,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -f "$phyloP_file" ] ||
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_4_conservation.log"
+log_file="$output_dir/postprocess_5_conservation.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1

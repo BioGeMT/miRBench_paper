@@ -1,10 +1,10 @@
-# postprocess_4_add_conservation_README
+# postprocess_5_add_conservation_README
 
 ## Usage
 
 Can be submitted to SLURM workload manager with `sbatch` or:
 ```bash
-postprocess_4_add_conservation.sh -i input_dir -o output_dir -p phyloP_file -c phastCons_file
+postprocess_5_add_conservation.sh -i input_dir -o output_dir -p phyloP_file -c phastCons_file
 ```
 ### Parameters
 
@@ -20,4 +20,4 @@ Refer to ../conservation/README.md.
 ## Output Files
 
 - Final files: `{input_file}.conservation.tsv`
-- Log file: `postprocess_4_add_conservation.log`
+- Log file: `postprocess_5_add_conservation.log`
