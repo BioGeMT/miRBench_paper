@@ -1,5 +1,5 @@
 ```mermaid
-graph TD
+graph LR
   %% Define files
   M[AGO2_eCLIP_Manakov22_full_dataset.tsv]
   H[AGO2_CLASH_Hejret23_full_dataset.tsv]
