@@ -22,11 +22,14 @@ def main():
     parser.add_argument("--out_dir", type=str, default=".", help="Output directory for predictions")
     
     args = parser.parse_args()
-    
-    split = "test"
+
+    special_dataset = "AGO2_eCLIP_Manakov2022"
+    default_split = "test"
+    special_split = "leftout"
 
     # loop over all available datasets
     for dset in list_datasets():
+        split = special_split if dset == special_dataset else default_split
         input_file = get_dataset_path(dset, split=split)
         output_file = os.path.join(args.out_dir, f"{dset}_{split}_predictions.tsv")
         header_written = False
