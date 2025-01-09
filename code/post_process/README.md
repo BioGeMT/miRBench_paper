@@ -7,7 +7,7 @@ This series of pipelines is designed to process as input, the HybriDetector `*.u
 It is intended to be used on the following datasets:
 - https://github.com/ML-Bioinfo-CEITEC/HybriDetector/blob/main/ML/Datasets/AGO2_CLASH_Hejret2023_full_dataset.tsv 
 - https://github.com/ML-Bioinfo-CEITEC/miRBind/blob/main/Datasets/AGO2_eCLIP_Klimentova22_full_dataset.tsv
-- the concatenated output of HD when processing selected samples from the Manakov data (to be uploaded somewhere still)
+- https://zenodo.org/records/14501607/files/AGO2_eCLIP_Manakov2022_full_dataset.tsv.gz 
 
 Note that for the Hejret and Klimentova datasets above, the `miRNA_fam` column must be renamed to `noncodingRNA_fam` after downloading, prior to any processing, for consistency of all column names.
 
