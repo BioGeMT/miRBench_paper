@@ -97,7 +97,7 @@ def parse_arguments():
     return parser.parse_args()
 
 def read_input_data(input_file):
-    return pd.read_csv(input_file, sep='\t', index_col='miRNA Family')
+    return pd.read_csv(input_file, sep='\t', index_col='noncodingRNA_fam')
 
 def prepare_output_data(df, df_percentages, top_10_families):
     output_df = pd.DataFrame(index=top_10_families)
@@ -126,3 +126,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
