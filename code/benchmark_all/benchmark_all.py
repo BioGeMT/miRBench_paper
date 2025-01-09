@@ -6,9 +6,9 @@ import argparse
 import os
 
 
-def benchmark_all(df, dset):
+def benchmark_all(df, dset, split):
     for tool in list_predictors():
-        print(f"Running {tool} on {dset} dataset")           
+        print(f"Running {tool} on {dset} dataset, {split} split")           
         encoder = get_encoder(tool)
         predictor = get_predictor(tool)
         input = encoder(df)
@@ -27,12 +27,11 @@ def main():
 
     # loop over all available datasets
     for dset in list_datasets():
-        print(f"Downloading {dset} dataset, {split} split")
         input_file = get_dataset_path(dset, split=split)
         output_file = os.path.join(args.out_dir, f"{dset}_{split}_predictions.tsv")
         header_written = False
         df = pd.read_csv(input_file, sep='\t')
-        df_preds = benchmark_all(df, dset)
+        df_preds = benchmark_all(df, dset, split)
         if not header_written:
             df_preds.to_csv(output_file, sep='\t', index=False, mode='w')
             header_written = True
