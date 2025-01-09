@@ -29,7 +29,7 @@ def main():
     for dset in list_datasets():
         print(f"Downloading {dset} dataset, {split} split")
         input_file = get_dataset_path(dset, split=split)
-        output_file = os.path.join(args.out_dir, f"{dset}_predictions.tsv")
+        output_file = os.path.join(args.out_dir, f"{dset}_{split}_predictions.tsv")
         header_written = False
         df = pd.read_csv(input_file, sep='\t')
         df_preds = benchmark_all(df, dset)
