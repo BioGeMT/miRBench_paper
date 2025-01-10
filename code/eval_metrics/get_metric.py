@@ -25,14 +25,14 @@ def get_metric(data, predictors, metric):
             else:        
                 precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
                 pr_auc = auc(recall, precision)
-                metric_dict[predictor] = np.round(pr_auc, 2)
+                metric_dict[predictor] = np.round(pr_auc, 4)
 
         elif metric == 'auc_roc':
             if predictor.startswith('Seed'):
                 continue
             else:
                 roc_auc = roc_auc_score(data['label'], data[predictor])
-                metric_dict[predictor] = np.round(roc_auc, 2)
+                metric_dict[predictor] = np.round(roc_auc, 4)
 
         elif metric == 'avg_p_score':
             if predictor.startswith('Seed'):
@@ -40,7 +40,7 @@ def get_metric(data, predictors, metric):
             else:
                 precision, recall, _ = precision_recall_curve(data['label'], data[predictor])
                 avg_p_score = average_precision_score(data['label'], data[predictor])
-                metric_dict[predictor] = np.round(avg_p_score, 2)
+                metric_dict[predictor] = np.round(avg_p_score, 4)
 
         else:
             raise ValueError(f"Invalid metric: {metric}. Please choose one of 'auc-pr', 'auc-roc', or 'avg_p_score'.")
