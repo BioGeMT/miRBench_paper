@@ -1,8 +1,11 @@
-# Pipeline for training models on k-mer count features from miRNA sequences (miRAW Analysis)
+# Pipeline for training models on k-mer count features from miRNA sequences
 
-This pipeline consists of three scripts designed to to be run after eachother, for training, prediction, and evaluation of models using k-mer count features extracted from miRNA sequences. 
+This pipeline consists of three scripts designed to be run after eachother, for training, prediction, and evaluation of models using k-mer count features extracted from miRNA sequences. 
 
-The pipeline is designed to be run on miRBench datasets as well as datasets from miRAW found [here](https://bitbucket.org/bipous/miraw_data/src/master/), specifically datasets from: 
+The pipeline is designed to serve as an analysis of datasets to show there is a bias in miRNA distribution across classes in [miRAW datasets](https://bitbucket.org/bipous/miraw_data/src/master/) and in our group's datasets that predate the miRBench project. The bias is absent in the miRBench datasets as it has been mitigated against. 
+
+miRAW datasets of interest include:
+
 - miraw_data/PLOSComb/Data/DIANA_DataSet/DIANADataSet/
 - miraw_data/PLOSComb/Data/ValidTargetSites/
 - miraw_data/PLOSComb/Data/TestData/balanced10/
