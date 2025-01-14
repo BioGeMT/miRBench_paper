@@ -45,7 +45,7 @@ def generate_random_predictions(test_df):
     - random_preds: Array of random predictions rounded to 4 decimal places
     """
     # Set the seed for reproducibility (fixed to 42)
-    np.random.seed(42)
+    # np.random.seed(42)
     
     # Generate random predictions between 0 and 1
     random_preds = np.random.rand(len(test_df))
@@ -105,7 +105,7 @@ def main():
     random_preds = generate_random_predictions(test_df)
 
     # Add the random predictions to the test set
-    test_df['Random_model'] = random_preds
+    test_df['Random_no_seed_model'] = random_preds
     
     # Save the predictions
     output_file_path = f"{args.output_dir}/{test_set_name}_predictions.tsv"
