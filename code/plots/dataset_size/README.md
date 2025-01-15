@@ -1,4 +1,4 @@
-# Dataset Size Plot Generator
+# Dataset Size Plot 
 
 The script visualizes the performance of machine a learning model across different dataset sizes using a logarithmic scale. It generates a plot showing the relationship between dataset size and model performance.
 
