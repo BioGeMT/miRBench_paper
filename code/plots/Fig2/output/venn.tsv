@@ -1,0 +1,12 @@
+Statistic	Count
+Total unique miRNA families	1589
+Manakov2022 total	1558
+Hejret2023 total	436
+Klimentova2022 total	113
+Manakov2022 only	1137
+Manakov2022 ∩ Hejret2023 only	309
+Common to all studies	97
+Hejret2023 only	30
+Manakov2022 ∩ Klimentova2022 only	15
+Klimentova2022 only	1
+Hejret2023 ∩ Klimentova2022 only	0
