@@ -9,23 +9,25 @@ def plot_performance(input_file, output_file):
     # Read data
     df = pd.read_csv(input_file, sep='\t')
     
+    # Filter out the 7720 dataset size
+    df = df[df['Dataset Size'] != 7720]
  
     plt.figure(figsize=(7, 6), facecolor='white')
     ax = plt.gca()
     ax.set_facecolor('white')
     
-    # Plot data with exact styling
+    # Plot data with hollow markers
     plt.plot(df['Dataset Size'], df['Manakov test set'], color='blue', 
-             marker='o', markersize=6, markerfacecolor='blue',
+             marker='o', markersize=10, markerfacecolor='none',
              markeredgecolor='blue', linestyle='None', label='Manakov test set')
     plt.plot(df['Dataset Size'], df['Manakov leftout'], color='red', 
-             marker='o', markersize=6, markerfacecolor='red',
+             marker='o', markersize=10, markerfacecolor='none',
              markeredgecolor='red', linestyle='None', label='Manakov leftout')
     plt.plot(df['Dataset Size'], df['Hejret new test set'], color='green', 
-             marker='o', markersize=6, markerfacecolor='green',
+             marker='o', markersize=10, markerfacecolor='none',
              markeredgecolor='green', linestyle='None', label='Hejret new test set')
     plt.plot(df['Dataset Size'], df['Klimentova new test set'], color='purple', 
-             marker='o', markersize=6, markerfacecolor='purple',
+             marker='o', markersize=10, markerfacecolor='none',
              markeredgecolor='purple', linestyle='None', label='Klimentova new test set')
     
     # Configure axes
