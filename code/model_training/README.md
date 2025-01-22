@@ -5,7 +5,8 @@ Train the Hejret 2023 CNN model on a subsets of [Manakov 1:1 train dataset](http
 The subset sizes are:
 - 200
 - 2 000
-- 7 720 = 3 860 (Hejret train set positives) * 2
+- 7 720 = 3 860 (old Hejret train set positives) * 2
+- 8 168 = 4 084 (new Hejret without miRNA frequency bias train set positives)* 2
 - 20 000
 - 200 000
 
@@ -15,7 +16,7 @@ To run the whole analysis presented in the paper, run
 
 with the Manakov 1:1 train dataset as input.
 
-To retrain on whole Manakov train set or whole Hejret train set, run only steps 2) and 3) from the described pipeline.
+To retrain on whole Manakov train set or whole Hejret train set, run only steps 2) and 3) from the described pipeline with corresponding dataset on the input.
 
 ## Pipeline description
 

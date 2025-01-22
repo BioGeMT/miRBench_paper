@@ -24,7 +24,7 @@ if [ -z "$input_file" ]; then
 fi
 
 # set default values for subsets if not specified
-default_subsets=(100 1000 3860 10000 100000)
+default_subsets=(100 1000 3860 4084 10000 100000)
 subsets=( "${subsets[@]:-${default_subsets[@]}}" )
 
 # define directories for output and intermediate files
