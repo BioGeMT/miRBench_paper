@@ -9,9 +9,9 @@ def read_data(file_path):
     return pd.read_csv(file_path, sep='\t')
 
 def create_sets(df):
-    manakov_set = set(df[df['Manakov22'] > 0]['noncodingRNA'])
-    hejret_set = set(df[df['Hejret23'] > 0]['noncodingRNA'])
-    klimentova_set = set(df[df['Klimentova22'] > 0]['noncodingRNA'])
+    manakov_set = set(df[df['Manakov2022'] > 0]['noncodingRNA_sequence'])
+    hejret_set = set(df[df['Hejret2023'] > 0]['noncodingRNA_sequence'])
+    klimentova_set = set(df[df['Klimentova2022'] > 0]['noncodingRNA_sequence'])
     return manakov_set, hejret_set, klimentova_set
 
 def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
@@ -28,7 +28,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
         len(manakov_set & hejret_set & klimentova_set)                       # 111
     )
     
-    v = venn3(subsets=subsets, set_labels=('Manakov22', 'Hejret23', 'Klimentova22'))
+    v = venn3(subsets=subsets, set_labels=('Manakov2022', 'Hejret2023', 'Klimentova2022'))
 
     # Updated colors
     colors = ['#f0e442', '#0072b2', '#cc79a7']  # yellow, blue, purple
@@ -50,16 +50,16 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
 
     # Configurable positions for labels and rectangles
     label_positions = [
-        (-0.50, 0.42),  # Manakov22
-        (0.45, 0.25),   # Hejret23
-        (0.55, -0.35)   # Klimentova22
+        (-0.50, 0.42),  # Manakov2022
+        (0.45, 0.25),   # Hejret2023
+        (0.55, -0.35)   # Klimentova2022
     ]
     
     # Original rectangle positions
     rectangle_positions = [
-        (-0.68, 0.35),  # Manakov22
-        (0.55, 0.18),   # Hejret23
-        (0.52, -0.45)   # Klimentova22
+        (-0.68, 0.35),  # Manakov2022
+        (0.55, 0.18),   # Hejret2023
+        (0.52, -0.45)   # Klimentova2022
     ]
 
     # Add original rectangles
@@ -77,7 +77,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
 
     # Dictionary to store original positions of labels
     original_positions = {}
-    subset_texts = {}  # Store all subset label texts and positions
+    subset_texts = {}
     
     # Set font size and weight for subset labels (numbers) and store positions
     for i, text in enumerate(v.subset_labels):
@@ -85,8 +85,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
             text.set_fontsize(25)
             text.set_fontweight('medium')
             text.set_color('black')
-            # Store all visible numbers and their positions
-            if text.get_text() != '0':  # Only store non-zero values
+            if text.get_text() != '0':
                 subset_texts[f"{text.get_text()}_{i}"] = text.get_position()
             if text.get_text() in ['1', '5']:
                 original_positions[text.get_text() + f"_{i}"] = text.get_position()
@@ -107,7 +106,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
                    xy=orig_pos,
                    xytext=new_pos,
                    arrowprops=dict(arrowstyle='-',
-                                 connectionstyle='arc3,rad=0',  # Straight line
+                                 connectionstyle='arc3,rad=0',
                                  color='black',
                                  alpha=1.0,
                                  linewidth=2.5))
@@ -120,17 +119,13 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
                 ha='left',
                 va='center')
         
-        rect_x = new_pos[0] + 0.03  # Position rectangles after the numbers
-        
+        rect_x = new_pos[0] + 0.03
+
         # Add new rectangles based on specific regions
-        
-        # Blue rectangle next to Hejret unique (5)
         if label_text == '5' and i == 1:  # Hejret unique region
             rect_blue = Rectangle((rect_x, new_pos[1] - 0.025), 0.05, 0.05, 
                                 facecolor=colors[1], edgecolor='none')
             ax.add_artist(rect_blue)
-        
-        # Yellow/Purple rectangle next to Manakov/Klimentova intersection (5)
         elif label_text == '5' and i == 4:  # Manakov/Klimentova intersection
             rect_yellow_half = Rectangle((rect_x, new_pos[1] - 0.025), 0.025, 0.05, 
                                       facecolor=colors[0], edgecolor='none')
@@ -138,8 +133,6 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
                                       facecolor=colors[2], edgecolor='none')
             ax.add_artist(rect_yellow_half)
             ax.add_artist(rect_purple_half)
-        
-        # Blue/Purple rectangle next to Hejret/Klimentova intersection (1)
         elif label_text == '1' and i == 5:  # Hejret/Klimentova intersection
             rect_blue_half = Rectangle((rect_x, new_pos[1] - 0.025), 0.025, 0.05, 
                                     facecolor=colors[1], edgecolor='none')
@@ -158,7 +151,7 @@ def save_diagram(output_path):
     plt.close()
 
 def calculate_statistics(manakov_set, hejret_set, klimentova_set):
-    # Calculate all possible intersections and their contents
+    # Calculate all possible intersections
     m_only = manakov_set - (hejret_set | klimentova_set)
     h_only = hejret_set - (manakov_set | klimentova_set)
     k_only = klimentova_set - (manakov_set | hejret_set)
@@ -167,69 +160,43 @@ def calculate_statistics(manakov_set, hejret_set, klimentova_set):
     hk_only = hejret_set & klimentova_set - manakov_set
     mhk = manakov_set & hejret_set & klimentova_set
     
-    # Basic statistics
+    # Create statistics DataFrame
     stats_data = {
         'Statistic': [
             'Total unique miRNA families',
-            'miRNA families common to all studies',
-            'Manakov22 unique',
-            'Hejret23 unique',
-            'Klimentova22 unique',
-            'Manakov22 total',
-            'Hejret23 total',
-            'Klimentova22 total'
-        ],
-        'Value': [
-            len(manakov_set | hejret_set | klimentova_set),
-            len(mhk),
-            len(m_only),
-            len(h_only),
-            len(k_only),
-            len(manakov_set),
-            len(hejret_set),
-            len(klimentova_set)
-        ]
-    }
-    
-    # Detailed intersection statistics
-    intersection_stats = {
-        'Intersection': [
-            'Manakov22 only',
-            'Hejret23 only',
-            'Klimentova22 only',
-            'Manakov22 ∩ Hejret23 only',
-            'Manakov22 ∩ Klimentova22 only',
-            'Hejret23 ∩ Klimentova22 only',
-            'All three studies'
+            'Manakov2022 total',
+            'Hejret2023 total',
+            'Klimentova2022 total',
+            'Manakov2022 only',
+            'Manakov2022 ∩ Hejret2023 only',
+            'Common to all studies',
+            'Hejret2023 only',
+            'Manakov2022 ∩ Klimentova2022 only',
+            'Klimentova2022 only',
+            'Hejret2023 ∩ Klimentova2022 only'
         ],
         'Count': [
+            len(manakov_set | hejret_set | klimentova_set),
+            len(manakov_set),
+            len(hejret_set),
+            len(klimentova_set),
             len(m_only),
-            len(h_only),
-            len(k_only),
             len(mh_only),
+            len(mhk),
+            len(h_only),
             len(mk_only),
-            len(hk_only),
-            len(mhk)
-        ],
-        'miRNA_Families': [
-            ', '.join(sorted(m_only)) if len(m_only) < 20 else f"{len(m_only)} families",
-            ', '.join(sorted(h_only)) if len(h_only) < 20 else f"{len(h_only)} families",
-            ', '.join(sorted(k_only)) if len(k_only) < 20 else f"{len(k_only)} families",
-            ', '.join(sorted(mh_only)) if len(mh_only) < 20 else f"{len(mh_only)} families",
-            ', '.join(sorted(mk_only)) if len(mk_only) < 20 else f"{len(mk_only)} families",
-            ', '.join(sorted(hk_only)) if len(hk_only) < 20 else f"{len(hk_only)} families",
-            ', '.join(sorted(mhk)) if len(mhk) < 20 else f"{len(mhk)} families"
+            len(k_only),
+            len(hk_only)
         ]
     }
     
-    return pd.DataFrame(stats_data), pd.DataFrame(intersection_stats)
+    return pd.DataFrame(stats_data)
 
 def main():
     parser = argparse.ArgumentParser(description='Create a Venn diagram from miRNA family data.')
     parser.add_argument('-i', '--input', required=True, help='Input TSV file path')
     parser.add_argument('-o', '--output', required=True, help='Output image file path')
     parser.add_argument('-s', '--stats', required=True, help='Output statistics TSV file path')
-    parser.add_argument('-d', '--detailed', required=True, help='Output detailed intersection statistics TSV file path')
     args = parser.parse_args()
 
     df = read_data(args.input)
@@ -237,10 +204,8 @@ def main():
     create_venn_diagram(*sets)
     save_diagram(args.output)
     
-    stats_df, detailed_stats_df = calculate_statistics(*sets)
+    stats_df = calculate_statistics(*sets)
     stats_df.to_csv(args.stats, sep='\t', index=False)
-    detailed_stats_df.to_csv(args.detailed, sep='\t', index=False)
 
 if __name__ == "__main__":
     main()
-
