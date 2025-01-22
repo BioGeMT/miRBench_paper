@@ -6,17 +6,17 @@
 #SBATCH --cpus-per-task=8
 
 ## declare an array variable
-declare -a datasets=("CLASH_Hejret2023" "eCLIP_Klimentova2022" "eCLIP_Manakov2022")
+declare -a datasets=("eCLIP_Klimentova2022_test") # "CLASH_Hejret2023_test" "eCLIP_Manakov2022_test" "eCLIP_Manakov2022_leftout")
 
 ## declare an array variable
-declare -a ratios=("1" "10" "100")
+declare -a metrics=("auc_pr" "auc_roc" "avg_p_score")
 
 # now loop through the above array
 for dataset in "${datasets[@]}"; do
-    for ratio in "${ratios[@]}"; do
-        python /data/biogemt/miRNA_Binding_Site_Prediction/miRBench_paper/code/eval_metrics/get_metric.py \
-            --ifile /data/biogemt/miRNA_Binding_Site_Prediction/mirbench/mirbench_out/AGO2_${dataset}_${ratio}_predictions.tsv \
-            --ofile /data/biogemt/miRNA_Binding_Site_Prediction/eval_metrics/avg_p_score/AGO2_${dataset}_${ratio}_avg_p_score.tsv \
-            --metric avg_p_score
+    for metric in "${metrics[@]}"; do
+        python ./code/eval_metrics/get_metric.py \
+            --ifile ./code/eval_metrics/example_input/AGO2_${dataset}_predictions.tsv \
+            --ofile ./code/eval_metrics/example_output/AGO2_${dataset}_${metric}.tsv \
+            --metric ${metric}
     done
 done

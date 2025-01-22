@@ -1,0 +1,8 @@
+Tool	auc_pr
+TargetScanCnn_McGeary2019	0.7444
+CnnMirTarget_Zheng2020	0.5228
+TargetNet_Min2021	0.5321
+miRBind_Klimentova2022	0.7527
+miRNA_CNN_Hejret2023	0.7389
+InteractionAwareModel_Yang2024	0.6634
+RNACofold	0.6679
