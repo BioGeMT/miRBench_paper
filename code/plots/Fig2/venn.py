@@ -9,9 +9,9 @@ def read_data(file_path):
     return pd.read_csv(file_path, sep='\t')
 
 def create_sets(df):
-    manakov_set = set(df[df['Manakov2022'] > 0]['noncodingRNA_sequence'])
-    hejret_set = set(df[df['Hejret2023'] > 0]['noncodingRNA_sequence'])
-    klimentova_set = set(df[df['Klimentova2022'] > 0]['noncodingRNA_sequence'])
+    manakov_set = set(df[df['Manakov22'] > 0]['noncodingRNA'])
+    hejret_set = set(df[df['Hejret23'] > 0]['noncodingRNA'])
+    klimentova_set = set(df[df['Klimentova22'] > 0]['noncodingRNA'])
     return manakov_set, hejret_set, klimentova_set
 
 def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
@@ -28,7 +28,7 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
         len(manakov_set & hejret_set & klimentova_set)                       # 111
     )
     
-    v = venn3(subsets=subsets, set_labels=('Manakov2022', 'Hejret2023', 'Klimentova2022'))
+    v = venn3(subsets=subsets, set_labels=('Manakov22', 'Hejret23', 'Klimentova22'))
 
     # Updated colors
     colors = ['#f0e442', '#0072b2', '#cc79a7']  # yellow, blue, purple
@@ -50,16 +50,16 @@ def create_venn_diagram(manakov_set, hejret_set, klimentova_set):
 
     # Configurable positions for labels and rectangles
     label_positions = [
-        (-0.50, 0.42),  # Manakov2022
-        (0.45, 0.25),   # Hejret2023
-        (0.55, -0.35)   # Klimentova2022
+        (-0.50, 0.42),  # Manakov22
+        (0.45, 0.25),   # Hejret23
+        (0.55, -0.35)   # Klimentova22
     ]
     
     # Original rectangle positions
     rectangle_positions = [
-        (-0.68, 0.35),  # Manakov2022
-        (0.55, 0.18),   # Hejret2023
-        (0.52, -0.45)   # Klimentova2022
+        (-0.68, 0.35),  # Manakov22
+        (0.55, 0.18),   # Hejret23
+        (0.52, -0.45)   # Klimentova22
     ]
 
     # Add original rectangles
@@ -172,12 +172,12 @@ def calculate_statistics(manakov_set, hejret_set, klimentova_set):
         'Statistic': [
             'Total unique miRNA families',
             'miRNA families common to all studies',
-            'Manakov2022 unique',
-            'Hejret2023 unique',
-            'Klimentova2022 unique',
-            'Manakov2022 total',
-            'Hejret2023 total',
-            'Klimentova2022 total'
+            'Manakov22 unique',
+            'Hejret23 unique',
+            'Klimentova22 unique',
+            'Manakov22 total',
+            'Hejret23 total',
+            'Klimentova22 total'
         ],
         'Value': [
             len(manakov_set | hejret_set | klimentova_set),
@@ -194,12 +194,12 @@ def calculate_statistics(manakov_set, hejret_set, klimentova_set):
     # Detailed intersection statistics
     intersection_stats = {
         'Intersection': [
-            'Manakov2022 only',
-            'Hejret2023 only',
-            'Klimentova2022 only',
-            'Manakov2022 ∩ Hejret2023 only',
-            'Manakov2022 ∩ Klimentova2022 only',
-            'Hejret2023 ∩ Klimentova2022 only',
+            'Manakov22 only',
+            'Hejret23 only',
+            'Klimentova22 only',
+            'Manakov22 ∩ Hejret23 only',
+            'Manakov22 ∩ Klimentova22 only',
+            'Hejret23 ∩ Klimentova22 only',
             'All three studies'
         ],
         'Count': [
@@ -243,3 +243,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
