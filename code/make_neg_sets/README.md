@@ -14,6 +14,8 @@ This means that the negatives produced for a miRNA family will have the same miR
 
 Additionally the gene targets from a single cluster are only picked once per miRNA family, ensuring that the miRNA-gene pairs that have the same miRNA family will have gene targets that are not similar to eachother (are not in the same cluster).
 
+###### EDIT HERE !!!!!!! Moreover it is also ensured that the negatives generated are devoid of anything other than canonical/non-canonical/non-seed
+
 This script can only produce 1:1 positive to negative class ratio. 
 
 The script processes input data block-wise to optimize memory usage and efficiently handle large datasets.
