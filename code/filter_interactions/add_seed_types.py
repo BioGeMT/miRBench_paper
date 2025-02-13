@@ -1,6 +1,5 @@
 from miRBench.encoder import get_encoder
 from miRBench.predictor import get_predictor
-from miRBench.dataset import get_dataset_df
 import pandas as pd
 import argparse
 

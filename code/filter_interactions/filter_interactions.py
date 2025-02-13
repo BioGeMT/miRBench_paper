@@ -4,15 +4,17 @@ import os
 
 def filter_interactions(df):
     # Canonical seed: Seed6mer is 1    
-    df_canonical = df[df['Seed6mer'] == 1]
+    df_canonical = df[df['Seed6mer'] == 1].copy()
+    df_canonical = df_canonical.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
 
     # Note that in miRBench package, Seed6merBulgeOrMismatch is inclusive of Seed6mer
     # Non-canonical seed: Seed6merBulgeOrMismatch is 1 AND Seed6mer is 0
-    df["NonCanonicalSeed"] = ((df["Seed6merBulgeOrMismatch"] == 1) & (df["Seed6mer"] == 0)).astype(int)    
-    df_noncanonical = df[df['NonCanonicalSeed'] == 1]
+    df_noncanonical = df.loc[(df["Seed6merBulgeOrMismatch"] == 1) & (df["Seed6mer"] == 0)].copy()
+    df_noncanonical = df_noncanonical.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
 
     # No seed: Seed6merBulgeOrMismatch is 0
-    df_noseed = df[df['Seed6merBulgeOrMismatch'] == 0]
+    df_noseed = df[df['Seed6merBulgeOrMismatch'] == 0].copy()
+    df_noseed = df_noseed.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
 
     return df_canonical, df_noncanonical, df_noseed
 
