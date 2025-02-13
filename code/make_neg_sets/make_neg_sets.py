@@ -68,7 +68,7 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
 
     # Shuffle the negative gene pool and drop duplicates based on ClusterID
     negative_gene_pool = negative_gene_pool.sample(frac=1, random_state=seed).drop_duplicates(subset=['gene_cluster_ID'], keep='first')
-
+    
     # Make list of unique noncodingRNA values in block
     unique_mirnas = block['noncodingRNA'].unique().tolist()
 
@@ -86,6 +86,9 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
 
         # Initialize valid_negatives dataframe
         valid_negatives = pd.DataFrame(columns=gene_columns + mirna_columns + seed_columns)
+
+        # Shuffle the negative gene pool with incrementing seed for each miRNA
+        negative_gene_pool = negative_gene_pool.sample(frac=1, random_state=seed + 1)
 
         # Iterate over each row of the negative gene pool
         for index, row in negative_gene_pool.iterrows():
@@ -109,11 +112,15 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
             elif interaction_type == 'noncanonicalseed':
                 negative_candidate = negative_candidate[(negative_candidate['Seed6mer'] == 0) & (negative_candidate['Seed6merBulgeOrMismatch'] == 1)]
             
-            # Append the negative candidate to the valid negatives df if it is not empty
-            if not negative_candidate.empty:
+            # If negative candidate is empty
+            if negative_candidate.empty:
+                continue
+            # If negative candidate contains something
+            else:
+                # Append the negative candidate to the valid negatives df
                 valid_negatives = pd.concat([valid_negatives, negative_candidate], ignore_index=True)
 
-                # Check if there are enough valid negatives (as many as the frequency of the miRNA in the miRNA family block)
+                # If there are enough valid negatives (as many as the frequency of the miRNA in the miRNA family block)
                 if len(valid_negatives) >= mirna_frequency:
 
                     # Get block rows for which column noncodingRNA == mirna and save to file (positives)
@@ -121,24 +128,31 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
                     block_mirna.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
                     
                     # Slice the valid negatives df to the required frequency, drop seed columns, add label '0' column, reorder columns like block, and save to file (negatives)
-                    valid_negatives = valid_negatives.iloc[:mirna_frequency + 1].copy()
+                    valid_negatives = valid_negatives.iloc[:mirna_frequency].copy()
                     valid_negatives = valid_negatives.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
                     valid_negatives['label'] = 0
                     valid_negatives = valid_negatives[block.columns]
-                    valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
-                    
+                    valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')                    
                     # Exit the loop to move on to the next unique miRNA in the block
                     break
-            else: 
-                # Check if the end of the negative gene pool is reached (edge case)
-                if index == len(negative_gene_pool) + 1:
-                    # Record that no negatives were found for a particular miRNA
-                    print(f"No valid negatives found for miRNA: {mirna}", flush=True)
-                    print(f"Excluding miRNA: {mirna} from the positives and negatives in the output file", flush=True)
-        
+                # If there are not enough valid negatives    
+                else:
+                    # Check if the end of the negative gene pool is reached (edge case)
+                    if index == len(negative_gene_pool) - 1:
+                        if not valid_negatives.empty: 
+                            block_mirna = block[block['noncodingRNA'] == mirna].iloc[:len(valid_negatives)].copy()
+                            block_mirna.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
 
-        # Shuffle the negative gene pool with incrementing seed before the next iteration
-        negative_gene_pool = negative_gene_pool.sample(frac=1, random_state=seed + 1)
+                            valid_negatives = valid_negatives.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
+                            valid_negatives['label'] = 0
+                            valid_negatives = valid_negatives[block.columns]
+                            valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
+
+                            # Print a message if the end of the negative gene pool is reached and there are still not enough valid negatives
+                            print(f"Missing {mirna_frequency - len(valid_negatives)} negatives for miRNA: {mirna}. Positive examples downsampled to retain 1:1 class ratio.", flush=True)
+                        else:
+                            # Print a message if the end of the negative gene pool is reached and there are no valid negatives
+                            print(f"No valid negatives for miRNA: {mirna}. Excluding it from positive and negative examples.", flush=True)
 
 def main():
     # Record start time

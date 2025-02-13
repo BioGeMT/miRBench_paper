@@ -14,7 +14,7 @@ This means that the negatives produced for a miRNA family will have the same miR
 
 Additionally the gene targets from a single cluster are only picked once per miRNA family, ensuring that the miRNA-gene pairs that have the same miRNA family will have gene targets that are not similar to eachother (are not in the same cluster).
 
-###### EDIT HERE !!!!!!! Moreover it is also ensured that the negatives generated are devoid of anything other than canonical/non-canonical/non-seed
+Furthermore, it is also ensured that the negatives selected are also filtered for the interaction type relevant to a particular set of positives (canonical / noncanonical / nonseed). This may exclude or downsample positives in the input file if not enough valid negative candidates are found.
 
 This script can only produce 1:1 positive to negative class ratio. 
 
@@ -35,13 +35,14 @@ The script processes input data block-wise to optimize memory usage and efficien
   - `argparse`
   - `pandas`
   - `time`
+  - `mirbench `
 
 ## Usage
 
 ### Command
 
 ```
-python make_neg_sets.py --ifile <input_file> --ofile <output_file>
+python make_neg_sets.py --ifile <input_file> --ofile <output_file> --interaction_type <type_of_interaction>
 ```
 
 ### Arguments
@@ -52,16 +53,12 @@ python make_neg_sets.py --ifile <input_file> --ofile <output_file>
 - `--ofile` (required):  
   Path to the output file where both positive and negative examples will be saved.
 
+- `--interaction_type` (required): 
+  Interaction type for which the input file has previously been filtered. One of: 'nonseed', 'canonicalseed', or 'noncanonicalseed'.
+
 ## Input file format
 
-The input file must:
-
-1. Be a tab-separated file (TSV) that is sorted by `noncodingRNA_fam` to ensure correct block-wise processing. 
-2. Contain the following columns (including but not limited to):
-    - noncodingRNA_fam: miRNA family identifier.
-    - gene_cluster_ID: Cluster ID for genes.
-    - noncodingRNA: miRNA sequence.
-    - Additional columns such as gene, feature, chr, etc.
+The input file must be a tab-separated file (TSV) that is sorted by `noncodingRNA_fam` to ensure correct block-wise processing.
 
 ## Output file format
 
@@ -75,4 +72,4 @@ The output file will:
 
 ## Notes
 
-Negative examples are generated only when there are sufficient candidates to choose from. An error is raised otherwise. 
+Negative examples are generated only when there are sufficient valid candidates to choose from. A message is printed if positives have been downsampled or excluded from the output file. 
