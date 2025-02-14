@@ -95,7 +95,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 5: Make negatives
     echo "Generating negatives for $mirfam_sorted_file..."
-    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$mirfam_sorted_file" --ofile "$neg_output"
+    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$mirfam_sorted_file" --ofile "$neg_output" --interaction_type "nonseed"
     if [ $? -ne 0 ]; then
         echo "Error in generating negative samples. Check your script and input file."
         exit 1

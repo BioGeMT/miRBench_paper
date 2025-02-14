@@ -9,8 +9,6 @@ def convert_tsv_to_fasta(input_file, output_file):
         for index, row in data.iterrows():
             sequence = row['gene']
             fasta_file.write(f">Seq_{index + 1}\n{sequence}\n")
-    
-    print(f"FASTA file created: {output_file}")
 
 def main():
 
