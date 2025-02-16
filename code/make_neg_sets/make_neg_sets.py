@@ -4,31 +4,6 @@ import time
 import hashlib
 from miRBench.encoder import get_encoder
 from miRBench.predictor import get_predictor
-import os
-import multiprocessing
-from multiprocessing import Pool
-import logging
-import logging.handlers
-
-SLURM_CPUS = int(os.environ.get('SLURM_CPUS_PER_TASK', 8)) # Default to 8 CPUs if not set
-
-# Define a log queue to handle logs from multiple processes
-log_queue = multiprocessing.Queue()
-
-# Define the logger
-def setup_logger():
-    logger = logging.getLogger('miRNA_processing')
-    logger.setLevel(logging.INFO)  # or another level like DEBUG, ERROR, etc.
-    
-    # Use QueueHandler to send log messages to the Queue
-    queue_handler = logging.handlers.QueueHandler(log_queue)
-    logger.addHandler(queue_handler)
-    
-    # Create a listener to listen to the queue and log to the standard output
-    listener = logging.handlers.QueueListener(log_queue, logging.StreamHandler())
-    listener.start()
-    
-    return logger, listener
 
 # Yield blocks of positive examples with the same mirnafam to process at a time
 def yield_mirnafam_blocks(positive_file_path):
@@ -174,17 +149,14 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
                             valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
 
                             # Print a message if the end of the negative gene pool is reached and there are still not enough valid negatives
-                            logger.warning(f"Missing {mirna_frequency - len(valid_negatives)} negatives for miRNA: {mirna}. Positive examples downsampled to retain 1:1 class ratio.")
+                            print(f"Missing {mirna_frequency - len(valid_negatives)} negatives for miRNA: {mirna}. Positive examples downsampled to retain 1:1 class ratio.", flush=True)
                         else:
                             # Print a message if the end of the negative gene pool is reached and there are no valid negatives
-                            logger.warning(f"No valid negatives for miRNA: {mirna}. Excluding it from positive and negative examples.")
+                            print(f"No valid negatives for miRNA: {mirna}. Excluding it from positive and negative examples.", flush=True)
 
 def main():
     # Record start time
     start = time.time()
-
-    # Setup logging
-    logger, listener = setup_logger()
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Generate negative examples.")
@@ -202,8 +174,7 @@ def main():
     # Get the set of all cluster ids
     all_clusters = positive_samples['gene_cluster_ID'].unique().tolist()
 
-    # with open(args.ofile, 'a') as ofile:
-    with Pool(processes=SLURM_CPUS) as pool:
+    with open(args.ofile, 'a') as ofile:
         
         # Iterate over blocks of positive examples with the same miRNA family
         for block in yield_mirnafam_blocks(args.ifile):
@@ -220,32 +191,22 @@ def main():
                     # Get the block of rows for this miRNA sequence
                     sub_block = block[block['noncodingRNA'] == mirna].copy()
 
-                    # # Run rest of code for each sub_block
-                    # process_block(sub_block, positive_samples, all_clusters, args.ofile, args.interaction_type)
-                    pool.apply_async(process_block, args=(sub_block, positive_samples, all_clusters, args.ofile, args.interaction_type))
+                    # Run rest of code for each sub_block
+                    process_block(sub_block, positive_samples, all_clusters, args.ofile, args.interaction_type)
                 
-                    logger.info(f"Processed miRNA sequence block: {sub_block['noncodingRNA'].iloc[0]}")
+                    print(f"Processed miRNA sequence block: {sub_block['noncodingRNA'].iloc[0]}", flush=True)
 
             else:
                 # Process the block normally if miRNA family not 'unknown'
-                # process_block(block, positive_samples, all_clusters, args.ofile, args.interaction_type)
-                pool.apply_async(process_block, args=(block, positive_samples, all_clusters, args.ofile, args.interaction_type))
+                process_block(block, positive_samples, all_clusters, args.ofile, args.interaction_type)
 
-                logger.info(f"Processed miRNA family block: {block['noncodingRNA_fam'].iloc[0]}")
-
-        pool.close()
-        pool.join()
+                print(f"Processed miRNA family block: {block['noncodingRNA_fam'].iloc[0]}", flush=True)
     
     # Record end time
     end = time.time() 
 
-    # Calculate the time of execution
-    execution_time = end - start
-
-    # Log the time of execution
-    logger.info(f"The time of execution is: {execution_time} s")
-
-    listener.stop()
+    # Print the difference between start and end time in secs
+    print(f"The time of execution is:",(end-start),"s", flush=True)
 
 if __name__ == "__main__":
     main()
