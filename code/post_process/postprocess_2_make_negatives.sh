@@ -82,7 +82,7 @@ for input_file in "$input_dir"/*.tsv; do
     echo "Sorting the input file with added clusters based on the noncodingRNA_fam column..."
 
     # Find the column number of the "noncodingRNA_fam" column
-    column_number=$(head -n 1 "$input_file_with_clusters" | tr '\t' '\n' | nl -v 0 | grep "noncodingRNA_fam" | awk '{print $1}')
+    column_number=$(head -n 1 "$input_file_with_clusters" | tr '\t' '\n' | nl -v 1 | grep "noncodingRNA_fam" | awk '{print $1}')
 
     # If the column number is found, sort the file by that column
     if [ -n "$column_number" ]; then
