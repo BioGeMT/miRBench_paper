@@ -87,8 +87,11 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
         # Initialize valid_negatives dataframe
         valid_negatives = pd.DataFrame(columns=gene_columns + mirna_columns + seed_columns)
 
+        # Increment seed for each miRNA
+        seed += 1
+
         # Shuffle the negative gene pool with incrementing seed for each miRNA
-        negative_gene_pool = negative_gene_pool.sample(frac=1, random_state=seed + 1)
+        negative_gene_pool = negative_gene_pool.sample(frac=1, random_state=seed)
 
         # Iterate over each row of the negative gene pool
         for index, row in negative_gene_pool.iterrows():
