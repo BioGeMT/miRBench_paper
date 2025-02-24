@@ -1,6 +1,5 @@
 import pandas as pd
 import argparse
-import os
 
 def filter_interactions(df):
     # Canonical seed: Seed6mer is 1    
