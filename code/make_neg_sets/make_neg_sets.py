@@ -42,20 +42,22 @@ def get_seeds(df):
         df[tool] = output
     return df
 
+def make_reproducibility_seed(string)
+
+    # Generate a SHA-256 hash and get the hexadecimal string
+    miRNA_hash_hex = hashlib.sha256(string.encode()).hexdigest()
+    # Convert the hexadecimal hash to a decimal integer
+    miRNA_hash_int = int(miRNA_hash_hex, 16)
+    # Reduce the size using modulo (e.g., within the range of a 32-bit unsigned integer) and set it as the seed
+    seed = miRNA_hash_int % 4294967295
+
+    return seed
+
 def process_block(block, positive_samples, all_clusters, output_file, interaction_type):
 
-    # Set a fixed seed for reproducibility
-    ## Get the first item from 'noncodingRNA_name'
+    # Generate seed for reproducibility
     miRNA_name = block['noncodingRNA_name'].iloc[0]
-
-    ## Generate a SHA-256 hash and get the hexadecimal string
-    miRNA_hash_hex = hashlib.sha256(miRNA_name.encode()).hexdigest()
-
-    ## Convert the hexadecimal hash to a decimal integer
-    miRNA_hash_int = int(miRNA_hash_hex, 16)
-
-    ## Reduce the size using modulo (e.g., within the range of a 32-bit unsigned integer) and set it as the seed
-    seed = miRNA_hash_int % 4294967295
+    seed = make_reproducibility_seed(miRNA_name)
 
     # Get the set of cluster ids that share this miRNA family
     block_clusters = block['gene_cluster_ID'].unique().tolist()
