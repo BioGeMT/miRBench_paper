@@ -53,6 +53,14 @@ def make_reproducibility_seed(string)
 
     return seed
 
+def process_valid_negatives(valid_negatives, block_columns):    
+
+    valid_negatives = valid_negatives.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
+    valid_negatives['label'] = 0
+    valid_negatives = valid_negatives[block_columns]
+
+    return valid_negatives
+
 def process_block(block, positive_samples, all_clusters, output_file, interaction_type):
 
     # Generate seed for reproducibility
@@ -132,11 +140,9 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
                     block_mirna = block[block['noncodingRNA'] == mirna].copy()
                     block_mirna.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
                     
-                    # Slice the valid negatives df to the required frequency, drop seed columns, add label '0' column, reorder columns like block, and save to file (negatives)
+                    # Slice the valid negatives df to the required frequency, process valid negatives, and save to file (negatives)
                     valid_negatives = valid_negatives.iloc[:mirna_frequency].copy()
-                    valid_negatives = valid_negatives.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
-                    valid_negatives['label'] = 0
-                    valid_negatives = valid_negatives[block.columns]
+                    valid_negatives = process_valid_negatives(valid_negatives, block.columns)
                     valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')                    
                     # Exit the loop to move on to the next unique miRNA in the block
                     break
@@ -148,9 +154,7 @@ def process_block(block, positive_samples, all_clusters, output_file, interactio
                             block_mirna = block[block['noncodingRNA'] == mirna].iloc[:len(valid_negatives)].copy()
                             block_mirna.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
 
-                            valid_negatives = valid_negatives.drop(columns=['Seed6mer', 'Seed6merBulgeOrMismatch'])
-                            valid_negatives['label'] = 0
-                            valid_negatives = valid_negatives[block.columns]
+                            valid_negatives = process_valid_negatives(valid_negatives, block.columns)
                             valid_negatives.to_csv(output_file, sep='\t', index=False, header=False, mode='a')
 
                             # Print a message if the end of the negative gene pool is reached and there are still not enough valid negatives
