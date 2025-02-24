@@ -3,7 +3,7 @@ from miRBench.predictor import get_predictor
 import pandas as pd
 import argparse
 
-def get_seeds(df):
+def add_seeds(df):
     seed_types = ["Seed6mer", "Seed6merBulgeOrMismatch"]
     for tool in seed_types:       
         encoder = get_encoder(tool)
@@ -23,7 +23,7 @@ def main():
     df = pd.read_csv(args.ifile, sep='\t')
 
     # Add seed types
-    df_seedtypes = get_seeds(df)
+    df_seedtypes = add_seeds(df)
 
     # Write seed types to file
     df_seedtypes.to_csv(args.ofile, sep='\t', index=False)
