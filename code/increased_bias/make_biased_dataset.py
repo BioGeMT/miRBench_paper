@@ -27,16 +27,6 @@ def make_biased_dataset(train, test):
     # Calculate miRNA counts for each class
     miRNA_counts_class = train.groupby(['noncodingRNA', 'label']).size().unstack()
 
-    # Calculate miRNAs with big difference in counts between classes
-    miRNA_counts_class['diff'] = miRNA_counts_class[0] - miRNA_counts_class[1]
-    miRNA_counts_class['abs_diff'] = np.abs(miRNA_counts_class['diff'])
-
-    # Calculate the total number of samples in each class
-    total_samples_class = train['label'].value_counts()
-
-    # compute abs_diff as a percentage of the total count
-    miRNA_counts_class['abs_diff_percentage'] = miRNA_counts_class['abs_diff'] / total_samples_class.sum()
-
     # go over samples in test set and assign label based on majority class in train set
     def predict_label(row):
         miRNA = row['noncodingRNA']
@@ -53,6 +43,13 @@ def make_biased_dataset(train, test):
     # filter test to keep only samples where label equals predicted_label and 
     test_filtered = test[test['label'] == test['predicted_label']]
     test_filtered = test_filtered.drop(columns=['predicted_label'])
+    test_filtered = test_filtered.reset_index(drop=True)
+
+    # balance positive and negative samples
+    test_filtered_pos = test_filtered[test_filtered['label'] == 1]
+    test_filtered_neg = test_filtered[test_filtered['label'] == 0]
+    max_samples = min(len(test_filtered_pos), len(test_filtered_neg))
+    test_filtered = pd.concat([test_filtered_pos.head(max_samples), test_filtered_neg.head(max_samples)])
     test_filtered = test_filtered.reset_index(drop=True)
 
     return test_filtered
