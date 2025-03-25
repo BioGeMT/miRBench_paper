@@ -1,0 +1,4 @@
+Biggest Cluster ID: 11250
+Count of Occurrences in Biggest Cluster: 253
+% of Occurrences in Biggest Cluster: 0.02%
+% of Occurrences in Singleton Clusters: 24.53%

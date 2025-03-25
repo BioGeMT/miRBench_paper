@@ -1,0 +1,4 @@
+Biggest Cluster ID: 2
+Count of Occurrences in Biggest Cluster: 5
+% of Occurrences in Biggest Cluster: 1.05%
+% of Occurrences in Singleton Clusters: 83.23%
