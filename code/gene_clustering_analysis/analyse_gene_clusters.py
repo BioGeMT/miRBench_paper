@@ -9,11 +9,8 @@ def plot_cluster_size_distribution(df, plot_output):
     # Count the occurrences for each cluster ID.
     cluster_counts = df["gene_cluster_ID"].value_counts()
 
-    # Compute the distribution: number of clusters that have a given occurrence count.
-    distribution = cluster_counts.value_counts().sort_index()
-
     plt.figure(figsize=(10, 6))
-    distribution.plot(kind="bar")
+    plt.hist(cluster_counts, bins=range(1, cluster_counts.max() + 2))
     plt.xlabel("Cluster Size")
     plt.ylabel("Number of Clusters")
     plt.title("Distribution of Cluster Sizes")
