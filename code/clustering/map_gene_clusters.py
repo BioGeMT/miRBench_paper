@@ -9,7 +9,6 @@ def main(cluster_csv, dataset_tsv, output_tsv):
     gene_df["gene_cluster_ID"] = clusters_df["Cluster_ID"]
     
     gene_df.to_csv(output_tsv, sep="\t", index=False)
-    print(f"Results saved to {output_tsv}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Map cluster IDs to sequences and merge with gene data.")

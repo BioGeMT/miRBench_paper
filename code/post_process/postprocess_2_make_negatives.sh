@@ -6,17 +6,18 @@
 #SBATCH --cpus-per-task=30
 
 # parse command-line arguments
-while getopts i:o:n: flag; do
+while getopts i:o:n:t: flag; do
     case "${flag}" in
         i) input_dir=${OPTARG};;
         o) output_dir=${OPTARG};;
         n) intermediate_dir=${OPTARG};;
+        t) interaction_type=${OPTARG};;
     esac
 done
 
 # check if required argument is provided
-if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -d "$intermediate_dir" ]; then
-    echo "Usage: $0 -i input_dir -o output_dir -n intermediate_dir"
+if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -d "$intermediate_dir" ] || [ -z "$interaction_type" ]; then
+    echo "Usage: $0 -i input_dir -o output_dir -n intermediate_dir -t interaction_type"
     exit 1
 fi
 
@@ -82,7 +83,7 @@ for input_file in "$input_dir"/*.tsv; do
     echo "Sorting the input file with added clusters based on the noncodingRNA_fam column..."
 
     # Find the column number of the "noncodingRNA_fam" column
-    column_number=$(head -n 1 "$input_file_with_clusters" | tr '\t' '\n' | nl -v 0 | grep "noncodingRNA_fam" | awk '{print $1}')
+    column_number=$(head -n 1 "$input_file_with_clusters" | tr '\t' '\n' | nl -v 1 | grep "noncodingRNA_fam" | awk '{print $1}')
 
     # If the column number is found, sort the file by that column
     if [ -n "$column_number" ]; then
@@ -95,7 +96,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 5: Make negatives
     echo "Generating negatives for $mirfam_sorted_file..."
-    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$mirfam_sorted_file" --ofile "$neg_output"
+    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$mirfam_sorted_file" --ofile "$neg_output" --interaction_type "$interaction_type"
     if [ $? -ne 0 ]; then
         echo "Error in generating negative samples. Check your script and input file."
         exit 1
