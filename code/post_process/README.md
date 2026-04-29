@@ -21,7 +21,7 @@ The series is composed of 6 pipelines (listed below) and are intended to be run 
 3. postprocess_2_make_negatives
 4. postprocess_3_train_test_splits
 5. postprocess_4_drop_test_col
-6. postprocess_4_add_conservation
+6. postprocess_5_add_conservation
 
 ## Requirements
 - Python 3

@@ -20,8 +20,9 @@ def filter_and_create_table(data):
         'chr': filtered_data['chr.g'],
         'start': filtered_data['start.g'],
         'end': filtered_data['end.g'],
-        'strand': filtered_data['strand.g']
-    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_name', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand'])
+        'strand': filtered_data['strand.g'],
+        'Nunique': filtered_data['Nunique']
+    }, columns=['gene', 'noncodingRNA', 'noncodingRNA_name', 'noncodingRNA_fam', 'feature', 'test', 'label', 'chr', 'start', 'end', 'strand', 'Nunique'])
 
     return filtered_table
 

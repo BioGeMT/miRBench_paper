@@ -77,6 +77,9 @@ def process_block(block, positive_samples, all_clusters, output_file):
     # Add the label column to negatives_df
     negatives_df['label'] = 0
 
+    # Add Nunique column set to 0 for negative examples
+    negatives_df['Nunique'] = 0
+
     # Reorder columns in negatives_df to match the order in block
     negatives_df = negatives_df[block.columns]
 
