@@ -1,15 +1,13 @@
 name: postprocess
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
   - hcc
 dependencies:
   - pandas
   - r-base
-  - r-biostrings
-  - r-decipher
-  - pip
-  - pip:
-      - pyBigWig
-      - python-Levenshtein
+  - bioconductor-biostrings
+  - bioconductor-decipher
+  - pybigwig
+  - python-levenshtein
