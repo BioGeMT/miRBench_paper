@@ -1,16 +1,22 @@
 import pandas as pd
 import argparse
+from pathlib import Path
 
 def convert_tsv_to_fasta(input_file, output_file):
    
     data = pd.read_csv(input_file, sep='\t')
+    unique_genes = data[['gene']].drop_duplicates().reset_index(drop=True)
+    unique_genes['gene_id'] = range(1, len(unique_genes) + 1)
+    lookup_file = Path(output_file).with_suffix('.gene_id_lookup.tsv')
+    unique_genes[['gene_id', 'gene']].to_csv(lookup_file, sep='\t', index=False)
     
     with open(output_file, 'w') as fasta_file:
-        for index, row in data.iterrows():
+        for index, row in unique_genes.iterrows():
             sequence = row['gene']
-            fasta_file.write(f">Seq_{index + 1}\n{sequence}\n")
+            fasta_file.write(f">{row['gene_id']}\n{sequence}\n")
     
     print(f"FASTA file created: {output_file}")
+    print(f"Gene ID lookup file created: {lookup_file}")
 
 def main():
 
@@ -24,4 +30,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
