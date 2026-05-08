@@ -37,6 +37,7 @@ clustering_dir="../clustering"
 make_negs_dir="../make_neg_sets"
 
 # define constants for suffixes with extensions
+GENE_ID_LOOKUP_SUFFIX=".gene_id_lookup"
 CLUSTERING_OUTPUT_SUFFIX=".gene_clusters"
 CLUSTERS_ADDED_SUFFIX=".gene_clusters_added"
 SORTED_SUFFIX=".mirfam_sorted"
@@ -46,6 +47,7 @@ for input_file in "$input_dir"/*.tsv; do
     # process the input file
     base_name=$(basename "$input_file" .tsv)
     fasta_file="$intermediate_dir/${base_name}.fasta"
+    gene_lookup_file="$intermediate_dir/${base_name}${GENE_ID_LOOKUP_SUFFIX}.tsv"
     clustering_output="$intermediate_dir/${base_name}${CLUSTERING_OUTPUT_SUFFIX}.csv"
     input_file_with_clusters="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}.tsv"
     mirfam_sorted_file="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${SORTED_SUFFIX}.tsv"
@@ -53,7 +55,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 1: Generating FASTA file
     echo "Generating FASTA file for $input_file..."
-    python3 "$clustering_dir/gene_fasta.py" --input "$input_file" --output "$fasta_file"
+    python3 "$clustering_dir/gene_fasta.py" --input "$input_file" --output "$fasta_file" --lookup "$gene_lookup_file"
     if [ $? -ne 0 ]; then
         echo "Error in generating FASTA file for $input_file. Check your script and input file."
         exit 1
@@ -71,7 +73,7 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 3: Mapping clusters to input file
     echo "Mapping clusters to $input_file..."
-    python3 "$clustering_dir/map_gene_clusters.py" --cluster_csv "$clustering_output" --dataset_tsv "$input_file" --output_tsv "$input_file_with_clusters"
+    python3 "$clustering_dir/map_gene_clusters.py" --cluster_csv "$clustering_output" --dataset_tsv "$input_file" --lookup_tsv "$gene_lookup_file" --output_tsv "$input_file_with_clusters"
     if [ $? -ne 0 ]; then
         echo "Error in mapping clusters to input file. Check your script and input file."
         exit 1
