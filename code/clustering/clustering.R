@@ -30,4 +30,7 @@ clusters_df <- data.frame(
     Cluster_ID = clusters
 )
 
+# Rename the column
+names(clusters_df)[2] <- "Cluster_ID"
+
 write.csv(clusters_df, file = output_file, row.names = FALSE)
