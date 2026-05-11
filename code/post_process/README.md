@@ -36,6 +36,7 @@ The series is composed of 6 pipelines (listed below) and are intended to be run 
   - `../clustering/gene_fasta.py`
   - `../clustering/clustering.R `
   - `../clustering/map_gene_clusters.py`
+  - `../sort_by_column/sort_tsv.sh`
   - `../make_neg_sets/make_neg_sets.py`
   - `../conservation/add_conservation_scores.py`
 

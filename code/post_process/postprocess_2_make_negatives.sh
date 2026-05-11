@@ -35,6 +35,7 @@ fi
 # define paths to the directories where the scripts are located
 clustering_dir="../clustering"
 make_negs_dir="../make_neg_sets"
+sort_by_column_dir="../sort_by_column"
 
 # define constants for suffixes with extensions
 GENE_ID_LOOKUP_SUFFIX=".gene_id_lookup"
@@ -82,18 +83,12 @@ for input_file in "$input_dir"/*.tsv; do
 
     # Step 4: Sort the file based on the noncodingRNA_fam column in preparation for negative sample generation
     echo "Sorting the input file with added clusters based on the noncodingRNA_fam column..."
-
-    # Find the 1-based column number of the "noncodingRNA_fam" column for sort -k
-    column_number=$(head -n 1 "$input_file_with_clusters" | tr '\t' '\n' | nl -ba | awk '$2 == "noncodingRNA_fam" {print $1}')
-
-    # If the column number is found, sort the file by that column
-    if [ -n "$column_number" ]; then
-        (head -n 1 "$input_file_with_clusters" && tail -n +2 "$input_file_with_clusters" | sort -t $'\t' -k "${column_number},${column_number}") > "${mirfam_sorted_file}"
-        echo "Input file with added clusters sorted by the 'noncodingRNA_fam' column. Output saved to $mirfam_sorted_file"
-    else
-        echo "Error: 'noncodingRNA_fam' column not found in $mirfam_sorted_file"
+    bash "$sort_by_column_dir/sort_tsv.sh" --input "$input_file_with_clusters" --output "$mirfam_sorted_file" --column noncodingRNA_fam
+    if [ $? -ne 0 ]; then
+        echo "Error sorting $input_file_with_clusters by noncodingRNA_fam"
         exit 1
     fi
+    echo "Input file with added clusters sorted by the 'noncodingRNA_fam' column. Output saved to $mirfam_sorted_file"
 
     # Step 5: Make negatives
     echo "Generating negatives for $mirfam_sorted_file..."
