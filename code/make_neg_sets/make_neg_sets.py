@@ -3,6 +3,30 @@ import pandas as pd
 import time
 import hashlib
 
+def yield_negative_sampling_sub_blocks(block):
+    # Check if the miRNA family is unknown
+    if block['noncodingRNA_fam'].iloc[0] == 'unknown':
+    
+        # Get unique miRNA sequences (or names, equivalent)
+        unique_mirnas = block['noncodingRNA'].unique().tolist()
+
+        # Process each block of unique miRNA sequences
+        for mirna in unique_mirnas:
+            
+            # Get the block of rows for this miRNA sequence
+            sub_block = block[block['noncodingRNA'] == mirna]
+
+            yield sub_block
+
+    else:
+        # Process the block normally if not 'unknown'
+        yield block
+
+def get_negative_sampling_block_label(block):
+    if block['noncodingRNA_fam'].iloc[0] == 'unknown':
+        return block['noncodingRNA'].iloc[0]
+    return block['noncodingRNA_fam'].iloc[0]
+
 # Yield blocks of positive examples with the same mirnafam to process at a time
 def yield_mirnafam_blocks(positive_file_path):
     current_block = []
@@ -111,28 +135,15 @@ def main():
         
         for block in yield_mirnafam_blocks(args.ifile):
 
-            # Check if the miRNA family is unknown
-            if block['noncodingRNA_fam'].iloc[0] == 'unknown':
+            for sub_block in yield_negative_sampling_sub_blocks(block):
+
+                # Run rest of code for each sub_block
+                process_block(sub_block, positive_samples, all_clusters, args.ofile)
             
-                # Get unique miRNA sequences (or names, equivalent)
-                unique_mirnas = block['noncodingRNA'].unique().tolist()
-
-                # Process each block of unique miRNA sequences
-                for mirna in unique_mirnas:
-                    
-                    # Get the block of rows for this miRNA sequence
-                    sub_block = block[block['noncodingRNA'] == mirna]
-
-                    # Run rest of code for each sub_block
-                    process_block(sub_block, positive_samples, all_clusters, args.ofile)
-                
-                    print(f"Processed miRNA sequence block: {sub_block['noncodingRNA'].iloc[0]}", flush=True)
-
-            else:
-                # Process the block normally if not 'unknown'
-                process_block(block, positive_samples, all_clusters, args.ofile)
-
-                print(f"Processed miRNA family block: {block['noncodingRNA_fam'].iloc[0]}", flush=True)
+                if sub_block['noncodingRNA_fam'].iloc[0] == 'unknown':
+                    print(f"Processed miRNA sequence block: {get_negative_sampling_block_label(sub_block)}", flush=True)
+                else:
+                    print(f"Processed miRNA family block: {get_negative_sampling_block_label(sub_block)}", flush=True)
     
     # Record end time
     end = time.time() 

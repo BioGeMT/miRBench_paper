@@ -6,6 +6,7 @@ channels:
   - hcc
 dependencies:
   - pandas
+  - matplotlib-base
   - r-base
   - bioconductor-biostrings
   - bioconductor-decipher

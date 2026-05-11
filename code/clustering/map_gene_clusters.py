@@ -8,11 +8,7 @@ def require_columns(df, required, name):
         raise ValueError(f"{name} is missing required columns: {sorted(missing)}")
 
 
-def main(cluster_csv, dataset_tsv, lookup_tsv, output_tsv):
-    clusters = pd.read_csv(cluster_csv)
-    dataset = pd.read_csv(dataset_tsv, sep="\t")
-    lookup = pd.read_csv(lookup_tsv, sep="\t")
-
+def map_clusters_to_dataset(dataset, lookup, clusters):
     require_columns(clusters, ["Gene_ID", "Cluster_ID"], "Cluster CSV")
     require_columns(dataset, ["gene"], "Dataset TSV")
     require_columns(lookup, ["gene", "gene_id"], "Lookup TSV")
@@ -28,28 +24,37 @@ def main(cluster_csv, dataset_tsv, lookup_tsv, output_tsv):
     gene_to_id = lookup.set_index("gene")["gene_id"]
     id_to_cluster = clusters.set_index("Gene_ID")["Cluster_ID"]
 
-    dataset["gene_id"] = dataset["gene"].map(gene_to_id)
+    mapped = dataset.copy()
+    mapped["gene_id"] = mapped["gene"].map(gene_to_id)
 
-    missing_gene_ids = dataset["gene_id"].isna()
+    missing_gene_ids = mapped["gene_id"].isna()
     if missing_gene_ids.any():
-        examples = dataset.loc[missing_gene_ids, "gene"].drop_duplicates().head().tolist()
+        examples = mapped.loc[missing_gene_ids, "gene"].drop_duplicates().head().tolist()
         raise ValueError(
             f"Failed to map gene IDs for {missing_gene_ids.sum()} rows. "
             f"Examples: {examples}"
         )
 
-    dataset["gene_cluster_ID"] = dataset["gene_id"].map(id_to_cluster)
+    mapped["gene_cluster_ID"] = mapped["gene_id"].map(id_to_cluster)
 
-    missing_clusters = dataset["gene_cluster_ID"].isna()
+    missing_clusters = mapped["gene_cluster_ID"].isna()
     if missing_clusters.any():
-        examples = dataset.loc[missing_clusters, "gene_id"].drop_duplicates().head().tolist()
+        examples = mapped.loc[missing_clusters, "gene_id"].drop_duplicates().head().tolist()
         raise ValueError(
             f"Failed to map cluster IDs for {missing_clusters.sum()} rows. "
             f"Example gene_ids: {examples}"
         )
 
-    dataset = dataset.drop(columns=["gene_id"])
-    dataset.to_csv(output_tsv, sep="\t", index=False)
+    return mapped.drop(columns=["gene_id"])
+
+
+def main(cluster_csv, dataset_tsv, lookup_tsv, output_tsv):
+    clusters = pd.read_csv(cluster_csv)
+    dataset = pd.read_csv(dataset_tsv, sep="\t")
+    lookup = pd.read_csv(lookup_tsv, sep="\t")
+
+    mapped = map_clusters_to_dataset(dataset, lookup, clusters)
+    mapped.to_csv(output_tsv, sep="\t", index=False)
 
     print(f"Results saved to {output_tsv}")
 

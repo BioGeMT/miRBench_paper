@@ -24,7 +24,7 @@ Converts a TSV file containing gene sequences into FASTA format for clustering o
 
 **Usage:**
 ```bash
-python gene_fasta.py --input data.tsv --output sequences.fasta
+python gene_fasta.py --input data.tsv --output sequences.fasta --lookup sequences.gene_id_lookup.tsv
 ```
 
 ### 2. Cluster Sequences (`clustering.R`)
