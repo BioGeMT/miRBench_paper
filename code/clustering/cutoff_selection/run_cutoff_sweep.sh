@@ -4,19 +4,17 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 default_clustering_script="$(cd "$script_dir/.." && pwd)/clustering.R"
-dataset_stem="AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated"
-default_input_fasta="$(cd "$script_dir/.." && pwd)/${dataset_stem}.genes.fasta"
-default_output_dir="$script_dir/outputs/${dataset_stem}_genes_cutoff_sweep"
 
 usage() {
     cat <<EOF
-Usage: $0 -i input_fasta -o output_dir [-c cutoff_list] [-p processors] [-r clustering_script]
+Usage: $0 -i input_fasta [-o output_dir] [-c cutoff_list] [-p processors] [-r clustering_script]
+
+Required:
+    -i  Input FASTA file
 
 Optional:
-  -i  Input FASTA file
-      (default: ../AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.genes.fasta relative to this script)
   -o  Output directory for cluster CSV files
-      (default: ./outputs/AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated_genes_cutoff_sweep)
+      (default: ./outputs/<dataset_stem>/genes_cutoff_sweep, inferred from -i)
   -c  Comma-separated cutoff list (default: 0.01,0.02,0.05,0.1,0.15,0.2,0.25,0.3)
   -p  Number of processors to pass to clustering.R (default: 8)
   -r  Path to clustering.R
@@ -25,8 +23,8 @@ EOF
 }
 
 clustering_script="$default_clustering_script"
-input_fasta="$default_input_fasta"
-output_dir="$default_output_dir"
+input_fasta=""
+output_dir=""
 cutoff_csv="0.01,0.02,0.05,0.1,0.15,0.2,0.25,0.3"
 processors=8
 
@@ -48,9 +46,22 @@ while getopts "i:o:c:p:r:h" flag; do
     esac
 done
 
+if [ -z "$input_fasta" ]; then
+    echo "Input FASTA is required (-i)."
+    usage
+    exit 1
+fi
+
 if [ ! -f "$input_fasta" ]; then
     echo "Input FASTA not found: $input_fasta"
     exit 1
+fi
+
+if [ -z "$output_dir" ]; then
+    input_fasta_name="$(basename "$input_fasta")"
+    dataset_stem="${input_fasta_name%.genes.fasta}"
+    dataset_stem="${dataset_stem%.fasta}"
+    output_dir="$script_dir/outputs/$dataset_stem/genes_cutoff_sweep"
 fi
 
 if [ ! -f "$clustering_script" ]; then

@@ -67,33 +67,36 @@ def make_plots(summary_df: pd.DataFrame, output_dir: Path) -> None:
 
 
 def main() -> None:
-    dataset_stem = "AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated"
-
     parser = argparse.ArgumentParser(description="Summarize cutoff sweep cluster outputs.")
     parser.add_argument(
         "--input_dir",
-        default=str(
-            Path(__file__).resolve().parent / "outputs" / f"{dataset_stem}_genes_cutoff_sweep"
-        ),
+        required=True,
         help="Directory containing clusters_cutoff_*.csv files",
     )
     parser.add_argument(
         "--output_file",
-        default=str(
-            Path(__file__).resolve().parent / "outputs" / f"{dataset_stem}_genes_cutoff_sweep_summary.tsv"
-        ),
+        default=None,
         help="Path to write the summary table",
     )
     parser.add_argument(
         "--plot_dir",
-        default=str(
-            Path(__file__).resolve().parent / "outputs" / f"{dataset_stem}_genes_cutoff_sweep" / "plots"
-        ),
+        default=None,
         help="Directory to write summary plots",
     )
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
+    if input_dir.name != "genes_cutoff_sweep":
+        raise ValueError(
+            f"Expected --input_dir to end with 'genes_cutoff_sweep', got: {input_dir}"
+        )
+    output_root = input_dir.parent
+
+    if args.output_file is None:
+        args.output_file = str(output_root / "genes_cutoff_sweep_summary.tsv")
+    if args.plot_dir is None:
+        args.plot_dir = str(output_root / "summarize_cutoff_plots")
+
     cluster_files = sorted(input_dir.glob("clusters_cutoff_*.csv"), key=parse_cutoff)
 
     if not cluster_files:
