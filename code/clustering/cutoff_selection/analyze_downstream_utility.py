@@ -81,6 +81,7 @@ def summarize_blocks_from_sorted_tsv(sorted_tsv_path: Path) -> dict:
 
     blocks_df = pd.DataFrame(block_rows)
     failing_blocks = blocks_df[blocks_df["fails"]]
+    failing_block_labels = failing_blocks["block_label"].tolist()
 
     return {
         "n_rows": int(blocks_df["block_size"].sum()),
@@ -99,6 +100,7 @@ def summarize_blocks_from_sorted_tsv(sorted_tsv_path: Path) -> dict:
         "median_slack": float(blocks_df["slack"].median()),
         "min_slack": int(blocks_df["slack"].min()),
         "n_failing_blocks": int(failing_blocks.shape[0]),
+        "failing_block_labels": failing_block_labels,
         "failure_fraction": float(failing_blocks.shape[0] / blocks_df.shape[0]),
     }
 
