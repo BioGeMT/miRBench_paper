@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+
 def parse_cutoff(path: Path) -> float:
     match = re.search(r"clusters_cutoff_(.+)\.mapped\.sorted\.tsv$", path.name)
     if not match:
@@ -40,14 +41,12 @@ def summarize_family_for_file(mapped_sorted_path: Path, family: str) -> dict:
 
 
 def main() -> None:
-    script_dir = Path(__file__).resolve().parent
-
     parser = argparse.ArgumentParser(
-        description="Summarize family-level negative-sampling feasibility across cutoff-mapped TSVs.",
+        description="Summarize family-level negative-sampling feasibility across cutoff mapped TSVs.",
     )
     parser.add_argument(
         "--mapped_dir",
-        default=str(script_dir.parent / "intermediate_mapped_tsvs"),
+        required=True,
         help="Directory containing clusters_cutoff_*.mapped.sorted.tsv files.",
     )
     parser.add_argument(
@@ -58,13 +57,13 @@ def main() -> None:
     parser.add_argument(
         "--output_path",
         default=None,
-        help="Path to write the summary TSV. Defaults to <script_dir>/<family>_family_summary.tsv.",
+        help="Path to write summary TSV. Defaults to <family>_family_summary.tsv in current working directory.",
     )
     args = parser.parse_args()
 
     mapped_dir = Path(args.mapped_dir)
     if args.output_path is None:
-        output_path = script_dir / f"{args.family}_family_summary.tsv"
+        output_path = Path.cwd() / f"{args.family}_family_summary.tsv"
     else:
         output_path = Path(args.output_path)
 
@@ -80,6 +79,7 @@ def main() -> None:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     summary_df.to_csv(output_path, sep="\t", index=False)
+
     print(f"Saved summary to {output_path}")
     print(summary_df.to_string(index=False))
 
