@@ -2,4 +2,3 @@ data/
 results/
 
 *__pycache__/
-*intermediate_mapped_tsvs/
