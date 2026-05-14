@@ -82,9 +82,23 @@ def process_block(block, positive_samples, all_clusters, output_file):
 
     # Get the number of negatives to be generated for this miRNA family block
     num_neg = block.shape[0]
+    block_label = get_negative_sampling_block_label(block)
+
+    if len(negative_pool) == 0:
+        print(
+            f"Warning: Skipping block {block_label} - {block.shape[0]} positives excluded (no eligible negative clusters available)",
+            flush=True,
+        )
+        return
 
     if num_neg > len(negative_pool):
-        raise ValueError(f"Warning: Not enough negative examples for current block. miRNA family: {block['noncodingRNA_fam'].iloc[0]}, first miRNA sequence: {block['noncodingRNA'].iloc[0]}")
+        excluded = num_neg - len(negative_pool)
+        print(
+            f"Warning: Not enough negative examples for block {block_label}. {excluded} positives excluded",
+            flush=True,
+        )
+        block = block.sample(n=len(negative_pool), random_state=seed)
+        num_neg = len(negative_pool)
 
     # Sample num_neg from mirfam_allowed_genes rows
     negative_genes = negative_pool.sample(n=num_neg, random_state=seed)
