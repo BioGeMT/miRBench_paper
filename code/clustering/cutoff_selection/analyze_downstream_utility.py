@@ -5,8 +5,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import tempfile
 import subprocess
+import tempfile
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 sys.path.append(str(Path(__file__).resolve().parents[2] / "make_neg_sets"))
@@ -157,6 +157,11 @@ def main() -> None:
         default=None,
         help="Directory to write downstream utility plots.",
     )
+    parser.add_argument(
+        "--intermediate_dir",
+        default=None,
+        help="Directory to write mapped intermediate TSVs used for block analysis.",
+    )
     args = parser.parse_args()
 
     dataset_stem = Path(args.dataset_tsv).name.removesuffix(".tsv")
@@ -166,6 +171,8 @@ def main() -> None:
         args.output_file = str(output_root / "genes_cutoff_sweep_downstream_utility.tsv")
     if args.plot_dir is None:
         args.plot_dir = str(output_root / "downstream_utility_plots")
+    if args.intermediate_dir is None:
+        args.intermediate_dir = str(output_root / "intermediate_mapped_tsvs")
 
     dataset_df = pd.read_csv(args.dataset_tsv, sep="\t")
     lookup_df = pd.read_csv(args.lookup_tsv, sep="\t")
@@ -173,6 +180,9 @@ def main() -> None:
 
     if not cluster_paths:
         raise FileNotFoundError(f"No clusters_cutoff_*.csv files found in {args.cluster_dir}")
+
+    intermediate_dir = Path(args.intermediate_dir)
+    intermediate_dir.mkdir(parents=True, exist_ok=True)
 
     summary_rows = []
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -183,7 +193,7 @@ def main() -> None:
             mapped_df = map_clusters_to_dataset(dataset_df, lookup_df, clusters_df)
 
             mapped_unsorted = tmpdir_path / f"{cluster_path.stem}.mapped.unsorted.tsv"
-            mapped_sorted = tmpdir_path / f"{cluster_path.stem}.mapped.sorted.tsv"
+            mapped_sorted = intermediate_dir / f"{cluster_path.stem}.mapped.sorted.tsv"
 
             mapped_df.to_csv(mapped_unsorted, sep="\t", index=False)
 
@@ -214,6 +224,7 @@ def main() -> None:
 
     print(f"Saved downstream utility summary to {args.output_file}")
     print(f"Saved downstream utility plots to {args.plot_dir}")
+    print(f"Saved mapped sorted intermediates to {args.intermediate_dir}")
     print(summary_df.to_string(index=False))
 
 

@@ -1,0 +1,9 @@
+cutoff	file	family	n_rows	n_unique_noncodingRNA_name	n_unique_noncodingRNA	n_unique_gene_cluster_ID	n_unique_clusters_total	requested_negs	eligible_negative_clusters	slack	fails
+0.01	clusters_cutoff_0p01.mapped.sorted.tsv	mir-17	400436	15	15	186985	586021	400436	399036	-1400	True
+0.02	clusters_cutoff_0p02.mapped.sorted.tsv	mir-17	400436	15	15	186706	585509	400436	398803	-1633	True
+0.05	clusters_cutoff_0p05.mapped.sorted.tsv	mir-17	400436	15	15	183726	578177	400436	394451	-5985	True
+0.1	clusters_cutoff_0p1.mapped.sorted.tsv	mir-17	400436	15	15	181131	569758	400436	388627	-11809	True
+0.15	clusters_cutoff_0p15.mapped.sorted.tsv	mir-17	400436	15	15	178578	550760	400436	372182	-28254	True
+0.2	clusters_cutoff_0p2.mapped.sorted.tsv	mir-17	400436	15	15	173771	478856	400436	305085	-95351	True
+0.25	clusters_cutoff_0p25.mapped.sorted.tsv	mir-17	400436	15	15	150903	299993	400436	149090	-251346	True
+0.3	clusters_cutoff_0p3.mapped.sorted.tsv	mir-17	400436	15	15	90681	119798	400436	29117	-371319	True
