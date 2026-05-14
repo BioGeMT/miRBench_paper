@@ -73,4 +73,4 @@ The output file will:
 
 ## Notes
 
-Negative examples are generated only when there are sufficient candidates to choose from. An error is raised otherwise. 
+Negative examples are generated only when there are sufficient candidates to choose from. If a block has fewer eligible negative candidates than positives, the script now warns and randomly downsamples the positives for that block to match the available negative pool. If no eligible negative candidates exist, the block is skipped and the number of excluded positives is reported.
