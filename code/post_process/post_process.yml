@@ -5,10 +5,32 @@ channels:
   - defaults
   - hcc
 dependencies:
-  - pandas
   - matplotlib-base
   - r-base
   - bioconductor-biostrings
   - bioconductor-decipher
   - pybigwig
   - python-levenshtein
+
+  # Core
+  - python
+  - pip
+
+  # Data handling
+  - pandas
+  - numpy
+
+  # CLI / utilities for genomic-region-annotator
+  - click
+  - requests
+  - intervaltree
+
+  # Bio
+  - biopython
+
+  # Pip-only (genomics + dev tools)
+  - pip
+  - pip:
+      - pyranges
+      - gffutils
+      - git+https://github.com/BioGeMT/genomic_region_annotator.git@37184bd35a407540f489f3f56d00e35a833bf433#egg=genomic-region-annotator
