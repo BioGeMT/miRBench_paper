@@ -11,18 +11,18 @@ It is intended to be used on the following datasets:
 
 Note that for the Hejret and Klimentova datasets above, the `miRNA_fam` column must be renamed to `noncodingRNA_fam` after downloading, prior to any processing, for consistency of all column names.
 
-The scope of the pipeline series is to filter the files for miRNA data, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, add conservation score to the gene sequences, and finally annotate all intervals with genomic region information (UTR, CDS, intron, etc.) using Ensembl transcripts. 
+The scope of the pipeline series is to filter the files for miRNA data, annotate all intervals with genomic region information (UTR, CDS, intron, etc.) using Ensembl transcripts, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
 
 
 The series is composed of 7 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the worflow diagram. 
 
 1. postprocess_0_filter_and_deduplicate
-2. postprocess_1_exclude_mirna_families
-3. postprocess_2_make_negatives
-4. postprocess_3_train_test_splits
-5. postprocess_4_drop_test_col
-6. postprocess_5_add_conservation
-7. postprocess_6_genomic_region_annotation
+2. postprocess_1_genomic_region_annotation
+3. postprocess_2_exclude_mirna_families
+4. postprocess_3_make_negatives
+5. postprocess_4_train_test_splits
+6. postprocess_5_drop_test_col
+7. postprocess_6_add_conservation
 
 ## Requirements
 - Python 3
