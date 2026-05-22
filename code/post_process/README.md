@@ -1,20 +1,17 @@
-
 # Post-Processing Pipelines
 
-This series of pipelines is designed to process as input, the HybriDetector `*.unified_length_all_types_unique_high_confidence.tsv` output files. 
-
+This series of pipelines is designed to process as input the HybriDetector `*.unified_length_all_types_unique_high_confidence.tsv` output files.
 
 It is intended to be used on the following datasets:
-- https://github.com/ML-Bioinfo-CEITEC/HybriDetector/blob/main/ML/Datasets/AGO2_CLASH_Hejret2023_full_dataset.tsv 
+- https://github.com/ML-Bioinfo-CEITEC/HybriDetector/blob/main/ML/Datasets/AGO2_CLASH_Hejret2023_full_dataset.tsv
 - https://github.com/ML-Bioinfo-CEITEC/miRBind/blob/main/Datasets/AGO2_eCLIP_Klimentova22_full_dataset.tsv
-- https://zenodo.org/records/14501607/files/AGO2_eCLIP_Manakov2022_full_dataset.tsv.gz 
+- https://zenodo.org/records/14501607/files/AGO2_eCLIP_Manakov2022_full_dataset.tsv.gz
 
 Note that for the Hejret and Klimentova datasets above, the `miRNA_fam` column must be renamed to `noncodingRNA_fam` after downloading, prior to any processing, for consistency of all column names.
 
-The scope of the pipeline series is to filter the files for miRNA data, annotate all intervals with genomic region information (UTR, CDS, intron, etc.) using Ensembl transcripts, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences. 
+The scope of the pipeline series is to filter the files for miRNA data, annotate all intervals with genomic region information (UTR, CDS, intron, etc.) using Ensembl transcripts, filter the annotation output to the downstream columns used by later steps, deduplicate gene-miRNA sequence pairs, create a left-out test set with miRNA families unique only to this set, construct the negative class in an unbiased manner, split the datasets into training and testing, and finally add conservation score to the gene sequences.
 
-
-The series is composed of 7 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the worflow diagram. 
+The series is composed of 7 pipelines (listed below) and are intended to be run in the defined order as the output of one feeds the next. Refer to the workflow diagram.
 
 1. postprocess_0_filter_and_deduplicate
 2. postprocess_1_genomic_region_annotation
@@ -28,20 +25,21 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
 - Python 3
 - Run `conda env create --file=post_process.yml`, then `conda activate postprocess`
 - Manually download the `hg38.phyloP100way.bw` and `hg38.phastCons100way.bw` files from:
-   - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/ 
-   - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
-- Ensure the necessary Python scripts are located in the specified relative paths:
+  - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/
+  - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
+- Ensure the required helper scripts and resources are present in the repository:
   - `../filtering/filtering.py`
   - `../genomic_region_annotator_filtering/genomic_region_annotator_filtering.py`
   - `../excluded_families_testset/unique_family_counter.py`
   - `../excluded_families_testset/dataset_split_based_on_unique_families.py`
   - `../clustering/gene_fasta.py`
-  - `../clustering/clustering.R `
+  - `../clustering/clustering.R`
   - `../clustering/map_gene_clusters.py`
   - `../sort_by_column/sort_tsv.sh`
   - `../make_neg_sets/make_neg_sets.py`
   - `../conservation/add_conservation_scores.py`
+- The post-processing shell scripts resolve these helper paths relative to their own location, so they can be run from any working directory.
 
 ## Usage
 
-Each pipeline of the series must be run separately. Refer to the corresponding README files. 
+Each pipeline of the series must be run separately. Refer to the corresponding README files.

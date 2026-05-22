@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_3
+#SBATCH --job-name=pp_4
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -20,7 +20,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ]; then
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_3_train_test_split.log"
+log_file="$output_dir/postprocess_4_train_test_splits.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -57,4 +57,4 @@ for input_file in "$input_dir"/*.negatives.tsv; do
 done
 
 # Done
-echo "Train and test split pipeline completed successfully."
+echo "postprocess_4 train and test split pipeline completed successfully."

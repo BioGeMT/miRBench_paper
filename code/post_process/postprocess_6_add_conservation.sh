@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_5
+#SBATCH --job-name=pp_6
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -22,7 +22,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -f "$phyloP_file" ] ||
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_5_conservation.log"
+log_file="$output_dir/postprocess_6_add_conservation.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -34,7 +34,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # define paths to the directories where the scripts are located
-conservation_dir="../conservation"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+conservation_dir="$SCRIPT_DIR/../conservation"
 
 # define constants for suffixes with extensions
 CONSERVATION_SUFFIX=".conservation"
@@ -46,7 +47,7 @@ for input_file in "$input_dir"/*.tsv; do
     base_name=$(basename "$input_file" .tsv)
     input_file="$input_dir/${base_name}.tsv"
     conservation_file="$output_dir/${base_name}${CONSERVATION_SUFFIX}.tsv"
-    
+
     echo "Adding validated conservation scores to $input_file..."
     python3 "$conservation_dir/add_conservation_scores.py" --ifile "$input_file" --phyloP "$phyloP_file" --phastCons "$phastCons_file" --ofile "$conservation_file"
     if [ $? -ne 0 ]; then
@@ -55,7 +56,7 @@ for input_file in "$input_dir"/*.tsv; do
     fi
     echo "Conservation scores added. Output saved to $conservation_file"
 
-done 
+done
 
 # Done
-echo "Conservation scores successfully added to all datasets in $input_dir."
+echo "postprocess_6 add conservation pipeline completed successfully."
