@@ -24,9 +24,6 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
 ## Requirements
 - Python 3
 - Run `conda env create --file=post_process.yml`, then `conda activate postprocess`
-- Manually download the `hg38.phyloP100way.bw` and `hg38.phastCons100way.bw` files from:
-  - https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/
-  - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
 - Ensure the required helper scripts and resources are present in the repository:
   - `../filtering/filtering.py`
   - `../genomic_region_annotator_filtering/genomic_region_annotator_filtering.py`
@@ -39,7 +36,19 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
   - `../make_neg_sets/make_neg_sets.py`
   - `../conservation/add_conservation_scores.py`
 - The post-processing shell scripts resolve these helper paths relative to their own location, so they can be run from any working directory.
+- For conservation scoring, the required BigWig files are:
+  - `hg38.phyloP100way.bw`
+  - `hg38.phastCons100way.bw`
 
 ## Usage
 
-Each pipeline of the series must be run separately. Refer to the corresponding README files.
+You can run the post-processing workflow in either of two ways:
+- Run each pipeline separately in the documented order. Refer to the corresponding README files.
+- Run the full wrapper script `run_postprocess_pipeline.sh`.
+
+The wrapper expects the three canonical input datasets and can manage conservation files in either of two ways:
+- Pass `-p` and `-c` to use existing local BigWig files.
+- Omit `-p` and `-c` to let the wrapper use cached files or download them with `wget` into `output_dir/reference_data/conservation/`.
+
+You can also override the cache/download location with:
+- `-r <conservation_dir>`
