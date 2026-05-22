@@ -32,6 +32,7 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
    - https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/
 - Ensure the necessary Python scripts are located in the specified relative paths:
   - `../filtering/filtering.py`
+  - `../genomic_region_annotator_filtering/genomic_region_annotator_filtering.py`
   - `../excluded_families_testset/unique_family_counter.py`
   - `../excluded_families_testset/dataset_split_based_on_unique_families.py`
   - `../clustering/gene_fasta.py`
