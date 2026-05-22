@@ -31,11 +31,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# define paths to the directories where the scripts are located
+filter_dir="../genomic_region_annotator_filtering"
+
 # Ensembl release (fixed)
 ENSEMBL_RELEASE=90
 
 # define constants for suffixes with extensions
 ANNOTATED_SUFFIX=".annotated"
+SITE_SUMMARY_SUFFIX=".annotated_site_summary"
+FILTERED_SUFFIX=".annotated.filtered"
 
 # process each .tsv file in the input directory
 for input_file in "$input_dir"/*.tsv; do
@@ -46,6 +51,8 @@ for input_file in "$input_dir"/*.tsv; do
 
     base_name=$(basename "$input_file" .tsv)
     output_stem="$output_dir/${base_name}${ANNOTATED_SUFFIX}.tsv"
+    summary_file="$output_dir/step2/${base_name}${SITE_SUMMARY_SUFFIX}.tsv"
+    filtered_output="$output_dir/${base_name}${FILTERED_SUFFIX}.tsv"
 
     # Step 1: annotate
     echo "Running annotate for $input_file (Ensembl release $ENSEMBL_RELEASE) ..."
@@ -83,6 +90,20 @@ for input_file in "$input_dir"/*.tsv; do
     fi
     echo "Summarize-sites completed for $base_name"
 
+    if [ ! -f "$summary_file" ]; then
+        echo "Error: Could not find Step 2 site summary output for $base_name"
+        echo "Expected: $summary_file"
+        exit 1
+    fi
+
+    # Step 3: filter summarized output to downstream columns
+    echo "Filtering summarized output for $summary_file ..."
+    python3 "$filter_dir/genomic_region_annotator_filtering.py" --ifile "$summary_file" --ofile "$filtered_output"
+    if [ $? -ne 0 ]; then
+        echo "Error filtering summarized output for $summary_file"
+        exit 1
+    fi
+    echo "Filtered output written to $filtered_output"
 done
 
 # Done
