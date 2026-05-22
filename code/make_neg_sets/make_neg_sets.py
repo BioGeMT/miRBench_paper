@@ -104,7 +104,7 @@ def process_block(block, positive_samples, all_clusters, output_file):
     negative_genes = negative_pool.sample(n=num_neg, random_state=seed)
 
     # Start constructing the df rows for the negative examples
-    columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'gene_cluster_ID']
+    columns = ['gene', 'feature', 'test', 'chr', 'start', 'end', 'strand', 'gene_cluster_ID', 'dominant_region', 'regions_present', 'read_start_in_sel_tx_1based', 'read_end_in_sel_tx_1based']
     negatives_df  = negative_genes[columns].copy()
 
     # Add the miRNA sequence, name and family columns from block to negatives_df by index
