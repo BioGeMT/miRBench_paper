@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_1
+#SBATCH --job-name=pp_2
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -23,7 +23,7 @@ if [ ! -f "$input_file" ] || [ ! -f "$input_file_2" ] || [ ! -f "$input_file_3" 
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_1_exclude_mirna_families.log"
+log_file="$output_dir/postprocess_2_exclude_mirna_families.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -35,7 +35,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # define paths to the directories where the scripts are located
-exclude_families_dir="../excluded_families_testset"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+exclude_families_dir="$SCRIPT_DIR/../excluded_families_testset"
 
 # define constants for suffixes with extensions
 EXCLUDED_SUFFIX=".excluded"
@@ -68,4 +69,4 @@ fi
 echo "Filtering unique families step completed. Outputs saved to $excluded_file and $remaining_file"
 
 # Done
-echo "Identifying and filtering unique miRNA families in one dataset relative to another two datasets pipeline completed successfully."
+echo "postprocess_2 exclude miRNA families pipeline completed successfully."

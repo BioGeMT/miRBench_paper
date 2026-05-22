@@ -33,7 +33,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # define paths to the directories where the scripts are located
-filtering_dir="../filtering"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+filtering_dir="$SCRIPT_DIR/../filtering"
 
 # define constants for suffixes with extensions
 FILTERED_SUFFIX=".filtered"
@@ -66,4 +67,4 @@ for input_file in "$input_dir"/*.tsv; do
 done
 
 # Done
-echo "Filter and deduplication pipeline completed successfully."
+echo "postprocess_0 filter and deduplication pipeline completed successfully."

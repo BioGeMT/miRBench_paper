@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_4
+#SBATCH --job-name=pp_5
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -20,7 +20,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ]; then
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_4_drop_test_col.log"
+log_file="$output_dir/postprocess_5_drop_test_col.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -47,13 +47,13 @@ for input_file in "$input_dir"/*.tsv; do
     awk -F'\t' 'BEGIN{OFS="\t"} {for(i=1;i<=NF;i++) if(i!=6) printf "%s%s", $i, (i==NF?"\n":OFS)}' "$input_file" > "$drop_test_col_file"
 
     if [ $? -ne 0 ]; then
-        echo "Error in removing the 'test' (6th) column."
+        echo "Error in removing the 'test' column."
         exit 1
-    fi   
+    fi
 
     echo "'test' column removed successfully. Output saved to $drop_test_col_file"
 
 done
 
 # Done
-echo "Removing 'test' column for all files in input dir completed successfully."
+echo "postprocess_5 drop test column pipeline completed successfully."

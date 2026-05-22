@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_2
+#SBATCH --job-name=pp_3
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -21,7 +21,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -d "$intermediate_dir"
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_2_make_negatives.log"
+log_file="$output_dir/postprocess_3_make_negatives.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -33,9 +33,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # define paths to the directories where the scripts are located
-clustering_dir="../clustering"
-make_negs_dir="../make_neg_sets"
-sort_by_column_dir="../sort_by_column"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+clustering_dir="$SCRIPT_DIR/../clustering"
+make_negs_dir="$SCRIPT_DIR/../make_neg_sets"
+sort_by_column_dir="$SCRIPT_DIR/../sort_by_column"
 
 # define constants for suffixes with extensions
 GENE_ID_LOOKUP_SUFFIX=".gene_id_lookup"
@@ -98,7 +99,6 @@ for input_file in "$input_dir"/*.tsv; do
         exit 1
     fi
     echo "File with negative samples saved to $neg_output"
-
 done
 
-echo "Negative samples generation successfully completed for $input_file"
+echo "postprocess_3 make negatives pipeline completed successfully."

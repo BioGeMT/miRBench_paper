@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=ssamm10
-#SBATCH --job-name=pp_6
+#SBATCH --job-name=pp_1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=30
 
@@ -20,7 +20,7 @@ if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ]; then
 fi
 
 # define log file in the output directory
-log_file="$output_dir/postprocess_6_genomic_region_annotation.log"
+log_file="$output_dir/postprocess_1_genomic_region_annotation.log"
 
 # redirect all output to the log file
 exec > >(tee -a "$log_file") 2>&1
@@ -32,7 +32,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # define paths to the directories where the scripts are located
-filter_dir="../genomic_region_annotator_filtering"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+filter_dir="$SCRIPT_DIR/../genomic_region_annotator_filtering"
 
 # Ensembl release (fixed)
 ENSEMBL_RELEASE=90
@@ -107,4 +108,4 @@ for input_file in "$input_dir"/*.tsv; do
 done
 
 # Done
-echo "postprocess_6 genomic region annotation pipeline completed successfully."
+echo "postprocess_1 genomic region annotation pipeline completed successfully."
