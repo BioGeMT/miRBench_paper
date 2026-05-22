@@ -33,4 +33,4 @@ dependencies:
   - pip:
       - pyranges
       - gffutils
-      - git+https://github.com/BioGeMT/genomic_region_annotator.git@37184bd35a407540f489f3f56d00e35a833bf433#egg=genomic-region-annotator
+      - git+https://github.com/BioGeMT/genomic_region_annotator.git@81af100e3a1df092d21145c84dda360df315d317#egg=genomic-region-annotator
