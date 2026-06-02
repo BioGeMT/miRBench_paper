@@ -44,11 +44,26 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
 
 You can run the post-processing workflow in either of two ways:
 - Run each pipeline separately in the documented order. Refer to the corresponding README files.
-- Run the full wrapper script `run_postprocess_pipeline.sh`.
+- Run the wrapper script `run_postprocess_pipeline.sh`.
 
-The wrapper expects the three canonical input datasets and can manage conservation files in either of two ways:
+The wrapper supports two modes:
+- `--mode cohort` for the three canonical input datasets in one input directory.
+- `--mode single` for one dataset file at a time, including future datasets beyond the canonical three.
+
+Examples:
+```bash
+bash run_postprocess_pipeline.sh --mode cohort -i input_dir -o output_dir
+```
+
+```bash
+bash run_postprocess_pipeline.sh --mode single -f input_file.tsv -o output_dir
+```
+
+For conservation scoring, the wrapper can use existing files or manage them for you:
 - Pass `-p` and `-c` to use existing local BigWig files.
 - Omit `-p` and `-c` to let the wrapper use cached files or download them with `wget` into `output_dir/reference_data/conservation/`.
+
+In cohort mode, the wrapper also creates final Zenodo-ready gzipped outputs in `output_dir/zenodo_release/` with the published filenames.
 
 You can also override the cache/download location with:
 - `-r <conservation_dir>`

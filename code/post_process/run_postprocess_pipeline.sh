@@ -18,8 +18,19 @@ PHYLOP_URL="https://hgdownload.cse.ucsc.edu/goldenPath/hg38/phyloP100way/${PHYLO
 PHASTCONS_URL="https://hgdownload.cse.ucsc.edu/goldenpath/hg38/phastCons100way/${PHASTCONS_FILENAME}"
 
 usage() {
-    echo "Usage: $0 -i input_dir -o output_dir [-p phyloP_file -c phastCons_file] [-r conservation_dir]"
-    echo "Provide both -p and -c, or omit both to use cached/downloaded files."
+    cat <<USAGE
+Usage:
+  Cohort mode:
+    $0 --mode cohort -i input_dir -o output_dir [-p phyloP_file -c phastCons_file] [-r conservation_dir]
+
+  Single mode:
+    $0 --mode single -f input_file -o output_dir [-p phyloP_file -c phastCons_file] [-r conservation_dir]
+
+Notes:
+  - Provide both -p and -c, or omit both to use cached/downloaded conservation files.
+  - Cohort mode expects the three canonical input datasets in input_dir.
+  - Single mode processes exactly one dataset file.
+USAGE
     exit 1
 }
 
@@ -39,6 +50,11 @@ require_dir() {
     fi
 }
 
+resolve_abs_path() {
+    local path="$1"
+    echo "$(cd "$(dirname "$path")" && pwd)/$(basename "$path")"
+}
+
 link_into_dir() {
     local source_path="$1"
     local target_dir="$2"
@@ -53,11 +69,6 @@ run_step() {
     echo
     echo "=== $description ==="
     "$@"
-}
-
-resolve_abs_path() {
-    local path="$1"
-    echo "$(cd "$(dirname "$path")" && pwd)/$(basename "$path")"
 }
 
 ensure_conservation_file() {
@@ -84,191 +95,406 @@ ensure_conservation_file() {
     fi
 }
 
-while getopts i:o:p:c:r: flag; do
-    case "${flag}" in
-        i) input_dir=${OPTARG} ;;
-        o) output_dir=${OPTARG} ;;
-        p) phyloP_file=${OPTARG} ;;
-        c) phastCons_file=${OPTARG} ;;
-        r) conservation_dir=${OPTARG} ;;
-        *) usage ;;
+prepare_conservation_files() {
+    conservation_dir=${conservation_dir:-$output_dir/reference_data/conservation}
+    mkdir -p "$conservation_dir"
+    conservation_dir=$(cd "$conservation_dir" && pwd)
+
+    if [ -n "${phyloP_file:-}" ] && [ -n "${phastCons_file:-}" ]; then
+        require_file "$phyloP_file"
+        require_file "$phastCons_file"
+        phyloP_file=$(resolve_abs_path "$phyloP_file")
+        phastCons_file=$(resolve_abs_path "$phastCons_file")
+        return
+    fi
+
+    phyloP_file="$conservation_dir/$PHYLOP_FILENAME"
+    phastCons_file="$conservation_dir/$PHASTCONS_FILENAME"
+
+    echo "Conservation files not provided explicitly. Using cache/download directory: $conservation_dir"
+    ensure_conservation_file "$phyloP_file" "$PHYLOP_URL"
+    ensure_conservation_file "$phastCons_file" "$PHASTCONS_URL"
+}
+
+run_postprocess0() {
+    local input_dir="$1"
+    local output_dir="$2"
+    local intermediate_dir="$3"
+
+    run_step "Step 0: filter and deduplicate" \
+        bash "$SCRIPT_DIR/postprocess_0_filter_and_deduplicate.sh" \
+        -i "$input_dir" \
+        -o "$output_dir" \
+        -n "$intermediate_dir"
+}
+
+run_postprocess1() {
+    local input_dir="$1"
+    local output_dir="$2"
+
+    run_step "Step 1: genomic region annotation" \
+        bash "$SCRIPT_DIR/postprocess_1_genomic_region_annotation.sh" \
+        -i "$input_dir" \
+        -o "$output_dir"
+}
+
+run_postprocess2() {
+    local input_file="$1"
+    local input_file_2="$2"
+    local input_file_3="$3"
+    local output_dir="$4"
+    local intermediate_dir="$5"
+
+    run_step "Step 2: exclude miRNA families" \
+        bash "$SCRIPT_DIR/postprocess_2_exclude_mirna_families.sh" \
+        -i "$input_file" \
+        -j "$input_file_2" \
+        -k "$input_file_3" \
+        -o "$output_dir" \
+        -n "$intermediate_dir"
+}
+
+run_postprocess3() {
+    local input_dir="$1"
+    local output_dir="$2"
+    local intermediate_dir="$3"
+
+    run_step "Step 3: make negatives" \
+        bash "$SCRIPT_DIR/postprocess_3_make_negatives.sh" \
+        -i "$input_dir" \
+        -o "$output_dir" \
+        -n "$intermediate_dir"
+}
+
+run_postprocess4() {
+    local input_dir="$1"
+    local output_dir="$2"
+
+    run_step "Step 4: train/test splits" \
+        bash "$SCRIPT_DIR/postprocess_4_train_test_splits.sh" \
+        -i "$input_dir" \
+        -o "$output_dir"
+}
+
+run_postprocess5() {
+    local input_dir="$1"
+    local output_dir="$2"
+
+    run_step "Step 5: drop test column" \
+        bash "$SCRIPT_DIR/postprocess_5_drop_test_col.sh" \
+        -i "$input_dir" \
+        -o "$output_dir"
+}
+
+run_postprocess6() {
+    local input_dir="$1"
+    local output_dir="$2"
+
+    run_step "Step 6: add conservation" \
+        bash "$SCRIPT_DIR/postprocess_6_add_conservation.sh" \
+        -i "$input_dir" \
+        -o "$output_dir" \
+        -p "$phyloP_file" \
+        -c "$phastCons_file"
+}
+
+publish_gzipped_output() {
+    local source_file="$1"
+    local target_file="$2"
+
+    require_file "$source_file"
+    mkdir -p "$(dirname "$target_file")"
+    echo "Publishing $(basename "$source_file") -> $(basename "$target_file")"
+    gzip -c "$source_file" > "$target_file"
+    if [ ! -f "$target_file" ]; then
+        echo "Error: Failed to create $target_file"
+        exit 1
+    fi
+}
+
+publish_cohort_outputs() {
+    local step6_dir="$1"
+    local release_dir="$output_dir/zenodo_release"
+
+    local manakov_leftout_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv"
+    local manakov_train_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv"
+    local manakov_test_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv"
+    local klimentova_test_src="$step6_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv"
+    local hejret_train_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv"
+    local hejret_test_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv"
+
+    mkdir -p "$release_dir"
+
+    publish_gzipped_output "$manakov_leftout_src" "$release_dir/AGO2_eCLIP_Manakov2022_leftout.tsv.gz"
+    publish_gzipped_output "$manakov_test_src" "$release_dir/AGO2_eCLIP_Manakov2022_test.tsv.gz"
+    publish_gzipped_output "$manakov_train_src" "$release_dir/AGO2_eCLIP_Manakov2022_train.tsv.gz"
+    publish_gzipped_output "$klimentova_test_src" "$release_dir/AGO2_eCLIP_Klimentova2022_test.tsv.gz"
+    publish_gzipped_output "$hejret_test_src" "$release_dir/AGO2_CLASH_Hejret2023_test.tsv.gz"
+    publish_gzipped_output "$hejret_train_src" "$release_dir/AGO2_CLASH_Hejret2023_train.tsv.gz"
+
+    echo
+    echo "Published Zenodo-ready files to: $release_dir"
+}
+
+run_cohort_mode() {
+    local step0_dir="$output_dir/step0_filter_and_deduplicate"
+    local step0_intermediate_dir="$step0_dir/intermediate"
+    local step1_dir="$output_dir/step1_genomic_region_annotation"
+    local step2_dir="$output_dir/step2_exclude_mirna_families"
+    local step2_intermediate_dir="$step2_dir/intermediate"
+    local step3_input_dir="$output_dir/step3_make_negatives/input"
+    local step3_dir="$output_dir/step3_make_negatives/output"
+    local step3_intermediate_dir="$step3_dir/intermediate"
+    local step4_input_dir="$output_dir/step4_train_test_splits/input"
+    local step4_dir="$output_dir/step4_train_test_splits/output"
+    local step5_input_dir="$output_dir/step5_drop_test_col/input"
+    local step5_dir="$output_dir/step5_drop_test_col/output"
+    local step6_dir="$output_dir/step6_add_conservation"
+
+    local manakov_input="$input_dir/${MANAKOV_BASE}.tsv"
+    local hejret_input="$input_dir/${HEJRET_BASE}.tsv"
+    local klimentova_input="$input_dir/${KLIMENTOVA_BASE}.tsv"
+
+    require_file "$manakov_input"
+    require_file "$hejret_input"
+    require_file "$klimentova_input"
+
+    mkdir -p \
+        "$step0_dir" \
+        "$step0_intermediate_dir" \
+        "$step1_dir" \
+        "$step2_dir" \
+        "$step2_intermediate_dir" \
+        "$step3_input_dir" \
+        "$step3_dir" \
+        "$step3_intermediate_dir" \
+        "$step4_input_dir" \
+        "$step4_dir" \
+        "$step5_input_dir" \
+        "$step5_dir" \
+        "$step6_dir"
+
+    run_postprocess0 "$input_dir" "$step0_dir" "$step0_intermediate_dir"
+
+    local manakov_step0="$step0_dir/${MANAKOV_BASE}.filtered.deduplicated.tsv"
+    local hejret_step0="$step0_dir/${HEJRET_BASE}.filtered.deduplicated.tsv"
+    local klimentova_step0="$step0_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.tsv"
+
+    require_file "$manakov_step0"
+    require_file "$hejret_step0"
+    require_file "$klimentova_step0"
+
+    run_postprocess1 "$step0_dir" "$step1_dir"
+
+    local manakov_step1="$step1_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.tsv"
+    local hejret_step1="$step1_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.tsv"
+    local klimentova_step1="$step1_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.tsv"
+
+    require_file "$manakov_step1"
+    require_file "$hejret_step1"
+    require_file "$klimentova_step1"
+
+    run_postprocess2 "$manakov_step1" "$hejret_step1" "$klimentova_step1" "$step2_dir" "$step2_intermediate_dir"
+
+    local manakov_excluded="$step2_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.tsv"
+    local manakov_remaining="$step2_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.tsv"
+
+    require_file "$manakov_excluded"
+    require_file "$manakov_remaining"
+
+    link_into_dir "$manakov_remaining" "$step3_input_dir"
+    link_into_dir "$manakov_excluded" "$step3_input_dir"
+    link_into_dir "$hejret_step1" "$step3_input_dir"
+    link_into_dir "$klimentova_step1" "$step3_input_dir"
+
+    run_postprocess3 "$step3_input_dir" "$step3_dir" "$step3_intermediate_dir"
+
+    local manakov_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    local hejret_neg="$step3_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    local klimentova_neg="$step3_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    local manakov_excluded_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.tsv"
+
+    require_file "$manakov_neg"
+    require_file "$hejret_neg"
+    require_file "$klimentova_neg"
+    require_file "$manakov_excluded_neg"
+
+    link_into_dir "$manakov_neg" "$step4_input_dir"
+    link_into_dir "$hejret_neg" "$step4_input_dir"
+
+    run_postprocess4 "$step4_input_dir" "$step4_dir"
+
+    local manakov_train="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
+    local manakov_test="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
+    local hejret_train="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
+    local hejret_test="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
+
+    require_file "$manakov_train"
+    require_file "$manakov_test"
+    require_file "$hejret_train"
+    require_file "$hejret_test"
+
+    link_into_dir "$manakov_train" "$step5_input_dir"
+    link_into_dir "$manakov_test" "$step5_input_dir"
+    link_into_dir "$hejret_train" "$step5_input_dir"
+    link_into_dir "$hejret_test" "$step5_input_dir"
+    link_into_dir "$klimentova_neg" "$step5_input_dir"
+    link_into_dir "$manakov_excluded_neg" "$step5_input_dir"
+
+    run_postprocess5 "$step5_input_dir" "$step5_dir"
+    run_postprocess6 "$step5_dir" "$step6_dir"
+    publish_cohort_outputs "$step6_dir"
+
+    echo
+    echo "Cohort mode completed successfully."
+    echo "Final outputs are in: $step6_dir"
+    echo "Zenodo-ready files are in: $output_dir/zenodo_release"
+}
+
+run_single_mode() {
+    local step0_dir="$output_dir/step0_filter_and_deduplicate"
+    local step0_input_dir="$output_dir/step0_filter_and_deduplicate/input"
+    local step0_intermediate_dir="$step0_dir/intermediate"
+    local step1_dir="$output_dir/step1_genomic_region_annotation"
+    local step3_dir="$output_dir/step3_make_negatives"
+    local step3_intermediate_dir="$step3_dir/intermediate"
+    local step4_dir="$output_dir/step4_train_test_splits"
+    local step5_dir="$output_dir/step5_drop_test_col"
+    local step6_dir="$output_dir/step6_add_conservation"
+
+    require_file "$input_file"
+    local input_file_abs
+    input_file_abs=$(resolve_abs_path "$input_file")
+    local base_name
+    base_name=$(basename "$input_file_abs" .tsv)
+
+    mkdir -p \
+        "$step0_input_dir" \
+        "$step0_intermediate_dir" \
+        "$step1_dir" \
+        "$step3_dir" \
+        "$step3_intermediate_dir" \
+        "$step4_dir" \
+        "$step5_dir" \
+        "$step6_dir"
+
+    link_into_dir "$input_file_abs" "$step0_input_dir"
+
+    run_postprocess0 "$step0_input_dir" "$step0_dir" "$step0_intermediate_dir"
+
+    local step0_file="$step0_dir/${base_name}.filtered.deduplicated.tsv"
+    require_file "$step0_file"
+
+    run_postprocess1 "$step0_dir" "$step1_dir"
+
+    local step1_file="$step1_dir/${base_name}.filtered.deduplicated.annotated.filtered.tsv"
+    require_file "$step1_file"
+
+    run_postprocess3 "$step1_dir" "$step3_dir" "$step3_intermediate_dir"
+
+    local negatives_file="$step3_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    require_file "$negatives_file"
+
+    run_postprocess4 "$step3_dir" "$step4_dir"
+
+    local train_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
+    local test_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
+    require_file "$train_file"
+    require_file "$test_file"
+
+    run_postprocess5 "$step4_dir" "$step5_dir"
+    run_postprocess6 "$step5_dir" "$step6_dir"
+
+    echo
+    echo "Single mode completed successfully."
+    echo "Final outputs are in: $step6_dir"
+}
+
+mode=""
+input_dir=""
+input_file=""
+output_dir=""
+phyloP_file=""
+phastCons_file=""
+conservation_dir=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --mode|-m)
+            mode="$2"
+            shift 2
+            ;;
+        --input-dir|-i)
+            input_dir="$2"
+            shift 2
+            ;;
+        --input-file|-f)
+            input_file="$2"
+            shift 2
+            ;;
+        --output-dir|-o)
+            output_dir="$2"
+            shift 2
+            ;;
+        --phyloP|-p)
+            phyloP_file="$2"
+            shift 2
+            ;;
+        --phastCons|-c)
+            phastCons_file="$2"
+            shift 2
+            ;;
+        --conservation-dir|-r)
+            conservation_dir="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            ;;
+        *)
+            echo "Error: Unknown argument: $1"
+            usage
+            ;;
     esac
 done
 
-if [ -z "${input_dir:-}" ] || [ -z "${output_dir:-}" ]; then
+if [ -z "$mode" ] || [ -z "$output_dir" ]; then
     usage
 fi
 
-if { [ -n "${phyloP_file:-}" ] && [ -z "${phastCons_file:-}" ]; } || { [ -z "${phyloP_file:-}" ] && [ -n "${phastCons_file:-}" ]; }; then
+if [ "$mode" != "cohort" ] && [ "$mode" != "single" ]; then
+    echo "Error: --mode must be 'cohort' or 'single'."
+    usage
+fi
+
+if { [ -n "$phyloP_file" ] && [ -z "$phastCons_file" ]; } || { [ -z "$phyloP_file" ] && [ -n "$phastCons_file" ]; }; then
     echo "Error: Provide both -p and -c, or omit both."
     usage
 fi
 
-require_dir "$input_dir"
-
 mkdir -p "$output_dir"
-
-input_dir=$(cd "$input_dir" && pwd)
 output_dir=$(cd "$output_dir" && pwd)
-conservation_dir=${conservation_dir:-$output_dir/reference_data/conservation}
-mkdir -p "$conservation_dir"
-conservation_dir=$(cd "$conservation_dir" && pwd)
-
-if [ -n "${phyloP_file:-}" ] && [ -n "${phastCons_file:-}" ]; then
-    require_file "$phyloP_file"
-    require_file "$phastCons_file"
-    phyloP_file=$(resolve_abs_path "$phyloP_file")
-    phastCons_file=$(resolve_abs_path "$phastCons_file")
-else
-    phyloP_file="$conservation_dir/$PHYLOP_FILENAME"
-    phastCons_file="$conservation_dir/$PHASTCONS_FILENAME"
-fi
 
 log_file="$output_dir/run_postprocess_pipeline.log"
 exec > >(tee -a "$log_file") 2>&1
 
-if [ ! -f "$phyloP_file" ] || [ ! -f "$phastCons_file" ]; then
-    echo "Conservation files not provided explicitly. Using cache/download directory: $conservation_dir"
-    ensure_conservation_file "$phyloP_file" "$PHYLOP_URL"
-    ensure_conservation_file "$phastCons_file" "$PHASTCONS_URL"
-fi
+prepare_conservation_files
 
-MANAKOV_INPUT="$input_dir/${MANAKOV_BASE}.tsv"
-HEJRET_INPUT="$input_dir/${HEJRET_BASE}.tsv"
-KLIMENTOVA_INPUT="$input_dir/${KLIMENTOVA_BASE}.tsv"
-
-require_file "$MANAKOV_INPUT"
-require_file "$HEJRET_INPUT"
-require_file "$KLIMENTOVA_INPUT"
-
-STEP0_DIR="$output_dir/step0_filter_and_deduplicate"
-STEP0_INTERMEDIATE_DIR="$STEP0_DIR/intermediate"
-STEP1_DIR="$output_dir/step1_genomic_region_annotation"
-STEP2_DIR="$output_dir/step2_exclude_mirna_families"
-STEP2_INTERMEDIATE_DIR="$STEP2_DIR/intermediate"
-STEP3_INPUT_DIR="$output_dir/step3_make_negatives/input"
-STEP3_DIR="$output_dir/step3_make_negatives/output"
-STEP3_INTERMEDIATE_DIR="$STEP3_DIR/intermediate"
-STEP4_INPUT_DIR="$output_dir/step4_train_test_splits/input"
-STEP4_DIR="$output_dir/step4_train_test_splits/output"
-STEP5_INPUT_DIR="$output_dir/step5_drop_test_col/input"
-STEP5_DIR="$output_dir/step5_drop_test_col/output"
-STEP6_DIR="$output_dir/step6_add_conservation"
-
-mkdir -p \
-    "$STEP0_DIR" \
-    "$STEP0_INTERMEDIATE_DIR" \
-    "$STEP1_DIR" \
-    "$STEP2_DIR" \
-    "$STEP2_INTERMEDIATE_DIR" \
-    "$STEP3_INPUT_DIR" \
-    "$STEP3_DIR" \
-    "$STEP3_INTERMEDIATE_DIR" \
-    "$STEP4_INPUT_DIR" \
-    "$STEP4_DIR" \
-    "$STEP5_INPUT_DIR" \
-    "$STEP5_DIR" \
-    "$STEP6_DIR"
-
-run_step "Step 0: filter and deduplicate" \
-    bash "$SCRIPT_DIR/postprocess_0_filter_and_deduplicate.sh" \
-    -i "$input_dir" \
-    -o "$STEP0_DIR" \
-    -n "$STEP0_INTERMEDIATE_DIR"
-
-MANAKOV_STEP0="$STEP0_DIR/${MANAKOV_BASE}.filtered.deduplicated.tsv"
-HEJRET_STEP0="$STEP0_DIR/${HEJRET_BASE}.filtered.deduplicated.tsv"
-KLIMENTOVA_STEP0="$STEP0_DIR/${KLIMENTOVA_BASE}.filtered.deduplicated.tsv"
-
-require_file "$MANAKOV_STEP0"
-require_file "$HEJRET_STEP0"
-require_file "$KLIMENTOVA_STEP0"
-
-run_step "Step 1: genomic region annotation" \
-    bash "$SCRIPT_DIR/postprocess_1_genomic_region_annotation.sh" \
-    -i "$STEP0_DIR" \
-    -o "$STEP1_DIR"
-
-MANAKOV_STEP1="$STEP1_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.tsv"
-HEJRET_STEP1="$STEP1_DIR/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.tsv"
-KLIMENTOVA_STEP1="$STEP1_DIR/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.tsv"
-
-require_file "$MANAKOV_STEP1"
-require_file "$HEJRET_STEP1"
-require_file "$KLIMENTOVA_STEP1"
-
-run_step "Step 2: exclude miRNA families" \
-    bash "$SCRIPT_DIR/postprocess_2_exclude_mirna_families.sh" \
-    -i "$MANAKOV_STEP1" \
-    -j "$HEJRET_STEP1" \
-    -k "$KLIMENTOVA_STEP1" \
-    -o "$STEP2_DIR" \
-    -n "$STEP2_INTERMEDIATE_DIR"
-
-MANAKOV_EXCLUDED="$STEP2_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.tsv"
-MANAKOV_REMAINING="$STEP2_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.tsv"
-
-require_file "$MANAKOV_EXCLUDED"
-require_file "$MANAKOV_REMAINING"
-
-link_into_dir "$MANAKOV_REMAINING" "$STEP3_INPUT_DIR"
-link_into_dir "$MANAKOV_EXCLUDED" "$STEP3_INPUT_DIR"
-link_into_dir "$HEJRET_STEP1" "$STEP3_INPUT_DIR"
-link_into_dir "$KLIMENTOVA_STEP1" "$STEP3_INPUT_DIR"
-
-run_step "Step 3: make negatives" \
-    bash "$SCRIPT_DIR/postprocess_3_make_negatives.sh" \
-    -i "$STEP3_INPUT_DIR" \
-    -o "$STEP3_DIR" \
-    -n "$STEP3_INTERMEDIATE_DIR"
-
-MANAKOV_NEG="$STEP3_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.tsv"
-HEJRET_NEG="$STEP3_DIR/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
-KLIMENTOVA_NEG="$STEP3_DIR/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
-MANAKOV_EXCLUDED_NEG="$STEP3_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.tsv"
-
-require_file "$MANAKOV_NEG"
-require_file "$HEJRET_NEG"
-require_file "$KLIMENTOVA_NEG"
-require_file "$MANAKOV_EXCLUDED_NEG"
-
-link_into_dir "$MANAKOV_NEG" "$STEP4_INPUT_DIR"
-link_into_dir "$HEJRET_NEG" "$STEP4_INPUT_DIR"
-
-run_step "Step 4: train/test splits" \
-    bash "$SCRIPT_DIR/postprocess_4_train_test_splits.sh" \
-    -i "$STEP4_INPUT_DIR" \
-    -o "$STEP4_DIR"
-
-MANAKOV_TRAIN="$STEP4_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
-MANAKOV_TEST="$STEP4_DIR/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
-HEJRET_TRAIN="$STEP4_DIR/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
-HEJRET_TEST="$STEP4_DIR/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
-
-require_file "$MANAKOV_TRAIN"
-require_file "$MANAKOV_TEST"
-require_file "$HEJRET_TRAIN"
-require_file "$HEJRET_TEST"
-
-link_into_dir "$MANAKOV_TRAIN" "$STEP5_INPUT_DIR"
-link_into_dir "$MANAKOV_TEST" "$STEP5_INPUT_DIR"
-link_into_dir "$HEJRET_TRAIN" "$STEP5_INPUT_DIR"
-link_into_dir "$HEJRET_TEST" "$STEP5_INPUT_DIR"
-link_into_dir "$KLIMENTOVA_NEG" "$STEP5_INPUT_DIR"
-link_into_dir "$MANAKOV_EXCLUDED_NEG" "$STEP5_INPUT_DIR"
-
-run_step "Step 5: drop test column" \
-    bash "$SCRIPT_DIR/postprocess_5_drop_test_col.sh" \
-    -i "$STEP5_INPUT_DIR" \
-    -o "$STEP5_DIR"
-
-run_step "Step 6: add conservation" \
-    bash "$SCRIPT_DIR/postprocess_6_add_conservation.sh" \
-    -i "$STEP5_DIR" \
-    -o "$STEP6_DIR" \
-    -p "$phyloP_file" \
-    -c "$phastCons_file"
-
-echo
-echo "run_postprocess_pipeline completed successfully."
-echo "Final outputs are in: $STEP6_DIR"
+case "$mode" in
+    cohort)
+        if [ -z "$input_dir" ] || [ -n "$input_file" ]; then
+            echo "Error: Cohort mode requires -i input_dir and does not use -f input_file."
+            usage
+        fi
+        require_dir "$input_dir"
+        input_dir=$(cd "$input_dir" && pwd)
+        run_cohort_mode
+        ;;
+    single)
+        if [ -z "$input_file" ] || [ -n "$input_dir" ]; then
+            echo "Error: Single mode requires -f input_file and does not use -i input_dir."
+            usage
+        fi
+        run_single_mode
+        ;;
+esac
