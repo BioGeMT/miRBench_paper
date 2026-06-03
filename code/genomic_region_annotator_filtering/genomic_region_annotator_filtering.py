@@ -50,6 +50,11 @@ RENAME_MAP = {
     "selected_read_end_in_tx_1based": "read_end_in_sel_tx_1based",
 }
 
+INT_COLUMNS = [
+    "read_start_in_sel_tx_1based",
+    "read_end_in_sel_tx_1based",
+]
+
 
 def read_input(input_file):
     try:
@@ -71,6 +76,12 @@ def filter_columns(data):
         sys.exit(1)
 
     filtered_data = data.loc[:, INPUT_COLUMNS].rename(columns=RENAME_MAP)
+
+    for column in INT_COLUMNS:
+        filtered_data[column] = pd.to_numeric(filtered_data[column], errors="coerce").astype(
+            "Int64"
+        )
+
     return filtered_data.loc[:, OUTPUT_COLUMNS]
 
 
