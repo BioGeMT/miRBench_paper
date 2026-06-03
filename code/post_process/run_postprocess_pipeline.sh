@@ -216,12 +216,12 @@ publish_cohort_outputs() {
     local step6_dir="$1"
     local release_dir="$output_dir/zenodo_release"
 
-    local manakov_leftout_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv"
-    local manakov_train_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv"
-    local manakov_test_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv"
-    local klimentova_test_src="$step6_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv"
-    local hejret_train_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv"
-    local hejret_test_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv"
+    local manakov_leftout_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.negatives.drop_test_col.conservation.tsv"
+    local manakov_train_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.train.drop_test_col.conservation.tsv"
+    local manakov_test_src="$step6_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.test.drop_test_col.conservation.tsv"
+    local klimentova_test_src="$step6_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.drop_test_col.conservation.tsv"
+    local hejret_train_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.drop_test_col.conservation.tsv"
+    local hejret_test_src="$step6_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.drop_test_col.conservation.tsv"
 
     mkdir -p "$release_dir"
 
@@ -309,10 +309,10 @@ run_cohort_mode() {
 
     run_postprocess3 "$step3_input_dir" "$step3_dir" "$step3_intermediate_dir"
 
-    local manakov_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.tsv"
-    local hejret_neg="$step3_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
-    local klimentova_neg="$step3_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
-    local manakov_excluded_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    local manakov_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.tsv"
+    local hejret_neg="$step3_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.tsv"
+    local klimentova_neg="$step3_dir/${KLIMENTOVA_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.tsv"
+    local manakov_excluded_neg="$step3_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.negatives.tsv"
 
     require_file "$manakov_neg"
     require_file "$hejret_neg"
@@ -324,10 +324,10 @@ run_cohort_mode() {
 
     run_postprocess4 "$step4_input_dir" "$step4_dir"
 
-    local manakov_train="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
-    local manakov_test="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
-    local hejret_train="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
-    local hejret_test="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
+    local manakov_train="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.train.tsv"
+    local manakov_test="$step4_dir/${MANAKOV_BASE}.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.test.tsv"
+    local hejret_train="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.tsv"
+    local hejret_test="$step4_dir/${HEJRET_BASE}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.tsv"
 
     require_file "$manakov_train"
     require_file "$manakov_test"
@@ -392,13 +392,13 @@ run_single_mode() {
 
     run_postprocess3 "$step1_dir" "$step3_dir" "$step3_intermediate_dir"
 
-    local negatives_file="$step3_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv"
+    local negatives_file="$step3_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.tsv"
     require_file "$negatives_file"
 
     run_postprocess4 "$step3_dir" "$step4_dir"
 
-    local train_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv"
-    local test_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv"
+    local train_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.tsv"
+    local test_file="$step4_dir/${base_name}.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.tsv"
     require_file "$train_file"
     require_file "$test_file"
 

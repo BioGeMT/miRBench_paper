@@ -32,7 +32,6 @@ The series is composed of 7 pipelines (listed below) and are intended to be run 
   - `../clustering/gene_fasta.py`
   - `../clustering/clustering.R`
   - `../clustering/map_gene_clusters.py`
-  - `../sort_by_column/sort_tsv.sh`
   - `../make_neg_sets/make_neg_sets.py`
   - `../conservation/add_conservation_scores.py`
 - The post-processing shell scripts resolve these helper paths relative to their own location, so they can be run from any working directory.
