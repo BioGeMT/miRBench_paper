@@ -22,7 +22,6 @@ From `miRBench_paper/code`:
 - `clustering/clustering.R`
 - `clustering/map_gene_clusters.py`
 - `make_neg_sets/make_neg_sets.py`
-- `sort_by_column/sort_tsv.sh`
 
 Runtime requirements:
 - Python 3 with `pandas` and `matplotlib`
@@ -87,11 +86,10 @@ Default outputs:
 - `outputs/<dataset_stem>/downstream_utility_plots/`
 - `outputs/<dataset_stem>/intermediate_mapped_tsvs/`
   - persistent per-cutoff mapped files used for block analysis:
-  - `clusters_cutoff_*.mapped.sorted.tsv`
+  - `clusters_cutoff_*.mapped.tsv`
 
 Important behavior:
-- Mapped unsorted TSVs are temporary only.
-- Mapped sorted TSVs are persisted to `intermediate_mapped_tsvs`.
+- Mapped TSVs are persisted to `intermediate_mapped_tsvs`.
 - The downstream summary includes:
   - failure counts and fractions
   - `failing_block_labels`
@@ -118,7 +116,7 @@ outputs/<dataset_stem>/
     cutoff_vs_median_available_negative_clusters.png
     cutoff_vs_min_available_negative_clusters.png
   intermediate_mapped_tsvs/
-    clusters_cutoff_0p01.mapped.sorted.tsv
+    clusters_cutoff_0p01.mapped.tsv
     ...
 ```
 
@@ -139,7 +137,7 @@ python summarize_family_failure_across_cutoffs.py \
 ```
 
 Inputs:
-- `--mapped_dir` should point to the mapped sorted files produced in step 3.
+- `--mapped_dir` should point to the mapped files produced in step 3.
 
 Outputs:
 - family summary TSV with requested negatives, eligible negative clusters, slack, and fail flag per cutoff

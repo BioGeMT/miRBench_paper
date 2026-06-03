@@ -5,8 +5,6 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import subprocess
-import tempfile
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 sys.path.append(str(Path(__file__).resolve().parents[2] / "make_neg_sets"))
@@ -25,10 +23,8 @@ def parse_cutoff(path: Path) -> float:
     return float(match.group(1).replace("p", "."))
 
 
-def iter_negative_sampling_blocks_from_path(sorted_tsv_path: Path):
-    for fam_block in yield_mirnafam_blocks(str(sorted_tsv_path)):
-        # convert columns read from file (strings) to proper dtypes
-        fam_block["gene_cluster_ID"] = fam_block["gene_cluster_ID"].astype(int)
+def iter_negative_sampling_blocks(mapped_df: pd.DataFrame):
+    for fam_block in yield_mirnafam_blocks(mapped_df):
         for block in yield_negative_sampling_sub_blocks(fam_block):
             yield block.reset_index(drop=True)
 
@@ -49,17 +45,11 @@ def load_cluster_assignments(cluster_path: Path) -> pd.DataFrame:
     return clusters_df[["Gene_ID", "Cluster_ID"]]
 
 
-def summarize_blocks_from_sorted_tsv(sorted_tsv_path: Path) -> dict:
-    # read all cluster ids once
-    all_clusters = set(
-        pd.read_csv(sorted_tsv_path, sep="\t", usecols=["gene_cluster_ID"])["gene_cluster_ID"]
-        .astype(int)
-        .unique()
-        .tolist()
-    )
+def summarize_blocks_from_df(mapped_df: pd.DataFrame) -> dict:
+    all_clusters = set(mapped_df["gene_cluster_ID"].unique().tolist())
     block_rows = []
 
-    for block in iter_negative_sampling_blocks_from_path(sorted_tsv_path):
+    for block in iter_negative_sampling_blocks(mapped_df):
         block_clusters = set(block["gene_cluster_ID"].unique().tolist())
         num_neg = int(block.shape[0])
         positive_cluster_count = len(block_clusters)
@@ -185,38 +175,17 @@ def main() -> None:
     intermediate_dir.mkdir(parents=True, exist_ok=True)
 
     summary_rows = []
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
+    for cluster_path in cluster_paths:
+        clusters_df = load_cluster_assignments(cluster_path)
+        mapped_df = map_clusters_to_dataset(dataset_df, lookup_df, clusters_df)
 
-        for cluster_path in cluster_paths:
-            clusters_df = load_cluster_assignments(cluster_path)
-            mapped_df = map_clusters_to_dataset(dataset_df, lookup_df, clusters_df)
+        mapped_output = intermediate_dir / f"{cluster_path.stem}.mapped.tsv"
+        mapped_df.to_csv(mapped_output, sep="\t", index=False)
 
-            mapped_unsorted = tmpdir_path / f"{cluster_path.stem}.mapped.unsorted.tsv"
-            mapped_sorted = intermediate_dir / f"{cluster_path.stem}.mapped.sorted.tsv"
-
-            mapped_df.to_csv(mapped_unsorted, sep="\t", index=False)
-
-            # Use external sorter script for exact parity with streaming generator
-            sort_script = Path(__file__).resolve().parents[2] / "sort_by_column" / "sort_tsv.sh"
-            try:
-                subprocess.run([
-                    "bash",
-                    str(sort_script),
-                    "--input",
-                    str(mapped_unsorted),
-                    "--output",
-                    str(mapped_sorted),
-                    "--column",
-                    "noncodingRNA_fam",
-                ], check=True)
-            except subprocess.CalledProcessError as exc:
-                raise RuntimeError(f"Sorting mapped TSV failed for cutoff {cluster_path.name}: {exc}")
-
-            block_summary = summarize_blocks_from_sorted_tsv(mapped_sorted)
-            block_summary["cutoff"] = parse_cutoff(cluster_path)
-            block_summary["file"] = cluster_path.name
-            summary_rows.append(block_summary)
+        block_summary = summarize_blocks_from_df(mapped_df)
+        block_summary["cutoff"] = parse_cutoff(cluster_path)
+        block_summary["file"] = cluster_path.name
+        summary_rows.append(block_summary)
 
     summary_df = pd.DataFrame(summary_rows).sort_values("cutoff").reset_index(drop=True)
     summary_df.to_csv(args.output_file, sep="\t", index=False)
@@ -224,7 +193,7 @@ def main() -> None:
 
     print(f"Saved downstream utility summary to {args.output_file}")
     print(f"Saved downstream utility plots to {args.plot_dir}")
-    print(f"Saved mapped sorted intermediates to {args.intermediate_dir}")
+    print(f"Saved mapped intermediates to {args.intermediate_dir}")
     print(summary_df.to_string(index=False))
 
 
