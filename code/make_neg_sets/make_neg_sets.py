@@ -6,13 +6,13 @@ import hashlib
 def yield_negative_sampling_sub_blocks(block):
     # Check if the miRNA family is unknown
     if block['noncodingRNA_fam'].iloc[0] == 'unknown':
-    
-        # Get unique miRNA sequences (or names, equivalent)
+
+        # Get unique miRNA sequences
         unique_mirnas = block['noncodingRNA'].unique().tolist()
 
         # Process each block of unique miRNA sequences
         for mirna in unique_mirnas:
-            
+
             # Get the block of rows for this miRNA sequence
             sub_block = block[block['noncodingRNA'] == mirna]
 
@@ -28,29 +28,8 @@ def get_negative_sampling_block_label(block):
     return block['noncodingRNA_fam'].iloc[0]
 
 # Yield blocks of positive examples with the same mirnafam to process at a time
-def yield_mirnafam_blocks(positive_file_path):
-    current_block = []
-    current_mirnafam = None
-
-    with open(positive_file_path, 'r') as file:
-        header_columns = file.readline().strip().split('\t')
-        mirnafam_index = header_columns.index('noncodingRNA_fam')
-
-        for line in file:
-            columns = line.strip().split('\t')
-            mirnafam = columns[mirnafam_index]
-
-            if mirnafam != current_mirnafam:
-                if current_block:
-                    block_df = pd.DataFrame(current_block, columns=header_columns)
-                    yield block_df
-                current_block = [columns]
-                current_mirnafam = mirnafam
-            else:
-                current_block.append(columns)
-
-    if current_block:
-        block_df = pd.DataFrame(current_block, columns=header_columns)
+def yield_mirnafam_blocks(positive_samples):
+    for _, block_df in positive_samples.groupby("noncodingRNA_fam", sort=False, dropna=False):
         yield block_df
 
 def process_block(block, positive_samples, all_clusters, output_file):
@@ -132,35 +111,33 @@ def main():
     start = time.time()
 
     parser = argparse.ArgumentParser(description="Generate negative examples.")
-    parser.add_argument('--ifile', type=str, required=True, help="Input file name, MUST BE SORTED by 'miRNA family!'")
+    parser.add_argument('--ifile', type=str, required=True, help="Input file name")
     parser.add_argument('--ofile', type=str, required=True, help="Output file name")
     args = parser.parse_args()
-    
+
     # Read the entire positive examples file
     positive_samples = pd.read_csv(args.ifile, sep='\t')
-    
+
     # Write header to the output file
-    positive_samples.head(0).to_csv(args.ofile, sep='\t', index=False, mode='w')    
+    positive_samples.head(0).to_csv(args.ofile, sep='\t', index=False, mode='w')
 
     # Get the set of all cluster ids
     all_clusters = positive_samples['gene_cluster_ID'].unique().tolist()
 
-    with open(args.ofile, 'a') as ofile:
-        
-        for block in yield_mirnafam_blocks(args.ifile):
+    for block in yield_mirnafam_blocks(positive_samples):
 
-            for sub_block in yield_negative_sampling_sub_blocks(block):
+        for sub_block in yield_negative_sampling_sub_blocks(block):
 
-                # Run rest of code for each sub_block
-                process_block(sub_block, positive_samples, all_clusters, args.ofile)
-            
-                if sub_block['noncodingRNA_fam'].iloc[0] == 'unknown':
-                    print(f"Processed miRNA sequence block: {get_negative_sampling_block_label(sub_block)}", flush=True)
-                else:
-                    print(f"Processed miRNA family block: {get_negative_sampling_block_label(sub_block)}", flush=True)
-    
+            # Run rest of code for each sub_block
+            process_block(sub_block, positive_samples, all_clusters, args.ofile)
+
+            if sub_block['noncodingRNA_fam'].iloc[0] == 'unknown':
+                print(f"Processed miRNA sequence block: {get_negative_sampling_block_label(sub_block)}", flush=True)
+            else:
+                print(f"Processed miRNA family block: {get_negative_sampling_block_label(sub_block)}", flush=True)
+
     # Record end time
-    end = time.time() 
+    end = time.time()
 
     # Print the difference between start and end time in secs
     print(f"The time of execution is:",(end-start),"s", flush=True)

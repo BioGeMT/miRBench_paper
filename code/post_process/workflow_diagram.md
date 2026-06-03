@@ -24,35 +24,35 @@ graph LR
   
   %% Process 3: pp_3_make_negatives
   pp_3[pp_3_make_negatives]
-  M_neg[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.tsv]
-  H_neg[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv]
-  K_neg[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.tsv]
-  M_excluded_neg[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.tsv]
+  M_neg[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.tsv]
+  H_neg[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.tsv]
+  K_neg[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.tsv]
+  M_excluded_neg[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.negatives.tsv]
   
   %% Process 4: pp_4_train_test_splits
   pp_4[pp_4_train_test_splits]
-  M_neg_train[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.tsv]
-  M_neg_test[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.tsv]
-  H_neg_train[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.tsv]
-  H_neg_test[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.tsv]
+  M_neg_train[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.train.tsv]
+  M_neg_test[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.test.tsv]
+  H_neg_train[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.tsv]
+  H_neg_test[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.tsv]
 
   %% Process 5: pp_5_drop_test_col
   pp_5[pp_5_drop_test_col]
-  M_train_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.tsv]
-  M_test_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.tsv]
-  H_train_drop[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.tsv]
-  H_test_drop[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.tsv]
-  K_neg_drop[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.tsv]
-  M_excluded_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.tsv]
+  M_train_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.train.drop_test_col.tsv]
+  M_test_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.test.drop_test_col.tsv]
+  H_train_drop[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.drop_test_col.tsv]
+  H_test_drop[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.drop_test_col.tsv]
+  K_neg_drop[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.drop_test_col.tsv]
+  M_excluded_drop[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.negatives.drop_test_col.tsv]
 
   %% Process 6: pp_6_add_conservation
   pp_6[pp_6_add_conservation]
-  M_train_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv]
-  M_test_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv]
-  H_train_conserv[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.train.drop_test_col.conservation.tsv]
-  H_test_conserv[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.test.drop_test_col.conservation.tsv]
-  K_neg_conserv[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv]
-  M_excluded_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.mirfam_sorted.negatives.drop_test_col.conservation.tsv]
+  M_train_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.train.drop_test_col.conservation.tsv]
+  M_test_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.remaining.gene_clusters_added.negatives.test.drop_test_col.conservation.tsv]
+  H_train_conserv[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.train.drop_test_col.conservation.tsv]
+  H_test_conserv[AGO2_CLASH_Hejret23_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.test.drop_test_col.conservation.tsv]
+  K_neg_conserv[AGO2_eCLIP_Klimentova22_full_dataset.filtered.deduplicated.annotated.filtered.gene_clusters_added.negatives.drop_test_col.conservation.tsv]
+  M_excluded_conserv[AGO2_eCLIP_Manakov22.filtered.deduplicated.annotated.filtered.excluded.gene_clusters_added.negatives.drop_test_col.conservation.tsv]
 
   %% Connections
   M --> pp_0

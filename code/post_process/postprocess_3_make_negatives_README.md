@@ -15,7 +15,6 @@ postprocess_2_make_negatives.sh -i input_dir -o output_dir -n intermediate_dir
 ## Pipeline Steps
 
 1. **Clustering**: Refer to ../clustering/README.md
-2. **Sorting by miRNA family**: Sorts TSV file by the 'noncodingRNA_fam' column while preserving header. Automatically finds column position and exits if column not found. Used to prepare data for negative sample generation.
 2. **Generating negatives**: Refer to ../make_neg_sets/README.md
 
 ## Intermediate Files
@@ -24,9 +23,8 @@ postprocess_2_make_negatives.sh -i input_dir -o output_dir -n intermediate_dir
     - FASTA file: `{input_file}.fasta`
     - Clustering output file: `{input_file}.gene_clusters.csv`
     - Input file with cluster ID: `{input_file}.gene_clusters_added.tsv`
-- Sorted File: `{input_file}.mirfam_sorted.tsv`
 
 ## Output Files
 
-- Final file: `{input_filename}.negatives.tsv`
+- Final file: `{input_filename}.gene_clusters_added.negatives.tsv`
 - Log file: `postprocess_2_make_negatives.log`

@@ -36,13 +36,11 @@ fi
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 clustering_dir="$SCRIPT_DIR/../clustering"
 make_negs_dir="$SCRIPT_DIR/../make_neg_sets"
-sort_by_column_dir="$SCRIPT_DIR/../sort_by_column"
 
 # define constants for suffixes with extensions
 GENE_ID_LOOKUP_SUFFIX=".gene_id_lookup"
 CLUSTERING_OUTPUT_SUFFIX=".gene_clusters"
 CLUSTERS_ADDED_SUFFIX=".gene_clusters_added"
-SORTED_SUFFIX=".mirfam_sorted"
 NEG_SUFFIX=".negatives"
 
 for input_file in "$input_dir"/*.tsv; do
@@ -52,8 +50,7 @@ for input_file in "$input_dir"/*.tsv; do
     gene_lookup_file="$intermediate_dir/${base_name}${GENE_ID_LOOKUP_SUFFIX}.tsv"
     clustering_output="$intermediate_dir/${base_name}${CLUSTERING_OUTPUT_SUFFIX}.csv"
     input_file_with_clusters="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}.tsv"
-    mirfam_sorted_file="$intermediate_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${SORTED_SUFFIX}.tsv"
-    neg_output="$output_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${SORTED_SUFFIX}${NEG_SUFFIX}.tsv"
+    neg_output="$output_dir/${base_name}${CLUSTERS_ADDED_SUFFIX}${NEG_SUFFIX}.tsv"
 
     # Step 1: Generating FASTA file
     echo "Generating FASTA file for $input_file..."
@@ -82,18 +79,9 @@ for input_file in "$input_dir"/*.tsv; do
     fi
     echo "Clusters mapped to $input_file. Output saved to $input_file_with_clusters"
 
-    # Step 4: Sort the file based on the noncodingRNA_fam column in preparation for negative sample generation
-    echo "Sorting the input file with added clusters based on the noncodingRNA_fam column..."
-    bash "$sort_by_column_dir/sort_tsv.sh" --input "$input_file_with_clusters" --output "$mirfam_sorted_file" --column noncodingRNA_fam
-    if [ $? -ne 0 ]; then
-        echo "Error sorting $input_file_with_clusters by noncodingRNA_fam"
-        exit 1
-    fi
-    echo "Input file with added clusters sorted by the 'noncodingRNA_fam' column. Output saved to $mirfam_sorted_file"
-
-    # Step 5: Make negatives
-    echo "Generating negatives for $mirfam_sorted_file..."
-    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$mirfam_sorted_file" --ofile "$neg_output"
+    # Step 4: Make negatives directly from the clustered TSV
+    echo "Generating negatives for $input_file_with_clusters..."
+    python3 "$make_negs_dir/make_neg_sets.py" --ifile "$input_file_with_clusters" --ofile "$neg_output"
     if [ $? -ne 0 ]; then
         echo "Error in generating negative samples. Check your script and input file."
         exit 1
