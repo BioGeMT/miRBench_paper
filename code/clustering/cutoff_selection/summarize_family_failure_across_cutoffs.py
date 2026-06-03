@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def parse_cutoff(path: Path) -> float:
-    match = re.search(r"clusters_cutoff_(.+)\.mapped\.sorted\.tsv$", path.name)
+    match = re.search(r"clusters_cutoff_(.+)\.mapped\.tsv$", path.name)
     if not match:
         raise ValueError(f"Could not parse cutoff from filename: {path.name}")
     return float(match.group(1).replace("p", "."))
@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument(
         "--mapped_dir",
         required=True,
-        help="Directory containing clusters_cutoff_*.mapped.sorted.tsv files.",
+        help="Directory containing clusters_cutoff_*.mapped.tsv files.",
     )
     parser.add_argument(
         "--family",
@@ -68,11 +68,11 @@ def main() -> None:
         output_path = Path(args.output_path)
 
     mapped_files = sorted(
-        mapped_dir.glob("clusters_cutoff_*.mapped.sorted.tsv"),
+        mapped_dir.glob("clusters_cutoff_*.mapped.tsv"),
         key=parse_cutoff,
     )
     if not mapped_files:
-        raise FileNotFoundError(f"No mapped sorted files found in {mapped_dir}")
+        raise FileNotFoundError(f"No mapped files found in {mapped_dir}")
 
     rows = [summarize_family_for_file(path, args.family) for path in mapped_files]
     summary_df = pd.DataFrame(rows).sort_values("cutoff").reset_index(drop=True)
