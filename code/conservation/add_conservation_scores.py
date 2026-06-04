@@ -7,11 +7,17 @@ import warnings
 
 def read_input(input_file):
     # Read input data from a file or stdin.
+    dtypes = {
+        "chr": str,
+        "read_start_in_sel_tx_1based": "Int64",
+        "read_end_in_sel_tx_1based": "Int64",
+    }
+
     try:
         if input_file:
-            data = pd.read_csv(input_file, sep='\t', dtype={'chr': str})
+            data = pd.read_csv(input_file, sep='\t', dtype=dtypes)
         else:
-            data = pd.read_csv(sys.stdin, sep='\t', low_memory=False)
+            data = pd.read_csv(sys.stdin, sep='\t', dtype=dtypes, low_memory=False)
     
     except Exception as e:
         warnings.warn(f"Error reading input data: {e}", category=UserWarning)
