@@ -1,10 +1,10 @@
-# postprocess_6_genomic_region_annotation_README
+# postprocess_1_genomic_region_annotation_README
 
 ## Usage
 
 Can be submitted to SLURM workload manager with `sbatch` or:
 ```bash
-postprocess_6_genomic_region_annotation.sh -i input_dir -o output_dir
+postprocess_1_genomic_region_annotation.sh -i input_dir -o output_dir
 ```
 
 ### Parameters
