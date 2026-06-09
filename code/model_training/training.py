@@ -112,33 +112,15 @@ def plot_history(history, size):
 
 
 class DataGenerator(Sequence):
-    def __init__(self, data_path, labels_path, dataset_size, batch_size, validation_split=0.1, is_validation=False, shuffle=True):
+    def __init__(self, data_path, labels_path, dataset_size, batch_size, indices, shuffle=True):
         # preload the encoded numpy data
         # the dataset size is needed to properly load the numpy files
-        self.size = dataset_size
-            
+        self.size = dataset_size        
         self.data = np.memmap(data_path, dtype='float32', mode='r', shape=(self.size, 50, 20, 1))
         self.labels = np.memmap(labels_path, dtype='float32', mode='r', shape=(self.size,))
         self.batch_size = batch_size
+        self.indices = np.array(indices)
         self.shuffle = shuffle
-        
-        # Determine number of train and validation samples
-        self.validation_split = validation_split
-        self.num_samples = len(self.data)
-        self.num_validation_samples = int(self.num_samples * validation_split)
-        self.num_train_samples = self.num_samples - self.num_validation_samples
-        
-        # Determine indices for validation and training
-        indices = np.arange(self.num_samples)
-        if shuffle:
-            np.random.shuffle(indices)
-        
-        if is_validation:
-            self.indices = indices[self.num_train_samples:]
-        else:
-            self.indices = indices[:self.num_train_samples]
-        
-        # Shuffle the data initially
         self.on_epoch_end()
 
     def __len__(self):
@@ -165,11 +147,43 @@ def train_model(data, labels, dataset_size, ratio, model_file, debug=False):
     np.random.seed(42)
     tf.random.set_seed(42)
     os.environ['TF_DETERMINISTIC_OPS'] = '1'
+    
+    validation_split = 0.1
+    batch_size = 32
 
-    train_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=False)
-    val_data_gen = DataGenerator(data, labels, dataset_size, batch_size=32, validation_split=0.1, is_validation=True)
+    indices = np.arange(dataset_size)
+    np.random.shuffle(indices)
+
+    num_validation_samples = int(dataset_size * validation_split)
+    num_train_samples = dataset_size - num_validation_samples
+
+    train_indices = indices[:num_train_samples]
+    val_indices = indices[num_train_samples:]
+
+    overlap = set(train_indices) & set(val_indices)
+    assert len(overlap) == 0, \
+        f"Train/validation leakage detected: {len(overlap)} overlapping samples."    
+
+    train_data_gen = DataGenerator(
+        data_path=data,
+        labels_path=labels,
+        dataset_size=dataset_size,
+        batch_size=batch_size,
+        indices=train_indices,
+        shuffle=True
+    )
+
+    val_data_gen = DataGenerator(
+        data_path=data,
+        labels_path=labels,
+        dataset_size=dataset_size,
+        batch_size=batch_size,
+        indices=val_indices,
+        shuffle=False
+    )
 
     model = compile_model()
+
     model_history = model.fit(
         train_data_gen,
         validation_data=val_data_gen,
@@ -190,7 +204,7 @@ def main():
     parser.add_argument('--labels', type=str, required=True, help="File with the dataset labels")
     parser.add_argument('--dataset_size', type=int, required=True, help="Number of samples in the dataset. Needed to properly load the numpy files.")
     parser.add_argument('--model', type=str, required=False, help="Filename to save the trained model")
-    parser.add_argument('--debug', type=bool, default=False, help="Set to True to output some plots about training")
+    parser.add_argument('--debug', action='store_true', help="Output training plots")
     args = parser.parse_args()
 
     if args.model is None:
